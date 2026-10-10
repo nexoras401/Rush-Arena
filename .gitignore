@@ -1,0 +1,30 @@
+# Environment variables and secrets
+.env*
+.env
+.env.local
+.env.production
+
+# Vercel and build artifacts
+.vercel/
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Local SQLite databases
+data/*.sqlite3*
+*.sqlite3*
+*.db
+
+# Scratch and temporary scripts
+scratch/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

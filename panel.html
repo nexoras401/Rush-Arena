@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Portal de Gestão — Rush Arena</title>
+  <style>
+    :root{color-scheme:dark;--bg:#070a08;--card:#111713;--line:#263129;--green:#39df5c;--muted:#8d9990}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 78% 5%,#12351d 0,transparent 34%),linear-gradient(145deg,#070a08,#0b110d);color:#f5f8f5;font:14px Inter,system-ui,sans-serif}.shell{width:min(100%,1020px);display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden;border:1px solid var(--line);border-radius:26px;background:#0d120f;box-shadow:0 40px 110px #000b}.intro{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:610px;padding:44px;background:linear-gradient(145deg,rgba(31,85,43,.72),rgba(9,20,12,.92)),url('uploads/platform/rush-arena-logo.png?v=20261007') center/380px no-repeat}.brand{display:flex;align-items:center;gap:14px}.brand img{width:64px;height:64px;object-fit:contain}.brand strong{display:block;font-size:22px}.brand small{color:#82ee92}.intro h1{max-width:500px;margin:0;font-size:44px;line-height:1.03}.intro p{max-width:470px;color:#bdc8bf;font-size:16px;line-height:1.6}.trust{display:flex;gap:10px;flex-wrap:wrap}.trust span{padding:8px 11px;border:1px solid #ffffff20;border-radius:30px;background:#ffffff0b;color:#c5d0c7;font-size:11px;font-weight:800}.login{padding:44px;align-self:center}.eyebrow{color:var(--green);font-size:11px;font-weight:950;letter-spacing:.14em;text-transform:uppercase}.login h2{margin:9px 0 7px;font-size:30px}.login>p{margin:0 0 25px;color:var(--muted)}label{display:grid;gap:7px;margin:15px 0;color:#a7b0aa;font-size:11px;font-weight:900;text-transform:uppercase}input{width:100%;min-height:52px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;outline:0;color:#fff;background:#090d0a;font:inherit}input:focus{border-color:var(--green);box-shadow:0 0 0 3px #39df5c15}button{width:100%;min-height:52px;border:0;border-radius:11px;color:#061008;background:linear-gradient(#50ed70,#27bd47);font-weight:950;cursor:pointer}.status{min-height:22px;margin:13px 0 0;color:#ff939e;text-align:center;font-weight:750}.setup{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}.setup summary{color:#9da7a0;cursor:pointer;font-weight:800}.setup p{color:#778179;font-size:12px;line-height:1.5}.setup button{background:#1b241d;color:#cbd3cd;border:1px solid #344038}.hidden{display:none!important}@media(max-width:760px){body{padding:10px}.shell{grid-template-columns:1fr}.intro{min-height:260px;padding:27px}.intro h1{font-size:31px}.intro p{font-size:14px}.login{padding:28px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="intro"><div class="brand"><img src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena"><div><strong>Rush Gestão</strong><small>Portal local protegido</small></div></div><div><h1>Uma entrada.<br>O painel certo.</h1><p>O sistema identifica o perfil automaticamente. Administradores controlam a operação; influenciadores acessam somente seus próprios resultados.</p></div><div class="trust"><span>ACESSO POR FUNÇÃO</span><span>DADOS SEGREGADOS</span><span>AMBIENTE LOCAL</span></div></section>
+    <section class="login"><span class="eyebrow">Acesso ao painel</span><h2>Bem-vindo</h2><p>Use o login fornecido para sua função.</p><form id="loginForm"><label>Login<input name="login" autocomplete="username" required></label><label>Senha<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Entrar com segurança</button><div class="status" id="status" aria-live="polite"></div></form><details class="setup" id="setup"><summary>Primeiro acesso do administrador</summary><p>Crie o acesso principal deste navegador. Depois disso, esta opção será ocultada.</p><form id="setupForm"><label>Nome do administrador<input name="name" required minlength="2" value="Administrador"></label><label>Login administrativo<input name="login" required minlength="4" value="admin"></label><label>Nova senha<input name="password" type="password" required minlength="8" autocomplete="new-password"></label><button type="submit">Criar acesso administrativo</button><div class="status" id="setupStatus"></div></form></details></section>
+  </main>
+  <script>
+  (function(){'use strict';
+    const keys={admin:'rushArenaLocalAdminAccess',influencers:'rushArenaLocalInfluencerAccess',panelSession:'rushArenaLocalPanelSession',legacyInfluencer:'rushArenaLocalInfluencerSession'};
+    const live=!['localhost','127.0.0.1'].includes(location.hostname);
+    if(live){
+      document.getElementById('setup').hidden=true;
+      document.getElementById('loginForm').addEventListener('submit',async event=>{
+        event.preventDefault();event.stopImmediatePropagation();
+        const data=new FormData(event.currentTarget);const status=document.getElementById('status');
+        try{
+          const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:String(data.get('login')||'').trim(),password:String(data.get('password')||'')})});
+          const result=await response.json();if(!response.ok)throw new Error(result.error||'Login inválido');
+          const profileResponse=await fetch('/api/me',{headers:{Authorization:'Bearer '+result.token}});const profile=await profileResponse.json();
+          if(!profileResponse.ok||profile.role!=='admin')throw new Error('Acesso permitido somente para administradores.');
+          localStorage.setItem('rushArenaApiToken',result.token);location.replace('admin.html?view=dashboard');
+        }catch(error){status.textContent=error.message||'Login ou senha inválidos.'}
+      },true);
+    }
+    const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch(error){return fallback}};
+    const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+    const hex=bytes=>Array.from(bytes,value=>value.toString(16).padStart(2,'0')).join('');
+    async function hash(password,salt){const value=new TextEncoder().encode(String(salt)+':'+String(password));return hex(new Uint8Array(await crypto.subtle.digest('SHA-256',value)))}
+    function refreshSetup(){document.getElementById('setup').classList.toggle('hidden',Boolean(read(keys.admin,null)))}
+    document.getElementById('setupForm').addEventListener('submit',async event=>{event.preventDefault();if(read(keys.admin,null)){refreshSetup();return}const data=new FormData(event.currentTarget);const password=String(data.get('password')||'');const login=String(data.get('login')||'').trim().toLowerCase();if(password.length<8||login.length<4)return;const salt=hex(crypto.getRandomValues(new Uint8Array(16)));write(keys.admin,{id:'admin_local',role:'admin',name:String(data.get('name')||'Administrador').trim(),login,salt,passwordHash:await hash(password,salt),createdAt:new Date().toISOString()});document.getElementById('setupStatus').style.color='#70e986';document.getElementById('setupStatus').textContent='Acesso criado. Entre acima.';event.currentTarget.reset();setTimeout(refreshSetup,900)});
+    document.getElementById('loginForm').addEventListener('submit',async event=>{event.preventDefault();const data=new FormData(event.currentTarget);const login=String(data.get('login')||'').trim().toLowerCase();const password=String(data.get('password')||'');const status=document.getElementById('status');const admin=read(keys.admin,null);if(admin&&String(admin.login).toLowerCase()===login&&await hash(password,admin.salt)===admin.passwordHash){write(keys.panelSession,{role:'admin',id:admin.id,name:admin.name,login:admin.login,loggedAt:new Date().toISOString()});location.replace('admin.html?view=dashboard');return}const influencer=read(keys.influencers,[]).find(item=>item.active!==false&&String(item.login).toLowerCase()===login);if(influencer&&await hash(password,influencer.salt)===influencer.passwordHash){const session={role:'influencer',id:influencer.id,name:influencer.name,login:influencer.login,referralCode:influencer.referralCode,loggedAt:new Date().toISOString()};write(keys.panelSession,session);write(keys.legacyInfluencer,session);location.replace('influencer-panel.html?tab=overview');return}status.textContent='Login ou senha inválidos.'});
+    refreshSetup();
+  }());
+  </script>
+</body>
+</html>

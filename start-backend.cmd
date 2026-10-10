@@ -1,0 +1,8 @@
+@echo off
+set RUSH_HOST=127.0.0.1
+set RUSH_PORT=8766
+if "%RUSH_WEBHOOK_SECRET%"=="" set RUSH_WEBHOOK_SECRET=local-sandbox-change-me
+rem VulcanoPay (preferencial): VULCANO_API_KEY e VULCANO_WEBHOOK_SECRET
+rem Configure fora deste arquivo: ZORYX_API_TOKEN, ZORYX_WEBHOOK_SECRET e RUSH_PUBLIC_BASE_URL
+rem MisticPay: MISTIC_CLIENT_ID, MISTIC_CLIENT_SECRET, MISTIC_WEBHOOK_SECRET e RUSH_PUBLIC_BASE_URL
+py -3 backend.py

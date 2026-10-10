@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conta de teste — Rush Arena</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            color: #fff;
+            background: radial-gradient(circle at top, #27213f, #09090c 68%);
+            font: 16px/1.45 system-ui, sans-serif;
+        }
+        main {
+            width: min(100%, 440px);
+            padding: 28px;
+            border: 1px solid #39334d;
+            border-radius: 22px;
+            background: #17151f;
+            box-shadow: 0 24px 70px #0009;
+        }
+        h1 { margin: 0 0 8px; font-size: 30px; }
+        p { margin: 0 0 22px; color: #c8c3d4; }
+        label { display: grid; gap: 7px; margin-top: 16px; font-weight: 700; }
+        input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #49425f;
+            border-radius: 11px;
+            color: #fff;
+            background: #0e0d13;
+            font: inherit;
+        }
+        button, a {
+            min-height: 48px;
+            border-radius: 11px;
+            font-weight: 800;
+        }
+        button {
+            width: 100%;
+            margin-top: 22px;
+            border: 0;
+            color: #07110a;
+            background: #39dc68;
+            cursor: pointer;
+        }
+        a {
+            display: grid;
+            place-items: center;
+            margin-top: 10px;
+            color: #d8d3e4;
+            text-decoration: none;
+        }
+        small { display: block; margin-top: 16px; color: #9c95aa; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Conta de teste</h1>
+        <p>Esta conta existe somente neste navegador e não envia dados para nenhum servidor.</p>
+        <form id="testAccountForm">
+            <label>
+                Nome de teste
+                <input type="text" name="name" value="Usuário teste" maxlength="60" required>
+            </label>
+            <label>
+                E-mail de teste
+                <input type="email" name="email" value="teste@local.dev" required>
+            </label>
+            <label>
+                Telefone de teste
+                <input type="tel" name="phone" value="(11) 90000-0000" maxlength="20" required>
+            </label>
+            <label>
+                CPF de teste
+                <input type="text" name="cpf" value="000.000.000-00" maxlength="14" required>
+            </label>
+            <label>
+                Senha de teste
+                <input type="password" name="password" value="Teste123!" minlength="6" required>
+            </label>
+            <button type="submit">Criar conta de teste e entrar</button>
+        </form>
+        <a href="/">Voltar ao site</a>
+        <small>Use somente dados fictícios. A senha é usada apenas para validar o formulário e não é armazenada.</small>
+    </main>
+    <script>
+        document.getElementById('testAccountForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const data = new FormData(event.currentTarget);
+            const email = data.get('email');
+            const maskPhone = function (value) { const digits = String(value || '').replace(/\D/g, ''); return digits.length > 4 ? '(**) *****-' + digits.slice(-4) : 'Não informado'; };
+            const maskCpf = function (value) { const digits = String(value || '').replace(/\D/g, ''); return digits.length === 11 ? '***.***.***-' + digits.slice(-2) : 'Não informado'; };
+            const validateCpf = function (value) {
+                const digits = String(value || '').replace(/\D/g, '');
+                if (digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) return false;
+                const calculate = function (length) {
+                    let total = 0;
+                    for (let index = 0; index < length; index += 1) total += Number(digits[index]) * (length + 1 - index);
+                    const remainder = (total * 10) % 11;
+                    return remainder === 10 ? 0 : remainder;
+                };
+                return calculate(9) === Number(digits[9]) && calculate(10) === Number(digits[10]);
+            };
+            const rawCpf = data.get('cpf');
+            const account = {
+                name: String(data.get('name') || 'Usuário teste'),
+                email: String(email || 'teste@local.dev'),
+                phoneMasked: maskPhone(data.get('phone')),
+                cpfMasked: maskCpf(rawCpf),
+                cpfStatus: validateCpf(rawCpf) ? 'valid_format' : 'invalid',
+                createdAt: new Date().toISOString(),
+                testAccount: true
+            };
+
+            // Mantém a carteira e os dados Pix separados por conta. A interface
+            // continua usando as chaves legadas da conta ativa, mas elas são
+            // arquivadas/restauradas sempre que o usuário troca de e-mail.
+            const readJson = function (key, fallback) {
+                try { return JSON.parse(localStorage.getItem(key) || 'null') || fallback; }
+                catch (error) { return fallback; }
+            };
+            const previousSession = readJson('rushArenaLocalTestSession', {});
+            const walletsByEmail = readJson('rushArenaLocalWalletsByEmail', {});
+            const previousEmail = String(previousSession.email || '').trim().toLowerCase();
+            const nextEmail = account.email.trim().toLowerCase();
+            if (previousEmail) {
+                walletsByEmail[previousEmail] = readJson('rushArenaLocalTestWallet', { balance: 0, transactions: [] });
+            }
+            localStorage.setItem('rushArenaLocalWalletsByEmail', JSON.stringify(walletsByEmail));
+            localStorage.setItem('rushArenaLocalTestWallet', JSON.stringify(
+                walletsByEmail[nextEmail] || { balance: 0, transactions: [] }
+            ));
+
+            const pixProfiles = readJson('rushArenaLocalPixProfiles', {});
+            const targetPix = pixProfiles[nextEmail];
+            if (targetPix && targetPix.pixKey) {
+                localStorage.setItem('rushArenaLocalWithdrawProfile', JSON.stringify({
+                    pixType: targetPix.pixType || 'CPF',
+                    pixKey: targetPix.pixKey,
+                    updatedAt: targetPix.updatedAt || new Date().toISOString()
+                }));
+            } else {
+                localStorage.removeItem('rushArenaLocalWithdrawProfile');
+            }
+            localStorage.setItem('rushArenaLocalTestSession', JSON.stringify(account));
+            let accounts = [];
+            try { accounts = JSON.parse(localStorage.getItem('rushArenaLocalAccounts') || '[]'); } catch (error) { accounts = []; }
+            const existingIndex = accounts.findIndex(function (item) { return String(item.email).toLowerCase() === account.email.toLowerCase(); });
+            const registryAccount = Object.assign({}, account, { passwordStatus: 'Protegida', demoBalance: 0, lastLoginAt: new Date().toISOString() });
+            if (existingIndex >= 0) accounts[existingIndex] = Object.assign({}, accounts[existingIndex], registryAccount);
+            else accounts.unshift(registryAccount);
+            localStorage.setItem('rushArenaLocalAccounts', JSON.stringify(accounts));
+            const next = new URLSearchParams(window.location.search).get('next');
+            window.location.href = next === 'deposit' ? '/deposit-v2.html' : '/';
+        });
+    </script>
+<script src="/production-api.js?v=1" defer></script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Indicações — Rush Arena</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; color: #fff; background: #06130a url("uploads/platform/rush-arena-banner-01.png") center/cover fixed no-repeat; font: 700 16px/1.4 system-ui, sans-serif; }
+        body::before { content: ""; position: fixed; inset: 0; background: rgba(1,9,4,.86); backdrop-filter: blur(6px); }
+        .page { position: relative; z-index: 1; width: min(100% - 28px, 980px); margin: 0 auto; padding: 28px 0 50px; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+        .logo { width: min(210px, 48vw); }
+        .back { padding: 12px 18px; border: 1px solid #48634b; border-radius: 12px; color: #fff; background: #1d2b20; text-decoration: none; }
+        .hero, .panel { border: 1px solid rgba(92,190,104,.38); border-radius: 24px; background: linear-gradient(180deg,rgba(39,54,41,.97),rgba(15,24,17,.98)); box-shadow: 0 20px 60px #0008; }
+        .hero { padding: clamp(24px,5vw,46px); text-align: center; }
+        .hero-icon { font-size: 52px; }
+        h1 { margin: 8px 0 10px; font-size: clamp(34px,7vw,54px); line-height: 1.05; }
+        .hero p { max-width: 680px; margin: 0 auto; color: #cfdbd1; font-size: 18px; }
+        .rate { display: inline-block; margin-top: 17px; padding: 9px 15px; border-radius: 999px; color: #112314; background: #69ec79; font-weight: 900; }
+        .link-box { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 24px; }
+        #referralLink { min-width: 0; padding: 15px; border: 1px solid #3f7147; border-radius: 13px; color: #fff; background: #0d1b10; font-size: 15px; }
+        #copyButton { padding: 0 22px; border: 0; border-radius: 13px; color: #fff; background: #28bc43; cursor: pointer; font-weight: 900; }
+        #copyStatus { min-height: 22px; margin: 9px 0 0; color: #8df09b; }
+        .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin: 18px 0; }
+        .stat { padding: 22px; border: 1px solid #334d37; border-radius: 18px; background: #142018; }
+        .stat span { display: block; color: #aebdb0; font-size: 14px; }
+        .stat strong { display: block; margin-top: 7px; color: #7df28b; font-size: 28px; }
+        .panel { padding: 24px; }
+        .panel h2 { margin: 0 0 16px; }
+        .history { display: grid; gap: 10px; }
+        .history-item { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 15px; border-radius: 14px; background: #101a12; }
+        .history-item small { display: block; color: #91a295; }
+        .history-item strong { color: #75ee84; }
+        .empty { padding: 28px; color: #9eada1; text-align: center; }
+        .notice { margin: 18px 0 0; color: #c6a85f; text-align: center; font-size: 13px; }
+        @media (max-width: 650px) { .link-box { grid-template-columns: 1fr; } #copyButton { min-height: 52px; } .stats { grid-template-columns: 1fr; } .topbar { align-items: flex-start; } }
+    </style>
+</head>
+<style>
+    .influencer-withdraw form{display:grid;gap:13px;margin-top:16px}.influencer-withdraw label{display:grid;gap:7px;color:#9eaaa1;font-size:12px;font-weight:800;text-transform:uppercase}.influencer-withdraw input{min-height:50px;padding:12px 14px;border:1px solid #2b3b2e;border-radius:12px;outline:0;color:#fff;background:#111713;font:inherit}.influencer-withdraw input:focus{border-color:#42d65b}.influencer-withdraw button{min-height:52px;border:0;border-radius:12px;color:#061009;background:#3bd357;font-size:15px;font-weight:900;cursor:pointer}.influencer-withdraw strong{color:#5ce771}.influencer-withdraw #withdrawStatus{min-height:20px;margin:0;color:#d4b46f;font-weight:800;text-align:center}
+</style>
+<body>
+    <main class="page">
+        <header class="topbar"><img class="logo" src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena"><a class="back" href="/">Voltar</a></header>
+        <section class="hero">
+            <div class="hero-icon">🤝</div>
+            <h1 id="referralTitle">Indique e ganhe</h1>
+            <p>Compartilhe seu link. Quando um usuário indicado fizer um depósito de teste, você recebe uma comissão sobre o valor depositado.</p>
+            <span class="rate" id="referralRate">10% de comissão por depósito</span>
+            <div class="link-box"><input id="referralLink" readonly aria-label="Seu link de indicação"><button id="copyButton" type="button">Copiar link</button></div>
+            <p id="copyStatus" aria-live="polite"></p>
+        </section>
+        <section class="stats">
+            <div class="stat"><span>Comissão disponível</span><strong id="commissionBalance">R$ 0,00</strong></div>
+            <div class="stat"><span>Usuários indicados</span><strong id="referredUsers">0</strong></div>
+            <div class="stat"><span>Depósitos gerados</span><strong id="generatedDeposits">R$ 0,00</strong></div>
+        </section>
+        <section class="panel"><h2>Histórico de comissões</h2><div class="history" id="history"></div></section>
+        <section class="panel influencer-withdraw" id="influencerWithdrawPanel" hidden><h2>Sacar comissão</h2><p>O saque mínimo da comissão é de <strong>R$ 30,00</strong>.</p><form id="commissionWithdrawForm"><label>Chave Pix<input id="commissionPixKey" name="pixKey" required minlength="3" maxlength="120" autocomplete="off" placeholder="Digite sua chave Pix"></label><label>Valor do saque<input id="commissionWithdrawAmount" name="amount" type="number" min="30" step="0.01" required placeholder="Mínimo R$ 30,00"></label><button type="submit">Solicitar saque de teste</button><p id="withdrawStatus" aria-live="polite"></p></form></section>
+        <p class="notice">Ambiente local de demonstração. Links, depósitos e comissões são simulados neste navegador.</p>
+    </main>
+    <script>
+        (function () {
+            const live = !['localhost', '127.0.0.1'].includes(location.hostname);
+            const money = value => Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            if (live) {
+                const token = localStorage.getItem('rushArenaApiToken') || '';
+                if (!token) { location.replace('/?login=1'); return; }
+
+                document.querySelectorAll('.notice').forEach(n => n.hidden = true);
+
+                async function loadLiveOverview() {
+                    try {
+                        const res = await fetch('/api/influencer/overview', {
+                            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }
+                        });
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || 'Erro ao carregar dados.');
+
+                        const link = location.origin + '/?ref=' + encodeURIComponent(data.referralCode);
+                        document.getElementById('referralLink').value = link;
+                        document.getElementById('commissionBalance').textContent = money(data.balanceCents / 100);
+                        document.getElementById('referredUsers').textContent = String(data.totalReferredUsers || 0);
+                        document.getElementById('generatedDeposits').textContent = money(data.totalDepositsCents / 100);
+                        document.getElementById('referralRate').textContent = data.commissionRate + '% de comissão por depósito';
+
+                        if (data.commissionRate >= 20 || data.balanceCents >= 2000) {
+                            document.getElementById('influencerWithdrawPanel').hidden = false;
+                        }
+
+                        const history = document.getElementById('history');
+                        const items = Array.isArray(data.history) ? data.history : [];
+                        if (!items.length) {
+                            history.innerHTML = '<div class="empty">Nenhuma comissão registrada ainda. Compartilhe seu link para começar.</div>';
+                        } else {
+                            history.innerHTML = items.map(function (item) {
+                                const isWithdrawal = item.kind === 'withdrawal_hold';
+                                const isRefund = item.kind === 'withdrawal_refund';
+                                const sign = isWithdrawal ? '-' : '+';
+                                const color = isWithdrawal ? '#ff8c96' : '#75ee84';
+                                const title = isWithdrawal ? 'Saque de comissão' : (isRefund ? 'Estorno de saque' : 'Comissão de indicação');
+                                return '<div class="history-item"><div>' + title + '<small>' + new Date(item.created_at).toLocaleString('pt-BR') + '</small></div><strong style="color:' + color + '">' + sign + money(Math.abs(item.amount_cents) / 100) + '</strong></div>';
+                            }).join('');
+                        }
+
+                        document.getElementById('copyButton').onclick = async function () {
+                            try {
+                                await navigator.clipboard.writeText(link);
+                                document.getElementById('copyStatus').textContent = 'Link copiado!';
+                            } catch (_) {
+                                document.getElementById('referralLink').select();
+                                document.execCommand('copy');
+                                document.getElementById('copyStatus').textContent = 'Link copiado!';
+                            }
+                        };
+
+                        document.getElementById('commissionWithdrawForm').onsubmit = async function (e) {
+                            e.preventDefault();
+                            const amount = Number(document.getElementById('commissionWithdrawAmount').value || 0);
+                            const pixKey = String(document.getElementById('commissionPixKey').value || '').trim();
+                            const status = document.getElementById('withdrawStatus');
+                            status.textContent = 'Enviando solicitação...';
+                            try {
+                                const withdrawRes = await fetch('/api/influencer/withdraw', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                                    body: JSON.stringify({ amountCents: Math.round(amount * 100), pixKey, pixType: 'random' })
+                                });
+                                const withdrawBody = await withdrawRes.json();
+                                if (!withdrawRes.ok) throw new Error(withdrawBody.error || 'Erro ao solicitar saque.');
+                                status.textContent = 'Saque solicitado com sucesso e enviado para análise.';
+                                setTimeout(loadLiveOverview, 1000);
+                            } catch (err) {
+                                status.textContent = err.message;
+                            }
+                        };
+                    } catch (err) {
+                        document.getElementById('copyStatus').textContent = err.message;
+                    }
+                }
+                loadLiveOverview();
+                return;
+            }
+
+            let account = null; let ledger = {};
+            const influencerMode = new URLSearchParams(location.search).get('mode') === 'influencer';
+            try { account = JSON.parse(localStorage.getItem('rushArenaLocalTestSession') || 'null'); } catch (error) { account = null; }
+            if (!account) { location.replace('/test-account.html'); return; }
+            function codeFor(email) { let hash = 0; String(email || '').toLowerCase().split('').forEach(function (char) { hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0; }); return 'RUSH-' + Math.abs(hash).toString(36).toUpperCase().padStart(6, '0').slice(0, 8); }
+            function money(value) { return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+            try { ledger = JSON.parse(localStorage.getItem('rushArenaLocalReferralLedger') || '{}') || {}; } catch (error) { ledger = {}; }
+            const code = codeFor(account.email); const profile = ledger[code] || { commissionBalance: 0, totalCommission: 0, totalDeposits: 0, referredUsers: [], transactions: [], withdrawals: [], commissionRate: 10, isInfluencer: false };
+            profile.ownerEmail = account.email;
+            profile.ownerName = account.name || String(account.email).split('@')[0];
+            if (influencerMode) {
+                profile.commissionRate = 30;
+                profile.isInfluencer = true;
+                document.getElementById('referralTitle').textContent = 'Painel do influenciador';
+                document.getElementById('referralRate').textContent = '30% de comissão por depósito';
+                document.getElementById('influencerWithdrawPanel').hidden = false;
+            } else if (!profile.isInfluencer) {
+                profile.commissionRate = 10;
+            }
+            if (!Array.isArray(profile.withdrawals)) profile.withdrawals = [];
+            if (!Array.isArray(profile.transactions)) profile.transactions = [];
+            ledger[code] = profile;
+            localStorage.setItem('rushArenaLocalReferralLedger', JSON.stringify(ledger));
+            const link = location.origin + '/?ref=' + encodeURIComponent(code);
+            document.getElementById('referralLink').value = link;
+            document.getElementById('commissionBalance').textContent = money(profile.commissionBalance);
+            document.getElementById('referredUsers').textContent = String((profile.referredUsers || []).length);
+            document.getElementById('generatedDeposits').textContent = money(profile.totalDeposits);
+            const history = document.getElementById('history'); const items = profile.transactions || [];
+            if (!items.length) history.innerHTML = '<div class="empty">Nenhuma comissão registrada ainda. Compartilhe seu link para começar.</div>';
+            items.forEach(function (item) { const row = document.createElement('div'); row.className = 'history-item'; if (item.type === 'influencer_withdrawal') { row.innerHTML = '<div>Saque de comissão<small>Solicitação de teste • ' + new Date(item.createdAt).toLocaleString('pt-BR') + '</small></div><strong style="color:#ff8c96">-' + money(item.amount) + '</strong>'; } else { row.innerHTML = '<div>' + String(item.user || 'Usuário indicado').replace(/^(.{2}).*(@.*)$/, '$1***$2') + '<small>Depósito de ' + money(item.deposit) + ' • ' + new Date(item.createdAt).toLocaleString('pt-BR') + '</small></div><strong>+' + money(item.commission) + '</strong>'; } history.appendChild(row); });
+            document.getElementById('copyButton').addEventListener('click', async function () { try { await navigator.clipboard.writeText(link); document.getElementById('copyStatus').textContent = 'Link copiado!'; } catch (error) { document.getElementById('referralLink').select(); document.execCommand('copy'); document.getElementById('copyStatus').textContent = 'Link copiado!'; } });
+            document.getElementById('commissionWithdrawForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                if (!profile.isInfluencer) return;
+                const amount = Number(document.getElementById('commissionWithdrawAmount').value || 0);
+                const pixKey = String(document.getElementById('commissionPixKey').value || '').trim();
+                const status = document.getElementById('withdrawStatus');
+                if (amount < 30) { status.textContent = 'O saque mínimo é de R$ 30,00.'; return; }
+                if (amount > Number(profile.commissionBalance || 0)) { status.textContent = 'Saldo de comissão insuficiente.'; return; }
+                profile.commissionBalance = Math.round((Number(profile.commissionBalance || 0) - amount) * 100) / 100;
+                const withdrawal = { type: 'influencer_withdrawal', amount: amount, pixKeyMasked: pixKey.length > 7 ? pixKey.slice(0, 3) + '••••' + pixKey.slice(-3) : '••••' + pixKey.slice(-2), status: 'simulated', createdAt: new Date().toISOString() };
+                profile.withdrawals.unshift(withdrawal);
+                profile.transactions.unshift(withdrawal);
+                ledger[code] = profile;
+                localStorage.setItem('rushArenaLocalReferralLedger', JSON.stringify(ledger));
+                status.textContent = 'Saque de comissão registrado na simulação.';
+                window.setTimeout(function () { window.location.reload(); }, 700);
+            });
+        }());
+    </script>
+</body>
+</html>

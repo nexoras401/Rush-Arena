@@ -1,0 +1,2960 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#171717">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Rush Arena</title>
+    <meta name="description" content="">
+    <link rel="icon" href="uploads/platform/rush-arena-logo.png?v=20261007">
+    <link rel="shortcut icon" href="uploads/platform/rush-arena-logo.png?v=20261007">
+    <link rel="apple-touch-icon" href="uploads/platform/rush-arena-logo.png?v=20261007">
+                                <link rel="preload" as="image" href="uploads/platform/rush-arena-banner-01.png?v=20261007" media="(min-width: 768px)" fetchpriority="high">
+                            <link rel="preload" as="image" href="uploads/platform/rush-arena-banner-01.png?v=20261007" media="(max-width: 767px)" fetchpriority="high">
+    <link rel="stylesheet" href="arquivos/home-retro.css?v=20261007-7">
+    <style id="halloween-home-cards">
+/* Decorative local preview only. The featured/Subway card never gets this class. */
+.game-card--halloween-muted:not(.game-card--featured)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    border-radius: inherit;
+    /* 40% black over the existing artwork/text, with cobwebs above the shade. */
+    background-color: rgba(0, 0, 0, .4);
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20preserveAspectRatio%3D%22none%22%20viewBox%3D%220%200%20200%20260%22%20fill%3D%22none%22%3E%3Cdefs%3E%3Cg%20id%3D%22web%22%20stroke%3D%22%23e9e5ec%22%20stroke-width%3D%22.85%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M0%200L132%200M0%200L125.54%2040.79M0%200L106.79%2077.59M0%200L77.59%20106.79M0%200L40.79%20125.54M0%200L0%20132%22%2F%3E%3Cpath%20d%3D%22M23%200Q17.72%202.81%2021.87%207.11Q15.98%208.14%2018.61%2013.52Q12.69%2012.69%2013.52%2018.61Q8.14%2015.98%207.11%2021.87Q2.81%2017.72%200%2023M44%200Q33.9%205.37%2041.85%2013.6Q30.58%2015.58%2035.6%2025.86Q24.27%2024.27%2025.86%2035.6Q15.58%2030.58%2013.6%2041.85Q5.37%2033.9%200%2044M68%200Q52.39%208.3%2064.67%2021.01Q47.26%2024.08%2055.01%2039.97Q37.5%2037.5%2039.97%2055.01Q24.08%2047.26%2021.01%2064.67Q8.3%2052.39%200%2068M95%200Q73.19%2011.59%2090.35%2029.36Q66.02%2033.64%2076.86%2055.84Q52.4%2052.4%2055.84%2076.86Q33.64%2066.02%2029.36%2090.35Q11.59%2073.19%200%2095M124%200Q95.53%2015.13%20117.93%2038.32Q86.18%2043.91%20100.32%2072.89Q68.39%2068.39%2072.89%20100.32Q43.91%2086.18%2038.32%20117.93Q15.13%2095.53%200%20124%22%2F%3E%3C%2Fg%3E%3C%2Fdefs%3E%3Cuse%20href%3D%22%23web%22%20opacity%3D%22.66%22%2F%3E%3Cuse%20href%3D%22%23web%22%20transform%3D%22translate(200%200)%20scale(-.62%20.62)%22%20opacity%3D%22.48%22%2F%3E%3Cuse%20href%3D%22%23web%22%20transform%3D%22translate(200%20260)%20scale(-.52%20-.52)%22%20opacity%3D%22.4%22%2F%3E%3C%2Fsvg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+</style>
+    <style id="halloween-footer-style">
+/* Local decoration only. Keep the existing upper half, typography and links. */
+.support-footer--halloween .footer-panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+.support-footer--halloween .footer-panel::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 50%;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, #151515 0%, #15151500 70%),
+        radial-gradient(ellipse at 87% 112%, #ad652936 0%, #95532d15 45%, transparent 74%),
+        linear-gradient(115deg, #49334f26, #66382020 67%, #7c431f26);
+}
+.support-footer--halloween .footer-panel > :not(.hw-footer-art) {
+    position: relative;
+    z-index: 1;
+}
+.support-footer--halloween .hw-footer-art {
+    position: absolute;
+    z-index: 0;
+    right: max(108px, calc((100% - 1260px)/2 + 28px));
+    bottom: 24px;
+    width: 140px;
+    height: 140px;
+    pointer-events: none;
+    user-select: none;
+    opacity: .58;
+}
+.hw-footer-art svg { display: block; width: 100%; height: 100%; }
+@media (max-width: 959px) {
+    /* Reserve a quiet bottom corner, clear of both legal text and the FAB. */
+    .support-footer--halloween .footer-panel { padding-bottom: 114px; }
+    .support-footer--halloween .hw-footer-art {
+        width: 80px;
+        height: 80px;
+        right: 108px;
+        bottom: 14px;
+        opacity: .62;
+    }
+}
+</style>
+    <style>
+        body {
+            background-color: #171717;
+            background:
+                radial-gradient(circle at 50% -12%, rgba(34, 197, 94, 0.16), transparent 26%),
+                radial-gradient(circle at 8% 18%, rgba(255, 212, 71, 0.06), transparent 24%),
+                linear-gradient(180deg, #090807 0%, #0a0908 52%, #080706 100%);
+        }
+
+        .page-shell {
+            background-color: #171717;
+            background:
+                radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 28%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0));
+        }
+
+        .top-strip {
+            background:
+                linear-gradient(90deg, #d95708, #ff8a1f),
+                radial-gradient(circle at right, rgba(255, 255, 255, 0.26), transparent 38%);
+        }
+
+        .top-strip-action {
+            color: #8a3b00;
+            box-shadow: 0 6px 16px rgba(116, 43, 0, 0.24);
+        }
+
+        .app-header {
+            background:
+                radial-gradient(circle at left top, rgba(34, 197, 94, 0.09), transparent 40%),
+                linear-gradient(135deg, rgba(31, 122, 69, 0.28), rgba(18, 19, 17, 0.6));
+        }
+
+        .header-register-trigger {
+            background: linear-gradient(180deg, #ff9a2f, #e8660c);
+            color: #fffaf4;
+            box-shadow: 0 7px 16px rgba(232, 102, 12, 0.28);
+        }
+
+        .modal-card--stake-choice .modal-primary,
+        .demo-modal-cta,
+        .register-modal-form .modal-primary--register-original {
+            background: linear-gradient(180deg, #ff9a2f, #e8660c);
+            color: #fffaf4;
+            box-shadow: 0 10px 22px rgba(232, 102, 12, 0.28);
+        }
+
+        .winner-row {
+            border-color: rgba(34, 197, 94, 0.52);
+            background:
+                linear-gradient(90deg, rgba(255, 255, 255, 0.13), transparent 38%),
+                linear-gradient(180deg, #2bc764, #1f7a45);
+            color: #f6fff5;
+        }
+
+        .winner-copy span {
+            color: rgba(246, 255, 245, 0.74);
+        }
+
+        .footer-divider {
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+        }
+
+        .content-stack--affiliate-entry {
+            min-height: 12vh;
+        }
+
+        .support-footer--affiliate-entry {
+            padding-top: 10px;
+            padding-bottom: 26px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <div class="top-strip">
+            <p>Deposite agora e tenha a chance de ganhar até R$50 em saldo extra para usar nas partidas!</p>
+            <a class="top-strip-action" data-local-play-link href="play/?demo_gate=1">Jogar agora</a>
+        </div>
+
+        <header class="app-header">
+            <div class="header-topline">
+                <a class="brand" href="index-2.htm" aria-label="Rush Arena">
+                    <img src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena" decoding="async" fetchpriority="high">
+                </a>
+
+                <div class="header-actions">
+                                            <button type="button" class="account-button" data-open-modal="login">Entrar</button>
+                        <button type="button" class="deposit-button header-register-trigger" data-open-modal="register">Criar conta</button>
+                                    </div>
+            </div>
+
+                    </header>
+
+        <main class="content-stack">
+                            <section class="hero-card">
+                    <div class="hero-banner" data-slider="" data-slider-interval="4000">
+                        <div class="hero-track">
+                                                            <article class="hero-slide is-active">
+                                    <div class="hero-slide-media-frame" data-hero-media-frame=""></div>
+                                    <script type="application/json" class="hero-slide-media-config">{"desktop":{"kind":"image","src":"/uploads/platform/rush-arena-banner-01.png?v=20261007"},"mobile":{"kind":"image","src":"/uploads/platform/rush-arena-banner-01.png?v=20261007"},"fitMode":"cover","alt":"Rush Arena: saque via Pix"}</script>
+                                                                    </article>
+                                                            <article class="hero-slide">
+                                    <div class="hero-slide-media-frame" data-hero-media-frame=""></div>
+                                    <script type="application/json" class="hero-slide-media-config">{"desktop":{"kind":"image","src":"/uploads/platform/rush-arena-banner-02.png?v=20261007"},"mobile":{"kind":"image","src":"/uploads/platform/rush-arena-banner-02.png?v=20261007"},"fitMode":"contain","alt":"Rush Arena: ganhe dinheiro se divertindo"}</script>
+                                                                    </article>
+                                                            <article class="hero-slide">
+                                    <div class="hero-slide-media-frame" data-hero-media-frame=""></div>
+                                    <script type="application/json" class="hero-slide-media-config">{"desktop":{"kind":"image","src":"/uploads/platform/rush-arena-banner-03.png?v=20261007"},"mobile":{"kind":"image","src":"/uploads/platform/rush-arena-banner-03.png?v=20261007"},"fitMode":"cover","alt":"Rush Arena: especial de Halloween"}</script>
+                                                                    </article>
+                                                    </div>
+                        <div class="hero-arrows" aria-hidden="true">
+                            <button type="button" class="hero-arrow" data-direction="-1">‹</button>
+                            <button type="button" class="hero-arrow" data-direction="1">›</button>
+                        </div>
+                        <div class="hero-dots" aria-hidden="true">
+                                                            <button type="button" class="is-active" data-slide-index="0"></button>
+                                                            <button type="button" class="" data-slide-index="1"></button>
+                                                            <button type="button" class="" data-slide-index="2"></button>
+                                                    </div>
+                    </div>
+                </section>
+            
+                        <section class="section-block" id="games-section">
+                <div class="section-title">
+                    <span class="section-icon">🎮</span>
+                    <h2>Jogos</h2>
+                </div>
+
+                <div class="games-grid">
+                                                                    <div class="game-card game-card--featured game-card--interactive" data-game-card="" role="button" tabindex="0" aria-expanded="false">
+                                                            <img src="arquivos/card-subway.webp" alt="Subway Surfers" decoding="async" fetchpriority="high">
+                                                                                        <div class="game-card-actions" aria-hidden="true">
+                                                                            <a class="game-card-action game-card-action--primary" data-local-play-link href="play/?demo_gate=1">Jogar</a>
+                                                                        <button type="button" class="game-card-action game-card-action--secondary" data-open-modal="demo">Testar grátis</button>
+                                </div>
+                                                    </div>
+
+                                                    <div class="game-card game-card--placeholder game-card--halloween-muted">
+                                                                    <img src="arquivos/card-angrybirds.webp" alt="Angry Money" loading="lazy" decoding="async">
+                                                                                                    <div class="placeholder-label">Em breve</div>
+                                                                <span>Angry Money</span>
+                            </div>
+                                                    <div class="game-card game-card--placeholder game-card--halloween-muted">
+                                                                    <img src="arquivos/card-candyworld.webp" alt="Candy Cash" loading="lazy" decoding="async">
+                                                                                                    <div class="placeholder-label">Em breve</div>
+                                                                <span>Candy Cash</span>
+                            </div>
+                                                    <div class="game-card game-card--placeholder game-card--halloween-muted">
+                                                                    <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22960%22%20height%3D%22640%22%20viewBox%3D%220%200%20960%20640%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23c7ef6d%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%237bc94f%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22960%22%20height%3D%22640%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22%2F%3E%3Ccircle%20cx%3D%22780%22%20cy%3D%22130%22%20r%3D%2288%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.15%29%22%2F%3E%3Ccircle%20cx%3D%22180%22%20cy%3D%22520%22%20r%3D%22110%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.12%29%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%22200%22%3E%F0%9F%A6%96%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Dino Run" loading="lazy" decoding="async">
+                                                                                                    <div class="placeholder-label">Em breve</div>
+                                                                <span>Dino Run</span>
+                            </div>
+                                                            </div>
+            </section>
+
+            <section class="section-block">
+                <div class="section-title">
+                    <span class="section-icon">🏆</span>
+                    <h2>Ganhadores recentes</h2>
+                </div>
+
+                <div class="winners-list" aria-label="Lista animada de ganhadores recentes">
+                    <div class="winners-track">
+                                                                                    <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Mari**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 6,59</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Joao**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 45,30</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Ana**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 128,75</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Pedro**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 89,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Luca**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 37,80</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Bia**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 92,10</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Rafa**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 18,40</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Gabi**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 154,25</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Leo**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 63,70</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Vini**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 211,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Cami**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 27,55</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Duda**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 74,20</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Nico**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 105,60</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Luiz**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 49,95</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Maya**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 188,35</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Theo**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 31,45</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Lari**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 96,80</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Caio**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 143,15</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Nina**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 58,25</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Igor**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 236,50</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Tati**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 82,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Gui**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 119,70</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Sofi**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 44,10</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Davi**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 167,85</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Lena**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 25,30</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Enzo**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 72,65</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Malu**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 199,40</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Icar**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 53,15</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Bella**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 88,75</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Heit**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 132,20</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Lipe**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 41,60</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Luna**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 217,35</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Bren**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 69,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Clara**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 101,45</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Otto**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 34,85</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Nati**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 178,10</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Kadu**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 56,40</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Aline**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 124,95</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Fred**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 79,30</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Juli**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 242,70</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Mila**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 66,15</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Beto**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 113,55</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Rita**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 39,20</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Tuca**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 156,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Carlos**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 87,45</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Mona**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 225,80</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Kika**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 47,75</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Piet**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 134,30</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Teca**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 93,65</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Ruan**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 172,05</div>
+                                </article>
+                                                                                                                <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Mari**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 6,59</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Joao**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 45,30</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Ana**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 128,75</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Pedro**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 89,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Luca**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 37,80</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Bia**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 92,10</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Rafa**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 18,40</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Gabi**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 154,25</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Leo**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 63,70</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Vini**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 211,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Cami**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 27,55</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Duda**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 74,20</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Nico**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 105,60</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Luiz**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 49,95</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Maya**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 188,35</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Theo**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 31,45</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Lari**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 96,80</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Caio**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 143,15</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Nina**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 58,25</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Igor**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 236,50</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Tati**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 82,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Gui**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 119,70</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Sofi**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 44,10</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Davi**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 167,85</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Lena**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 25,30</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Enzo**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 72,65</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Malu**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 199,40</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Icar**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 53,15</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Bella**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 88,75</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Heit**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 132,20</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Lipe**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 41,60</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Luna**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 217,35</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Bren**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 69,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Clara**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 101,45</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Otto**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 34,85</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Nati**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 178,10</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Kadu**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 56,40</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Aline**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 124,95</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Fred**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 79,30</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Juli**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 242,70</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Mila**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 66,15</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Beto**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 113,55</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Rita**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 39,20</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Tuca**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 156,90</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Carlos**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 87,45</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Mona**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 225,80</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Kika**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 47,75</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Piet**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 134,30</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Teca**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 93,65</div>
+                                </article>
+                                                            <article class="winner-row">
+                                    <div class="winner-avatar">
+                                        <img src="arquivos/card-subway-1.webp?v=1787227898" alt="Avatar do ganhador" loading="lazy" decoding="async">
+                                    </div>
+                                    <div class="winner-copy">
+                                        <strong>Ruan**</strong>
+                                        <span>Subway Surfers</span>
+                                    </div>
+                                    <div class="winner-amount">ganhou R$ 172,05</div>
+                                </article>
+                                                                        </div>
+                </div>
+            </section>
+
+                    </main>
+
+        <footer class="support-footer support-footer--halloween">
+            <div class="footer-divider"></div>
+            <div class="footer-panel">
+                <div class="hw-footer-art" aria-hidden="true">
+    <svg viewbox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <defs>
+            <radialgradient id="hw-footer-moon" cx="34%" cy="29%" r="78%">
+                <stop stop-color="#d7c99d"></stop>
+                <stop offset=".68" stop-color="#b2a479"></stop>
+                <stop offset="1" stop-color="#89754f"></stop>
+            </radialgradient>
+            <radialgradient id="hw-footer-halo">
+                <stop offset=".55" stop-color="#d29355" stop-opacity=".1"></stop>
+                <stop offset="1" stop-color="#d29355" stop-opacity="0"></stop>
+            </radialgradient>
+            <clippath id="hw-footer-moon-clip"><circle cx="92" cy="91" r="65"></circle></clippath>
+        </defs>
+        <circle cx="92" cy="91" r="89" fill="url(#hw-footer-halo)"></circle>
+        <circle cx="92" cy="91" r="65" fill="url(#hw-footer-moon)"></circle>
+        <g clip-path="url(#hw-footer-moon-clip)" fill="#706b52" opacity=".18">
+            <path d="M33 59Q55 33 69 43T64 61Q51 58 51 78T32 95ZM118 25Q122 38 111 42T119 54Q133 59 142 46ZM137 84Q126 90 137 104T131 127Q123 139 140 143L162 131V82Z"></path>
+            <ellipse cx="64" cy="128" rx="11" ry="7" transform="rotate(22 64 128)"></ellipse>
+            <circle cx="110" cy="65" r="6"></circle><circle cx="93" cy="139" r="4"></circle>
+        </g>
+        <!-- Small, original witch silhouette; entirely decorative and static. -->
+        <g fill="#28201c" transform="translate(0 -7) rotate(-9 90 100)">
+            <path d="M59 76Q61 73 68 71L77 45Q80 46 82 55L90 69Q100 70 104 75Q83 81 59 76Z"></path>
+            <path d="M72 77Q67 82 68 85L60 90L68 91Q67 98 76 99L79 105L90 96L86 81Z"></path>
+            <path d="M85 79Q96 84 93 92Q90 98 102 100Q92 105 84 98L79 85Z"></path>
+            <path d="M84 94Q93 98 97 108L105 118Q108 125 123 136Q108 132 101 139L90 130Q89 122 78 115L74 105Z"></path>
+            <path d="M79 98Q73 97 68 107L59 112L50 110Q46 111 49 115L61 118L78 112L86 105Z"></path>
+            <path d="M88 128L99 139L102 146L114 150Q117 155 111 156L97 151Q91 146 87 139L81 135Z"></path>
+            <path d="M100 134Q109 139 108 146L103 153L105 158Q97 157 98 151L101 144L91 136Z"></path>
+            <path d="M38 115L134 128" fill="none" stroke="#28201c" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M126 122Q143 122 157 127L152 130L157 134L152 136L155 140Q138 137 126 133Z"></path>
+            <path d="M133 127L148 129M133 131L148 135" fill="none" stroke="#9d865c" stroke-opacity=".32" stroke-width="1"></path>
+        </g>
+        <g fill="#857557" opacity=".58">
+            <path d="M16 43L9 34Q18 36 21 41L24 38L27 42Q33 36 41 37L34 46Q28 43 26 49L22 45Q19 46 16 43Z"></path>
+            <path d="M149 59L145 53Q152 54 154 58L157 56L159 59Q164 54 171 55L166 61Q161 60 159 65L155 61Q152 63 149 59Z"></path>
+        </g>
+    </svg>
+</div>
+                <img class="footer-brand" src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena" loading="lazy" decoding="async">
+                <p class="footer-description">Divers&atilde;o, desafios e recompensas em uma experi&ecirc;ncia feita para voc&ecirc;.</p>
+                <a class="footer-support-email" href="mailto:suporte@rusharena.com">E-mail: suporte@rusharena.com</a>
+                <p class="footer-responsible">18+. Jogue com responsabilidade e respeite seus limites.</p>
+                <p class="footer-copyright">2026 Rush Arena. Todos direitos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <div class="modal-shell" data-modal="game" hidden="">
+        <div class="modal-backdrop" data-close-modal=""></div>
+        <div class="modal-card">
+            <button type="button" class="modal-close" data-close-modal="" aria-label="Fechar">×</button>
+                            <div class="modal-copy">
+                    <span class="modal-chip">Subway Surfers</span>
+                    <h3>Como você quer entrar no jogo?</h3>
+                    <p>Teste a rodada grátis primeiro ou crie sua conta sem sair da home.</p>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-primary" data-open-modal="demo">Testar grátis</button>
+                    <button type="button" class="modal-secondary" data-open-modal="register">Criar conta</button>
+                </div>
+                    </div>
+    </div>
+
+    
+    <div class="modal-shell" data-modal="demo" hidden="">
+        <div class="modal-backdrop" data-close-modal=""></div>
+        <div class="modal-card modal-card--demo">
+            <button type="button" class="modal-close" data-close-modal="" aria-label="Fechar">×</button>
+            <div class="demo-modal-brand">
+                <img src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena" loading="lazy" decoding="async">
+            </div>
+            <div class="demo-modal-copy">
+                <span class="modal-chip modal-chip--demo">Rodada grátis</span>
+                <h3>Ganhe dinheiro jogando o novo Subway Surfers!</h3>
+                <p>Teste a rodada grátis primeiro, treine e sinta a experiência sem precisar pagar nada!</p>
+                <p>Com saques instantâneos no pix e suporte humano, você entende o jogo antes de entrar na partida real.</p>
+                <strong>Clique no botão abaixo e teste grátis</strong>
+            </div>
+            <div class="modal-actions">
+                <a class="demo-modal-cta" href="play/?demo_gate=1">Testar agora</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-shell modal-shell--affiliate-demo" data-modal="affiliate-demo" hidden="">
+        <div class="modal-backdrop modal-backdrop--affiliate-demo"></div>
+        <div class="modal-card modal-card--affiliate-demo">
+            <div class="affiliate-demo-copy">
+                <h3>
+                    <span class="affiliate-demo-title-line">GANHE DINHEIRO JOGANDO O</span>
+                    <span class="affiliate-demo-title-line affiliate-demo-title-line--second">NOVO SUBWAY SURFERS! <span class="affiliate-demo-title-emojis" aria-hidden="true">🏄💰</span></span>
+                </h3>
+                <p>Este site &eacute; 100% seguro. Cuidado com os sites fakes e enganosos</p>
+                <p>Com SAQUES INSTANT&Acirc;NEOS e SUPORTE 24 HORAS, voc&ecirc; se diverte coletando moedas que viram dinheiro real! Voc&ecirc; pode sacar para sua conta na hora que quiser via pix.</p>
+                <strong>Clique no bot&atilde;o abaixo para testar gr&aacute;tis</strong>
+            </div>
+            <div class="modal-actions modal-actions--affiliate-demo">
+                <a class="affiliate-demo-cta" href="play/?demo_gate=1">TESTAR AGORA</a>
+            </div>
+        </div>
+    </div>
+
+            <div class="modal-shell" data-modal="login" hidden="">
+            <div class="modal-backdrop" data-close-modal=""></div>
+            <div class="modal-card modal-card--register modal-card--login-original">
+                <button type="button" class="modal-close" data-close-modal="" aria-label="Fechar">×</button>
+                <div class="modal-brand-lockup modal-brand-lockup--register-original">
+                    <img src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena" loading="lazy" decoding="async">
+                </div>
+                <form class="register-modal-form register-modal-form--original" method="post" action="./">
+                    <input type="hidden" name="modal_login_submit" value="1">
+                    <input type="hidden" name="csrf_token" value="98cd22b985195d6dc1cc57f7800be09920a5e6c8488260f2ff4ffdf4ffade092">
+
+                    <label class="register-field register-field--original">
+                        <span class="register-field-icon" aria-hidden="true">📧</span>
+                        <input type="email" name="login_email" value="" placeholder="E-mail" required="">
+                    </label>
+
+                    <label class="register-field register-field--original">
+                        <span class="register-field-icon" aria-hidden="true">🔐</span>
+                        <input type="password" name="login_password" placeholder="Senha" required="" data-password-toggle-input="">
+                        <button type="button" class="register-field-suffix" data-password-toggle="" aria-label="Mostrar senha" aria-pressed="false">🙈</button>
+                    </label>
+
+                    
+                    <button type="submit" class="modal-primary modal-primary--submit modal-primary--register-original">Entrar</button>
+                    <p class="register-login-copy register-login-copy--original">Ainda não tem conta? <button type="button" class="text-link-button" data-open-modal="register">Criar conta</button></p>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal-shell" data-modal="register" hidden="">
+            <div class="modal-backdrop" data-close-modal=""></div>
+            <div class="modal-card modal-card--register">
+                <button type="button" class="modal-close" data-close-modal="" aria-label="Fechar">×</button>
+                <div class="modal-brand-lockup modal-brand-lockup--register-original">
+                    <img src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena" loading="lazy" decoding="async">
+                </div>
+                <form class="register-modal-form register-modal-form--original" method="post" action="./">
+                    <input type="hidden" name="modal_register_submit" value="1">
+                    <input type="hidden" name="csrf_token" value="98cd22b985195d6dc1cc57f7800be09920a5e6c8488260f2ff4ffdf4ffade092">
+                    <input type="hidden" name="lead_aff" value="">
+                    <input type="hidden" name="aff" value="">
+
+                    <label class="register-field register-field--original">
+                        <span class="register-field-icon" aria-hidden="true">👤</span>
+                        <input type="text" name="register_cpf" value="" placeholder="CPF" inputmode="numeric" required="">
+                    </label>
+
+                    <label class="register-field register-field--original">
+                        <span class="register-field-icon" aria-hidden="true">📧</span>
+                        <input type="email" name="register_email" value="" placeholder="E-mail" required="">
+                    </label>
+
+                    <label class="register-field register-field--original">
+                        <span class="register-field-icon" aria-hidden="true">🔐</span>
+                        <input type="password" name="register_password" placeholder="Senha" required="" minlength="6" data-password-toggle-input="">
+                        <button type="button" class="register-field-suffix" data-password-toggle="" aria-label="Mostrar senha" aria-pressed="false">🙈</button>
+                    </label>
+
+                    <label class="register-field register-field--original">
+                        <span class="register-field-icon" aria-hidden="true">📱</span>
+                        <input type="text" name="register_phone" value="" placeholder="Número de telefone" inputmode="tel" required="">
+                    </label>
+
+                    <p class="register-terms register-terms--original">Concordo que tenho mais de 18 anos e li e aceito os <strong>termos de uso</strong> e <strong>política de privacidade</strong>.</p>
+
+                    
+                    <button type="submit" class="modal-primary modal-primary--submit modal-primary--register-original">Criar conta</button>
+                    <p class="register-login-copy register-login-copy--original">Já é um membro? <button type="button" class="text-link-button" data-open-modal="login">Entrar</button></p>
+                </form>
+            </div>
+        </div>
+    
+    
+    
+    <script>
+        (function () {
+            const body = document.body;
+            const pendingPixelEvents = [];
+            const modals = new Map(Array.from(document.querySelectorAll('[data-modal]')).map((element) => [element.dataset.modal, element]));
+            const slider = document.querySelector('[data-slider]');
+            const slides = slider ? Array.from(slider.querySelectorAll('.hero-slide')) : [];
+            const gameCards = Array.from(document.querySelectorAll('[data-game-card]'));
+            const stakeCards = Array.from(document.querySelectorAll('[data-stake-card]'));
+            const startStakeButton = document.getElementById('homeStartStakeButton');
+            const startStakeButtonLabel = document.querySelector('[data-stake-confirm-label]');
+            const lowBalanceText = document.getElementById('homeLowBalanceText');
+            const lowBalanceTopUp = document.getElementById('homeLowBalanceTopUp');
+            const lowBalanceBonus = document.getElementById('homeLowBalanceBonus');
+            const lowBalanceHelper = document.getElementById('homeLowBalanceHelper');
+            const lowBalanceDepositValue = document.getElementById('homeLowBalanceDepositValue');
+            const lowBalanceDepositButton = document.getElementById('homeLowBalanceDepositButton');
+            const initialModal = "login";
+            const userIsLoggedIn = false;
+            const userHasDeposited = false;
+            const currentBalance = 0;
+            const minimumDepositAmount = 25;
+            const depositPromoThreshold = 50;
+            const lowBalanceDefaultAmount = 25;
+            const lowBalancePromoBadges = {"50.00":"GANHE R$25 EXTRA","100.00":"GANHE R$50 EXTRA"};
+            const userMenuToggle = document.querySelector('[data-toggle-user-menu]');
+            const userMenu = document.querySelector('[data-user-menu]');
+            const stakeSelectedValue = document.getElementById('homeStakeSelectedValue');
+            const stakeLowBalanceNotice = document.getElementById('homeStakeLowBalanceNotice');
+            const stakeTopUpButton = document.getElementById('homeStakeTopUpButton');
+            const depositAmountField = document.getElementById('depositAmountField');
+            const depositAmountDisplayField = document.getElementById('depositAmountDisplayField');
+            const depositForm = document.querySelector('.home-deposit-form');
+            const depositSubmitButton = depositForm ? depositForm.querySelector('button[type="submit"]') : null;
+            const quickAmountButtons = Array.from(document.querySelectorAll('[data-quick-amount]'));
+            const lowBalanceQuickButtons = Array.from(document.querySelectorAll('[data-low-balance-quick-amount]'));
+            const copyAffiliateButton = document.getElementById('homeCopyAffiliateButton');
+            const copyAffiliateField = document.getElementById('homeAffiliateLinkField');
+            const qrModal = modals.get('deposit-qr');
+            const qrCodeContainer = document.getElementById('homePixQrCode');
+            const copyPixButton = document.getElementById('homeCopyPixButton');
+            const stakeChoiceModalCard = document.querySelector('[data-modal="game"] .modal-card--stake-choice');
+            const copyPixField = document.getElementById('homePixCodeField');
+            const paymentBadge = document.getElementById('homePaymentStatusBadge');
+            const paymentText = document.getElementById('homePaymentStatusText');
+            const paymentIntro = qrModal ? qrModal.querySelector('.modal-copy--compact') : null;
+            const paymentMeta = qrModal ? qrModal.querySelector('.home-payment-meta') : null;
+            const paymentTextareaField = copyPixField ? copyPixField.closest('.register-field--textarea') : null;
+            const paymentActions = qrModal ? qrModal.querySelector('.modal-actions--inline') : null;
+            const paymentSuccessPanel = document.getElementById('homePaymentSuccessPanel');
+            const paymentSuccessTitle = document.getElementById('homePaymentSuccessTitle');
+            const paymentSuccessText = document.getElementById('homePaymentSuccessText');
+            const paymentSuccessValue = document.getElementById('homePaymentSuccessValue');
+            const depositPlayButton = document.getElementById('homeDepositPlayButton');
+            const passwordToggleButtons = Array.from(document.querySelectorAll('[data-password-toggle]'));
+            const depositCountdown = document.querySelector('[data-deposit-countdown]');
+            const cpfEditor = document.querySelector('[data-cpf-editor]');
+            const cpfEditorToggle = document.querySelector('[data-toggle-cpf-editor]');
+            const accountModalCard = document.querySelector('[data-account-modal-card]');
+            let paymentIntervalId = null;
+            let paymentPollInFlight = false;
+            let depositCountdownIntervalId = null;
+            let depositSubmissionInFlight = false;
+            let selectedStakeCard = null;
+            let selectedLowBalanceDepositAmount = Number(lowBalanceDefaultAmount || 0);
+            let selectedLowBalanceStakeLabel = '';
+
+            const lockDepositSubmission = () => {
+                if (depositSubmissionInFlight) {
+                    return false;
+                }
+
+                depositSubmissionInFlight = true;
+
+                [depositSubmitButton, lowBalanceDepositButton].forEach((button) => {
+                    if (!button) {
+                        return;
+                    }
+
+                    button.disabled = true;
+                    button.setAttribute('aria-disabled', 'true');
+                    button.setAttribute('aria-busy', 'true');
+                    button.textContent = 'GERANDO PIX...';
+                });
+
+                return true;
+            };
+
+            if (depositForm) {
+                depositForm.addEventListener('submit', (event) => {
+                    if (!lockDepositSubmission()) {
+                        event.preventDefault();
+                    }
+                });
+            }
+
+            const formatCurrencyLabel = (value) => {
+                const normalized = Number(String(value).replace(',', '.'));
+                if (Number.isNaN(normalized)) {
+                    return String(value);
+                }
+
+                return normalized.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            };
+
+            const parseAmountValue = (value) => {
+                const rawValue = String(value || '').replace(/\s+/g, '').replace(/^R\$/i, '');
+                if (rawValue === '') {
+                    return Number.NaN;
+                }
+
+                let normalizedValue = rawValue;
+
+                if (normalizedValue.includes(',') && normalizedValue.includes('.')) {
+                    normalizedValue = normalizedValue.replace(/\./g, '').replace(',', '.');
+                } else {
+                    normalizedValue = normalizedValue.replace(',', '.');
+                }
+
+                return Number(normalizedValue);
+            };
+
+            const setDepositAmountValue = (value, shouldFormatDisplay = true) => {
+                if (!depositAmountField) {
+                    return;
+                }
+
+                const normalizedValue = parseAmountValue(value);
+
+                if (Number.isNaN(normalizedValue) || normalizedValue <= 0) {
+                    depositAmountField.value = '';
+                    if (depositAmountDisplayField && shouldFormatDisplay) {
+                        depositAmountDisplayField.value = '';
+                    }
+                    return;
+                }
+
+                depositAmountField.value = normalizedValue.toFixed(2);
+
+                if (depositAmountDisplayField && shouldFormatDisplay) {
+                    depositAmountDisplayField.value = `R$ ${formatCurrencyLabel(normalizedValue)}`;
+                }
+            };
+
+            const digitsOnly = (value) => String(value || '').replace(/\D+/g, '');
+
+            const formatCpfInput = (value) => {
+                const digits = digitsOnly(value).slice(0, 11);
+                if (digits.length <= 3) {
+                    return digits;
+                }
+                if (digits.length <= 6) {
+                    return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+                }
+                if (digits.length <= 9) {
+                    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+                }
+                return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+            };
+
+            const formatPhoneInput = (value) => {
+                const digits = digitsOnly(value).slice(0, 11);
+                if (digits.length <= 2) {
+                    return digits.length ? `(${digits}` : '';
+                }
+                if (digits.length <= 6) {
+                    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+                }
+                if (digits.length <= 10) {
+                    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+                }
+                return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+            };
+
+            const attachMaskedInput = (selector, formatter) => {
+                document.querySelectorAll(selector).forEach((input) => {
+                    const applyMask = () => {
+                        input.value = formatter(input.value);
+                    };
+
+                    applyMask();
+                    input.addEventListener('input', applyMask);
+                    input.addEventListener('blur', applyMask);
+                });
+            };
+
+            const dispatchPixelEvent = (eventName, payload = {}) => {
+                if (typeof window.fbq !== 'function' || !eventName) {
+                    return;
+                }
+
+                try {
+                    window.fbq('track', eventName, payload);
+                } catch (error) {
+                    console.warn('Falha ao disparar evento do Facebook Pixel.', eventName, error);
+                }
+            };
+
+            const setStakeButtonState = () => {
+                if (!startStakeButton) {
+                    return;
+                }
+
+                const setStakeButtonCopy = (value) => {
+                    if (startStakeButtonLabel) {
+                        startStakeButtonLabel.textContent = value;
+                        return;
+                    }
+
+                    startStakeButton.textContent = value;
+                };
+
+                if (stakeSelectedValue) {
+                    if (!selectedStakeCard) {
+                        stakeSelectedValue.textContent = 'Selecione um valor';
+                        stakeSelectedValue.classList.add('is-placeholder');
+                        stakeSelectedValue.classList.remove('is-insufficient');
+                    } else {
+                        const stakeAmount = Number(selectedStakeCard.dataset.stakeAmount || 0);
+                        const stakeLabel = selectedStakeCard.dataset.stakeLabel || ('R$ ' + formatCurrencyLabel(stakeAmount));
+                        stakeSelectedValue.textContent = stakeLabel;
+                        stakeSelectedValue.classList.remove('is-placeholder');
+                    }
+                }
+
+                if (stakeLowBalanceNotice) {
+                    stakeLowBalanceNotice.hidden = true;
+                }
+
+                if (stakeTopUpButton) {
+                    stakeTopUpButton.hidden = true;
+                }
+
+                if (stakeChoiceModalCard) {
+                    stakeChoiceModalCard.classList.remove('has-inline-alert');
+                }
+
+                if (!selectedStakeCard) {
+                    startStakeButton.disabled = true;
+                    setStakeButtonCopy('CORRER!');
+                    return;
+                }
+
+                const canPlaySelectedStake = selectedStakeCard.dataset.canPlay === '1';
+
+                if (stakeSelectedValue) {
+                    stakeSelectedValue.classList.toggle('is-insufficient', !canPlaySelectedStake);
+                }
+
+                if (!canPlaySelectedStake && stakeLowBalanceNotice) {
+                    stakeLowBalanceNotice.hidden = false;
+                    if (stakeChoiceModalCard) {
+                        stakeChoiceModalCard.classList.add('has-inline-alert');
+                    }
+                }
+
+                if (!canPlaySelectedStake && stakeTopUpButton) {
+                    stakeTopUpButton.hidden = false;
+                }
+
+                startStakeButton.disabled = !canPlaySelectedStake;
+                setStakeButtonCopy('CORRER!');
+            };
+
+            const prepareRealGameNavigation = () => {
+                try {
+                    localStorage.setItem('realBetPage', 'true');
+                    sessionStorage.setItem('noback', 'false');
+                } catch (error) {
+                    console.warn('Nao foi possivel preparar a entrada do jogo.', error);
+                }
+            };
+
+            const createQrCodeMount = () => {
+                if (!qrCodeContainer) {
+                    return null;
+                }
+
+                const containerStyles = window.getComputedStyle(qrCodeContainer);
+                const horizontalPadding = (parseFloat(containerStyles.paddingLeft) || 0) + (parseFloat(containerStyles.paddingRight) || 0);
+                const availableWidth = Math.max(qrCodeContainer.clientWidth - horizontalPadding, 180);
+                const renderSize = Math.min(availableWidth, 320);
+                const mount = document.createElement('div');
+                mount.className = 'home-qr-mount';
+                mount.style.width = `${renderSize}px`;
+                mount.style.height = `${renderSize}px`;
+                qrCodeContainer.appendChild(mount);
+
+                return { mount, renderSize };
+            };
+
+            const normalizeQrMount = (mount) => {
+                if (!mount) {
+                    return;
+                }
+
+                mount.style.display = 'flex';
+                mount.style.alignItems = 'center';
+                mount.style.justifyContent = 'center';
+                mount.style.margin = '0 auto';
+                mount.style.overflow = 'hidden';
+
+                Array.from(mount.children).forEach((child) => {
+                    if (!(child instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    child.style.display = 'block';
+                    child.style.maxWidth = '100%';
+                    child.style.maxHeight = '100%';
+                    child.style.margin = '0 auto';
+                });
+            };
+
+            const lockBody = () => body.classList.add('modal-open');
+
+            const closeUserMenu = () => {
+                if (!userMenu || !userMenuToggle) {
+                    return;
+                }
+
+                userMenu.hidden = true;
+                userMenuToggle.classList.remove('is-open');
+                userMenuToggle.setAttribute('aria-expanded', 'false');
+            };
+
+            const stopDepositCountdown = () => {
+                if (depositCountdownIntervalId) {
+                    window.clearInterval(depositCountdownIntervalId);
+                    depositCountdownIntervalId = null;
+                }
+            };
+
+            const startDepositCountdown = () => {
+                if (!depositCountdown) {
+                    return;
+                }
+
+                const duration = Number(depositCountdown.dataset.durationSeconds || 299);
+                const parts = {
+                    hours: depositCountdown.querySelector('[data-countdown-part="hours"]'),
+                    minutes: depositCountdown.querySelector('[data-countdown-part="minutes"]'),
+                    seconds: depositCountdown.querySelector('[data-countdown-part="seconds"]')
+                };
+                const startedAt = Date.now();
+
+                const render = () => {
+                    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+                    const remaining = Math.max(duration - elapsed, 0);
+                    const hours = Math.floor(remaining / 3600);
+                    const minutes = Math.floor((remaining % 3600) / 60);
+                    const seconds = remaining % 60;
+
+                    if (parts.hours) {
+                        parts.hours.textContent = String(hours).padStart(2, '0');
+                    }
+
+                    if (parts.minutes) {
+                        parts.minutes.textContent = String(minutes).padStart(2, '0');
+                    }
+
+                    if (parts.seconds) {
+                        parts.seconds.textContent = String(seconds).padStart(2, '0');
+                    }
+
+                    depositCountdown.setAttribute('aria-label', `Premio expira em ${hours} horas, ${minutes} minutos e ${seconds} segundos`);
+
+                    if (remaining <= 0) {
+                        stopDepositCountdown();
+                    }
+                };
+
+                stopDepositCountdown();
+                render();
+                depositCountdownIntervalId = window.setInterval(render, 1000);
+            };
+
+            passwordToggleButtons.forEach((button) => {
+                const field = button.closest('.register-field');
+                const input = field ? field.querySelector('[data-password-toggle-input]') : null;
+
+                if (!input) {
+                    return;
+                }
+
+                button.addEventListener('click', () => {
+                    const shouldShow = input.type === 'password';
+                    input.type = shouldShow ? 'text' : 'password';
+                    button.textContent = shouldShow ? '🙊' : '🙈';
+                    button.setAttribute('aria-label', shouldShow ? 'Ocultar senha' : 'Mostrar senha');
+                    button.setAttribute('aria-pressed', shouldShow ? 'true' : 'false');
+                    input.focus();
+                });
+            });
+
+            attachMaskedInput('input[name="register_cpf"]', formatCpfInput);
+            attachMaskedInput('input[name="account_cpf"]', formatCpfInput);
+            attachMaskedInput('input[name="register_phone"]', formatPhoneInput);
+
+            if (cpfEditor && cpfEditorToggle) {
+                cpfEditorToggle.addEventListener('click', () => {
+                    const shouldOpen = cpfEditor.hidden;
+                    cpfEditor.hidden = !shouldOpen;
+                    cpfEditorToggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+                    if (accountModalCard) {
+                        accountModalCard.classList.toggle('has-cpf-editor-open', shouldOpen);
+                    }
+
+                    if (shouldOpen) {
+                        const cpfInput = cpfEditor.querySelector('input[name="account_cpf"]');
+                        if (cpfInput) {
+                            window.setTimeout(() => cpfInput.focus(), 0);
+                        }
+                    }
+                });
+            }
+
+            const unlockBody = () => {
+                const anyVisible = Array.from(modals.values()).some((modal) => !modal.hidden);
+                if (!anyVisible) {
+                    body.classList.remove('modal-open');
+                }
+            };
+
+            const stopPaymentPolling = () => {
+                if (paymentIntervalId) {
+                    window.clearInterval(paymentIntervalId);
+                    paymentIntervalId = null;
+                }
+                paymentPollInFlight = false;
+            };
+
+            const resetPaymentSuccessLayout = () => {
+                if (qrModal) {
+                    qrModal.classList.remove('is-payment-success');
+                }
+
+                if (paymentSuccessPanel) {
+                    paymentSuccessPanel.hidden = true;
+                }
+
+                if (paymentIntro) {
+                    paymentIntro.hidden = false;
+                }
+
+                if (paymentBadge) {
+                    paymentBadge.hidden = false;
+                }
+
+                if (paymentMeta) {
+                    paymentMeta.hidden = false;
+                }
+
+                if (qrCodeContainer) {
+                    qrCodeContainer.hidden = false;
+                }
+
+                if (paymentTextareaField) {
+                    paymentTextareaField.hidden = false;
+                }
+
+                if (paymentActions) {
+                    paymentActions.hidden = false;
+                }
+            };
+
+            const showPaymentSuccessLayout = (amountValue) => {
+                if (paymentSuccessValue && amountValue) {
+                    paymentSuccessValue.textContent = 'R$ ' + formatCurrencyLabel(amountValue);
+                }
+
+                if (paymentSuccessTitle) {
+                    paymentSuccessTitle.textContent = userHasDeposited
+                        ? 'Tudo certo, saldo liberado'
+                        : 'Primeiro depósito confirmado';
+                }
+
+                if (paymentSuccessText) {
+                    paymentSuccessText.textContent = userHasDeposited
+                        ? 'Seu Pix foi aprovado e a conta já está pronta para a próxima corrida.'
+                        : 'Seu Pix foi aprovado. Agora você já pode escolher o valor da sua primeira partida.';
+                }
+
+                if (qrModal) {
+                    qrModal.classList.add('is-payment-success');
+                }
+
+                if (paymentIntro) {
+                    paymentIntro.hidden = true;
+                }
+
+                if (paymentBadge) {
+                    paymentBadge.hidden = true;
+                }
+
+                if (paymentMeta) {
+                    paymentMeta.hidden = true;
+                }
+
+                if (qrCodeContainer) {
+                    qrCodeContainer.hidden = true;
+                }
+
+                if (paymentTextareaField) {
+                    paymentTextareaField.hidden = true;
+                }
+
+                if (paymentActions) {
+                    paymentActions.hidden = true;
+                }
+
+                if (paymentSuccessPanel) {
+                    paymentSuccessPanel.hidden = false;
+                }
+            };
+
+            const collapseGameCards = () => {
+                gameCards.forEach((card) => {
+                    card.classList.remove('is-revealed');
+                    card.setAttribute('aria-expanded', 'false');
+                });
+            };
+
+            const closeAllModals = () => {
+                if (qrModal && !qrModal.hidden && qrModal.classList.contains('is-payment-success')) {
+                    stopPaymentPolling();
+                    window.location.reload();
+                    return;
+                }
+
+                modals.forEach((modal) => {
+                    modal.hidden = true;
+                });
+                stopPaymentPolling();
+                stopDepositCountdown();
+                unlockBody();
+            };
+
+            const setPaymentState = (state, message) => {
+                if (!paymentBadge || !paymentText) {
+                    return;
+                }
+
+                paymentBadge.dataset.state = state;
+                if (state === 'success') {
+                    paymentBadge.textContent = 'Pagamento confirmado';
+                } else if (state === 'error') {
+                    paymentBadge.textContent = 'Erro ao consultar';
+                } else {
+                    paymentBadge.textContent = 'Aguardando pagamento';
+                }
+
+                paymentText.textContent = message;
+            };
+
+            const pollPaymentStatus = async () => {
+                if (!qrModal) {
+                    return;
+                }
+
+                const isPagflexCheckout = qrModal.dataset.pixProvider === 'pagflex';
+                if (isPagflexCheckout && document.hidden) {
+                    return;
+                }
+
+                if (paymentPollInFlight) {
+                    return;
+                }
+
+                const token = qrModal.dataset.pixToken;
+                if (!token) {
+                    return;
+                }
+
+                paymentPollInFlight = true;
+                const requestController = isPagflexCheckout && typeof window.AbortController === 'function'
+                    ? new window.AbortController() : null;
+                let requestTimeout = null;
+                try {
+                    if (requestController) {
+                        requestTimeout = window.setTimeout(() => requestController.abort(), 12000);
+                    }
+                    const response = await fetch('./deposito/consultarpagamento.php?token=' + encodeURIComponent(token), {
+                        credentials: 'same-origin',
+                        cache: 'no-store',
+                        ...(requestController ? { signal: requestController.signal } : {})
+                    });
+
+                    if (!response.ok && qrModal.dataset.pixProvider === 'pagflex') {
+                        if (response.status === 401) {
+                            setPaymentState('error', 'Sua sessão expirou. Entre novamente para consultar este pagamento. Se já pagou, não faça outro Pix.');
+                            stopPaymentPolling();
+                            return;
+                        }
+                        if (response.status === 404) {
+                            setPaymentState('error', 'Não foi possível localizar este pagamento. Fale com o suporte antes de tentar novamente.');
+                            stopPaymentPolling();
+                            return;
+                        }
+                    }
+                    if (!response.ok) {
+                        throw new Error('status_' + response.status);
+                    }
+
+                    const payload = await response.json();
+                    const status = String(payload.status || '').toUpperCase();
+
+                    if (status === 'PAID_OUT' || status === 'APROVADO' || status === 'APPROVED') {
+                        setPaymentState('success', 'Pagamento confirmado. Seu saldo foi liberado e você já pode entrar no jogo.');
+                        showPaymentSuccessLayout(payload.amount || qrModal.dataset.pixValue || '0,00');
+                        if (payload.track_purchase) {
+                            dispatchPixelEvent('Purchase', {
+                                currency: 'BRL',
+                                value: Number(String(payload.amount || qrModal.dataset.pixValue || '0').replace(',', '.')) || 0
+                            });
+                        }
+                        stopPaymentPolling();
+                    } else if (qrModal.dataset.pixProvider === 'pagflex' && ['REFUSED', 'REFUNDED', 'MED', 'CHARGEDBACK'].includes(status)) {
+                        const statusMessages = {
+                            REFUSED: 'A Pagflex recusou esta cobrança. Se houve débito no banco, fale com o suporte antes de tentar novamente.',
+                            REFUNDED: 'A Pagflex informou devolução deste pagamento. Confira o banco ou fale com o suporte.',
+                            MED: 'Este pagamento está em análise de contestação. Fale com o suporte.',
+                            CHARGEDBACK: 'A Pagflex informou contestação com reversão. Fale com o suporte.'
+                        };
+                        setPaymentState('error', statusMessages[status]);
+                        stopPaymentPolling();
+                    } else {
+                        resetPaymentSuccessLayout();
+                        setPaymentState('pending', 'Escaneie o QR Code ou copie o código Pix. Assim que o sistema confirmar, o saldo atualiza.');
+                    }
+                } catch (error) {
+                    if (qrModal.dataset.pixProvider === 'pagflex') {
+                        setPaymentState('pending', 'Reconectando para consultar a confirmação. Se já pagou, não faça outro Pix; a confirmação será atualizada automaticamente.');
+                    } else {
+                        setPaymentState('pending', 'Pagamento ainda em análise. Se você já pagou, aguarde alguns segundos enquanto consultamos novamente.');
+                    }
+                } finally {
+                    if (requestTimeout !== null) {
+                        window.clearTimeout(requestTimeout);
+                    }
+                    paymentPollInFlight = false;
+                }
+            };
+
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && qrModal && !qrModal.hidden && qrModal.dataset.pixProvider === 'pagflex') {
+                    pollPaymentStatus();
+                }
+            });
+
+            const renderQrCode = () => {
+                if (!qrModal || !qrCodeContainer) {
+                    return;
+                }
+
+                const pixKey = qrModal.dataset.pixKey;
+                const pixImage = qrModal.dataset.pixImage;
+
+                if (copyPixField && typeof pixKey === 'string' && copyPixField.value !== pixKey) {
+                    copyPixField.value = pixKey;
+                }
+
+                if (!pixKey && !pixImage) {
+                    return;
+                }
+
+                qrCodeContainer.innerHTML = '';
+                const qrMountData = createQrCodeMount();
+                if (!qrMountData) {
+                    return;
+                }
+
+                const { mount, renderSize } = qrMountData;
+
+                if (pixKey && typeof window.QRCode === 'function') {
+                    new window.QRCode(mount, {
+                        text: pixKey,
+                        width: renderSize,
+                        height: renderSize,
+                        correctLevel: window.QRCode.CorrectLevel.M
+                    });
+                    normalizeQrMount(mount);
+                    return;
+                }
+
+                if (!pixImage || !/^(?:https?:\/\/|data:image\/)/i.test(pixImage)) {
+                    return;
+                }
+
+                const image = document.createElement('img');
+                image.className = 'home-qr-image';
+                image.alt = 'QR Code Pix';
+                image.width = renderSize;
+                image.height = renderSize;
+                image.loading = 'eager';
+                image.decoding = 'sync';
+                image.src = pixImage;
+                mount.appendChild(image);
+                normalizeQrMount(mount);
+            };
+
+            const getPaymentPollingInterval = () => {
+                if (!qrModal) {
+                    return 1500;
+                }
+
+                const provider = String(qrModal.dataset.pixProvider || '').toLowerCase();
+                if (provider === 'pagflex') {
+                    return 4000;
+                }
+
+                return 1500;
+            };
+
+            const startPaymentPolling = () => {
+                if (!qrModal || qrModal.hidden) {
+                    return;
+                }
+
+                stopPaymentPolling();
+                resetPaymentSuccessLayout();
+                renderQrCode();
+                pollPaymentStatus();
+                paymentIntervalId = window.setInterval(pollPaymentStatus, getPaymentPollingInterval());
+            };
+
+            const openModal = (name) => {
+                const modal = modals.get(name);
+                if (!modal) {
+                    return;
+                }
+
+                closeAllModals();
+                closeUserMenu();
+                modal.hidden = false;
+                lockBody();
+
+                if (name === 'deposit-qr') {
+                    startPaymentPolling();
+                }
+
+                if (name === 'deposit') {
+                    startDepositCountdown();
+                }
+            };
+
+            document.querySelectorAll('[data-open-modal]').forEach((element) => {
+                element.addEventListener('click', (event) => {
+                    const targetName = element.dataset.openModal;
+                    if (!targetName) {
+                        return;
+                    }
+
+                    const shouldForceFirstDeposit = targetName === 'game'
+                        && userIsLoggedIn
+                        && !userHasDeposited;
+
+                    event.stopPropagation();
+                    event.preventDefault();
+                    collapseGameCards();
+                    openModal(shouldForceFirstDeposit ? 'deposit' : targetName);
+                });
+            });
+
+            document.querySelectorAll('[data-enter-real-game]').forEach((element) => {
+                element.addEventListener('click', () => {
+                    prepareRealGameNavigation();
+                });
+            });
+
+            document.querySelectorAll('[data-close-modal]').forEach((element) => {
+                element.addEventListener('click', () => {
+                    const modal = element.closest('[data-modal]');
+                    if (modal && modal.dataset.modal === 'deposit-qr') {
+                        stopPaymentPolling();
+
+                        if (modal.classList.contains('is-payment-success')) {
+                            window.location.reload();
+                            return;
+                        }
+                    }
+
+                    if (modal && modal.dataset.modal === 'deposit') {
+                        stopDepositCountdown();
+                    }
+
+                    if (modal) {
+                        modal.hidden = true;
+                    }
+
+                    unlockBody();
+                });
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    collapseGameCards();
+                    closeAllModals();
+                    closeUserMenu();
+                }
+            });
+
+            gameCards.forEach((card) => {
+                card.addEventListener('click', (event) => {
+                    if (event.target.closest('.game-card-action')) {
+                        return;
+                    }
+
+                    const shouldReveal = !card.classList.contains('is-revealed');
+                    collapseGameCards();
+
+                    if (shouldReveal) {
+                        card.classList.add('is-revealed');
+                        card.setAttribute('aria-expanded', 'true');
+                    }
+                });
+
+                card.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    const shouldReveal = !card.classList.contains('is-revealed');
+                    collapseGameCards();
+
+                    if (shouldReveal) {
+                        card.classList.add('is-revealed');
+                        card.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            });
+
+            if (userMenuToggle && userMenu) {
+                userMenuToggle.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const nextState = userMenu.hidden;
+                    userMenu.hidden = !nextState ? true : false;
+                    userMenuToggle.classList.toggle('is-open', nextState);
+                    userMenuToggle.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!userMenu.contains(event.target) && !userMenuToggle.contains(event.target)) {
+                        closeUserMenu();
+                    }
+                });
+            }
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('[data-game-card]')) {
+                    collapseGameCards();
+                }
+            });
+
+            quickAmountButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    if (!depositAmountField) {
+                        return;
+                    }
+
+                    quickAmountButtons.forEach((entry) => entry.classList.remove('is-active'));
+                    button.classList.add('is-active');
+                    setDepositAmountValue(button.dataset.quickAmount || '');
+                });
+            });
+
+            const syncQuickAmountState = () => {
+                if (!depositAmountField) {
+                    return;
+                }
+
+                const normalizedValue = Number(String(depositAmountField.value || '').replace(',', '.'));
+
+                quickAmountButtons.forEach((button) => {
+                    const buttonValue = Number(button.dataset.quickAmount || 0);
+                    const isMatch = !Number.isNaN(normalizedValue)
+                        && Math.abs(buttonValue - normalizedValue) < 0.01;
+
+                    button.classList.toggle('is-active', isMatch);
+                });
+            };
+
+            if (depositAmountField) {
+                if (depositAmountDisplayField) {
+                    depositAmountDisplayField.addEventListener('input', () => {
+                        const typedValue = depositAmountDisplayField.value;
+                        setDepositAmountValue(typedValue, false);
+                        syncQuickAmountState();
+                    });
+
+                    depositAmountDisplayField.addEventListener('blur', () => {
+                        if (depositAmountField.value === '') {
+                            depositAmountDisplayField.value = '';
+                            syncQuickAmountState();
+                            return;
+                        }
+
+                        setDepositAmountValue(depositAmountField.value);
+                        syncQuickAmountState();
+                    });
+                }
+
+                setDepositAmountValue(depositAmountField.value || minimumDepositAmount);
+                syncQuickAmountState();
+            }
+
+            const setLowBalanceQuickSelection = (amountValue) => {
+                const normalizedValue = Number(String(amountValue || '').replace(',', '.'));
+
+                lowBalanceQuickButtons.forEach((button) => {
+                    const buttonValue = Number(button.dataset.lowBalanceQuickAmount || 0);
+                    const isMatch = !Number.isNaN(normalizedValue)
+                        && Math.abs(buttonValue - normalizedValue) < 0.01;
+
+                    button.classList.toggle('is-active', isMatch);
+                });
+            };
+
+            const chooseSuggestedLowBalanceAmount = (requiredAmount) => {
+                const preferredDefault = Number(lowBalanceDefaultAmount || 0);
+                const availableValues = lowBalanceQuickButtons
+                    .map((button) => Number(button.dataset.lowBalanceQuickAmount || 0))
+                    .filter((value) => !Number.isNaN(value) && value > 0)
+                    .sort((left, right) => left - right);
+
+                if (!availableValues.length) {
+                    return preferredDefault > 0 ? preferredDefault : requiredAmount;
+                }
+
+                if (preferredDefault > 0) {
+                    const hasPreferredDefault = availableValues.some((value) => Math.abs(value - preferredDefault) < 0.01);
+                    if (hasPreferredDefault) {
+                        return preferredDefault;
+                    }
+                }
+
+                return availableValues[0];
+            };
+
+            const updateLowBalanceCopy = () => {
+                const selectedKey = Number.isFinite(selectedLowBalanceDepositAmount)
+                    ? Number(selectedLowBalanceDepositAmount).toFixed(2)
+                    : '';
+                const selectedBadge = selectedKey && lowBalancePromoBadges[selectedKey]
+                    ? String(lowBalancePromoBadges[selectedKey])
+                    : '';
+
+                if (lowBalanceTopUp) {
+                    lowBalanceTopUp.textContent = 'R$ ' + formatCurrencyLabel(selectedLowBalanceDepositAmount > 0 ? selectedLowBalanceDepositAmount : 0);
+                }
+
+                if (lowBalanceBonus) {
+                    lowBalanceBonus.textContent = selectedBadge ? '+' + selectedBadge : '';
+                    lowBalanceBonus.hidden = !selectedBadge;
+                }
+
+                if (lowBalanceText) {
+                    lowBalanceText.innerHTML = 'O valor da jogada mínima é de <span class="low-balance-minimum-value">R$ 30,00</span>, complete o seu saldo agora e fature muito!';
+                }
+
+                if (lowBalanceHelper) {
+                    lowBalanceHelper.innerHTML = '<span aria-hidden="true">&#128274;</span> PAGAMENTO SEGURO E SAQUE INSTANT&Acirc;NEO';
+                }
+
+                if (lowBalanceDepositValue) {
+                    lowBalanceDepositValue.value = selectedLowBalanceDepositAmount > 0
+                        ? selectedLowBalanceDepositAmount.toFixed(2)
+                        : '0.00';
+                }
+
+                setLowBalanceQuickSelection(selectedLowBalanceDepositAmount);
+            };
+
+            lowBalanceQuickButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const buttonValue = Number(button.dataset.lowBalanceQuickAmount || 0);
+                    if (Number.isNaN(buttonValue) || buttonValue <= 0) {
+                        return;
+                    }
+
+                    selectedLowBalanceDepositAmount = buttonValue;
+                    updateLowBalanceCopy();
+                });
+            });
+
+            document.querySelectorAll('[data-tab-group]').forEach((group) => {
+                const triggers = group.querySelectorAll('[data-tab-trigger]');
+                const panelRoot = group.closest('.modal-card');
+                const panels = panelRoot ? panelRoot.querySelectorAll('[data-tab-panel]') : [];
+
+                triggers.forEach((trigger) => {
+                    trigger.addEventListener('click', () => {
+                        const target = trigger.dataset.tabTrigger;
+                        triggers.forEach((item) => item.classList.toggle('is-active', item === trigger));
+                        panels.forEach((panel) => {
+                            panel.classList.toggle('is-active', panel.dataset.tabPanel === target);
+                        });
+                    });
+                });
+            });
+
+            const copyText = async (field, button, successText, overrideValue = '') => {
+                if (!field || !button) {
+                    return;
+                }
+
+                const rawValue = typeof overrideValue === 'string' && overrideValue !== ''
+                    ? overrideValue
+                    : field.value;
+
+                try {
+                    let copied = false;
+                    if (rawValue.trim() === '') {
+                        throw new Error('clipboard_empty');
+                    }
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        try {
+                            await navigator.clipboard.writeText(rawValue);
+                            copied = true;
+                        } catch (clipboardError) {
+                            // Some mobile WebViews reject this API inside a same-origin frame.
+                            // Continue with a user-initiated selection/copy attempt.
+                        }
+                    }
+                    if (!copied) {
+                        field.value = rawValue;
+                        field.focus({ preventScroll: true });
+                        field.select();
+                        field.setSelectionRange(0, rawValue.length);
+                        copied = typeof document.execCommand === 'function' && document.execCommand('copy') === true;
+                    }
+                    if (!copied) {
+                        throw new Error('clipboard_unavailable');
+                    }
+
+                    const originalText = button.textContent;
+                    button.classList.add('is-copied');
+                    button.textContent = successText;
+                    window.setTimeout(() => {
+                        button.classList.remove('is-copied');
+                        button.textContent = originalText;
+                    }, 1800);
+                } catch (error) {
+                    button.classList.remove('is-copied');
+                    button.textContent = 'Copie manualmente';
+                    field.value = rawValue;
+                    try {
+                        field.focus({ preventScroll: true });
+                        field.select();
+                        field.setSelectionRange(0, rawValue.length);
+                    } catch (selectionError) {
+                        // The visible read-only field remains available for manual selection.
+                    }
+                }
+            };
+
+            stakeCards.forEach((card) => {
+                card.addEventListener('click', () => {
+                    stakeCards.forEach((entry) => {
+                        const isSelected = entry === card;
+                        entry.classList.toggle('is-selected', isSelected);
+                        entry.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+                    });
+
+                    selectedStakeCard = card;
+                    setStakeButtonState();
+                });
+            });
+
+            setStakeButtonState();
+
+            if (startStakeButton) {
+                startStakeButton.addEventListener('click', () => {
+                    if (!selectedStakeCard) {
+                        return;
+                    }
+
+                    if (selectedStakeCard.dataset.canPlay === '1') {
+                        prepareRealGameNavigation();
+                        window.location.href = selectedStakeCard.dataset.stakeUrl || './jogar/';
+                        return;
+                    }
+
+                    setStakeButtonState();
+                });
+            }
+
+            if (lowBalanceDepositButton) {
+                lowBalanceDepositButton.addEventListener('click', () => {
+                    if (!depositAmountField || selectedLowBalanceDepositAmount <= 0) {
+                        openModal('deposit');
+                        return;
+                    }
+
+                    setDepositAmountValue(String(selectedLowBalanceDepositAmount.toFixed(2)));
+                    if (depositForm) {
+                        if (typeof depositForm.requestSubmit === 'function') {
+                            depositForm.requestSubmit();
+                        } else if (lockDepositSubmission()) {
+                            depositForm.submit();
+                        }
+                    }
+                });
+            }
+
+            if (stakeTopUpButton) {
+                stakeTopUpButton.addEventListener('click', () => {
+                    if (!selectedStakeCard) {
+                        openModal('deposit');
+                        return;
+                    }
+
+                    const stakeAmount = Number(selectedStakeCard.dataset.stakeAmount || 0);
+                    const deficit = Math.max(stakeAmount - Number(currentBalance || 0), 0);
+                    const requiredAmount = Math.max(deficit, Number(minimumDepositAmount || 0));
+                    const suggestedAmount = chooseSuggestedLowBalanceAmount(requiredAmount);
+
+                    if (depositAmountField && suggestedAmount > 0) {
+                        setDepositAmountValue(String(suggestedAmount.toFixed(2)));
+                        syncQuickAmountState();
+                    }
+
+                    openModal('deposit');
+                });
+            }
+
+            if (copyAffiliateButton && copyAffiliateField) {
+                copyAffiliateButton.addEventListener('click', () => {
+                    copyText(copyAffiliateField, copyAffiliateButton, 'Link copiado');
+                });
+            }
+
+            if (copyPixButton && copyPixField) {
+                copyPixButton.addEventListener('click', () => {
+                    const rawPixKey = (qrModal && typeof qrModal.dataset.pixKey === 'string')
+                        ? qrModal.dataset.pixKey
+                        : '';
+                    copyText(copyPixField, copyPixButton, 'Código Pix copiado', rawPixKey);
+                });
+            }
+
+            if (depositPlayButton) {
+                depositPlayButton.addEventListener('click', () => {
+                    window.location.href = './?modal=game';
+                });
+            }
+
+            if (Array.isArray(pendingPixelEvents) && pendingPixelEvents.length) {
+                pendingPixelEvents.forEach((eventItem) => {
+                    if (!eventItem || typeof eventItem !== 'object') {
+                        return;
+                    }
+
+                    dispatchPixelEvent(String(eventItem.name || ''), eventItem.payload && typeof eventItem.payload === 'object' ? eventItem.payload : {});
+                });
+            }
+
+            if (initialModal) {
+                openModal(initialModal);
+            }
+
+            const heroViewportQuery = window.matchMedia('(max-width: 767px)');
+            const createHeroMediaNode = (media, altText, isPriority, fitMode = 'contain') => {
+                if (!media || typeof media !== 'object' || !media.src) {
+                    return null;
+                }
+
+                if (media.kind === 'video') {
+                    const video = document.createElement('video');
+                    video.src = media.src;
+                    video.muted = true;
+                    video.loop = true;
+                    video.playsInline = true;
+                    video.preload = isPriority ? 'metadata' : 'none';
+                    if (altText) {
+                        video.setAttribute('aria-label', altText);
+                    }
+                    video.style.objectFit = fitMode === 'cover' ? 'cover' : 'contain';
+                    return video;
+                }
+
+                if (media.kind === 'iframe') {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = media.src;
+                    iframe.loading = 'lazy';
+                    iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+                    iframe.title = altText || 'Banner';
+                    return iframe;
+                }
+
+                const image = document.createElement('img');
+                image.src = media.src;
+                image.alt = altText || '';
+                image.loading = isPriority ? 'eager' : 'lazy';
+                if (isPriority) {
+                    image.fetchPriority = 'high';
+                }
+                image.decoding = 'async';
+                image.style.objectFit = fitMode === 'cover' ? 'cover' : 'contain';
+                return image;
+            };
+
+            const readHeroSlideConfig = (slide) => {
+                if (!slide) {
+                    return null;
+                }
+
+                if (slide.__heroMediaConfig !== undefined) {
+                    return slide.__heroMediaConfig;
+                }
+
+                const configNode = slide.querySelector('.hero-slide-media-config');
+                if (!configNode) {
+                    slide.__heroMediaConfig = null;
+                    return slide.__heroMediaConfig;
+                }
+
+                try {
+                    slide.__heroMediaConfig = JSON.parse(configNode.textContent || '{}');
+                } catch (error) {
+                    slide.__heroMediaConfig = null;
+                }
+
+                return slide.__heroMediaConfig;
+            };
+
+            const resolveHeroSlideMedia = (config) => {
+                if (!config || typeof config !== 'object') {
+                    return null;
+                }
+
+                const desktopMedia = config.desktop && typeof config.desktop === 'object' ? config.desktop : null;
+                const mobileMedia = config.mobile && typeof config.mobile === 'object' ? config.mobile : null;
+
+                return heroViewportQuery.matches
+                    ? ((mobileMedia && mobileMedia.src) ? mobileMedia : desktopMedia)
+                    : ((desktopMedia && desktopMedia.src) ? desktopMedia : mobileMedia);
+            };
+
+            const updateHeroResponsiveMedia = (activeIndex = 0, includeAdjacent = true) => {
+                if (!slides.length) {
+                    return;
+                }
+
+                const nextIndex = slides.length > 1 ? ((activeIndex + 1) % slides.length) : activeIndex;
+
+                slides.forEach((slide, index) => {
+                    const frame = slide.querySelector('[data-hero-media-frame]');
+                    const config = readHeroSlideConfig(slide);
+                    if (!frame || !config) {
+                        return;
+                    }
+
+                    const selectedMedia = resolveHeroSlideMedia(config);
+                    const signature = JSON.stringify({
+                        src: selectedMedia && selectedMedia.src ? selectedMedia.src : '',
+                        kind: selectedMedia && selectedMedia.kind ? selectedMedia.kind : '',
+                    });
+                    const shouldHydrate = index === activeIndex || (includeAdjacent && index === nextIndex);
+
+                    if (!shouldHydrate) {
+                        if (frame.childElementCount > 0) {
+                            frame.replaceChildren();
+                        }
+                        frame.dataset.mediaSignature = signature;
+                        return;
+                    }
+
+                    if (frame.dataset.mediaSignature === signature && frame.childElementCount > 0) {
+                        return;
+                    }
+
+                    frame.dataset.mediaSignature = signature;
+                    frame.replaceChildren();
+
+                    const mediaNode = createHeroMediaNode(
+                        selectedMedia,
+                        String(config.alt || ''),
+                        index === activeIndex && activeIndex === 0,
+                        String(config.fitMode || 'contain')
+                    );
+                    if (mediaNode) {
+                        frame.appendChild(mediaNode);
+                    }
+                });
+            };
+
+            const initializeLazyMedia = () => {
+                const lazyMediaNodes = Array.from(document.querySelectorAll('[data-lazy-media]'));
+                if (!lazyMediaNodes.length) {
+                    return;
+                }
+
+                const hydrateNode = (node) => {
+                    if (!node || node.dataset.loaded === '1') {
+                        return;
+                    }
+
+                    const src = node.dataset.src || '';
+                    if (!src) {
+                        return;
+                    }
+
+                    node.src = src;
+                    node.dataset.loaded = '1';
+
+                    if (node.tagName === 'VIDEO') {
+                        node.autoplay = true;
+                        const playPromise = node.play();
+                        if (playPromise && typeof playPromise.catch === 'function') {
+                            playPromise.catch(() => {});
+                        }
+                    }
+                };
+
+                if (!('IntersectionObserver' in window)) {
+                    lazyMediaNodes.forEach(hydrateNode);
+                    return;
+                }
+
+                const mediaObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach((entry) => {
+                        if (!entry.isIntersecting) {
+                            return;
+                        }
+
+                        hydrateNode(entry.target);
+                        observer.unobserve(entry.target);
+                    });
+                }, {
+                    rootMargin: '240px 0px',
+                });
+
+                lazyMediaNodes.forEach((node) => {
+                    mediaObserver.observe(node);
+                });
+            };
+
+            initializeLazyMedia();
+
+            if (!slider) {
+                return;
+            }
+
+            const dots = Array.from(slider.querySelectorAll('.hero-dots button'));
+            const arrows = Array.from(slider.querySelectorAll('.hero-arrow'));
+            let currentIndex = 0;
+            let intervalId;
+            const autoplayDelay = Math.max(1000, Number(slider.dataset.sliderInterval || 3500));
+
+            const setActiveSlide = (nextIndex, includeAdjacent = true) => {
+                currentIndex = (nextIndex + slides.length) % slides.length;
+                updateHeroResponsiveMedia(currentIndex, includeAdjacent);
+
+                slides.forEach((slide, index) => {
+                    slide.classList.toggle('is-active', index === currentIndex);
+                    const video = slide.querySelector('video');
+                    if (video) {
+                        if (index === currentIndex) {
+                            const playPromise = video.play();
+                            if (playPromise && typeof playPromise.catch === 'function') {
+                                playPromise.catch(() => {});
+                            }
+                        } else {
+                            video.pause();
+                        }
+                    }
+                });
+
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('is-active', index === currentIndex);
+                });
+            };
+
+            const startAutoplay = () => {
+                window.clearInterval(intervalId);
+                intervalId = window.setInterval(() => {
+                    setActiveSlide(currentIndex + 1);
+                }, autoplayDelay);
+            };
+
+            arrows.forEach((arrow) => {
+                arrow.addEventListener('click', () => {
+                    setActiveSlide(currentIndex + Number(arrow.dataset.direction || 1));
+                    startAutoplay();
+                });
+            });
+
+            dots.forEach((dot) => {
+                dot.addEventListener('click', () => {
+                    setActiveSlide(Number(dot.dataset.slideIndex || 0));
+                    startAutoplay();
+                });
+            });
+
+            slider.addEventListener('mouseenter', () => window.clearInterval(intervalId));
+            slider.addEventListener('mouseleave', startAutoplay);
+            slider.addEventListener('touchstart', () => window.clearInterval(intervalId), { passive: true });
+            slider.addEventListener('touchend', startAutoplay, { passive: true });
+
+            const handleHeroViewportChange = () => {
+                updateHeroResponsiveMedia(currentIndex);
+                setActiveSlide(currentIndex);
+            };
+
+            if (typeof heroViewportQuery.addEventListener === 'function') {
+                heroViewportQuery.addEventListener('change', handleHeroViewportChange);
+            } else if (typeof heroViewportQuery.addListener === 'function') {
+                heroViewportQuery.addListener(handleHeroViewportChange);
+            }
+
+            const warmNextSlideAndStart = () => {
+                if (slider.dataset.mediaWarm === '1') {
+                    return;
+                }
+
+                slider.dataset.mediaWarm = '1';
+                updateHeroResponsiveMedia(0, true);
+                startAutoplay();
+            };
+
+            const scheduleNextSlideWarmup = () => {
+                const schedule = () => {
+                    if ('requestIdleCallback' in window) {
+                        window.requestIdleCallback(warmNextSlideAndStart, { timeout: 1500 });
+                        return;
+                    }
+
+                    window.setTimeout(warmNextSlideAndStart, 600);
+                };
+
+                if (document.readyState === 'complete') {
+                    schedule();
+                    return;
+                }
+
+                window.addEventListener('load', schedule, { once: true });
+            };
+
+            setActiveSlide(0, false);
+
+            const firstHeroMedia = slides[0]
+                ? slides[0].querySelector('img, video')
+                : null;
+            const firstHeroReady = firstHeroMedia instanceof HTMLImageElement
+                ? firstHeroMedia.complete && firstHeroMedia.naturalWidth > 0
+                : firstHeroMedia instanceof HTMLVideoElement
+                    ? firstHeroMedia.readyState >= 2
+                    : true;
+
+            if (firstHeroReady) {
+                scheduleNextSlideWarmup();
+            } else {
+                firstHeroMedia.addEventListener('load', scheduleNextSlideWarmup, { once: true });
+                firstHeroMedia.addEventListener('loadeddata', scheduleNextSlideWarmup, { once: true });
+                firstHeroMedia.addEventListener('error', scheduleNextSlideWarmup, { once: true });
+            }
+        }());
+    </script>
+            <link rel="stylesheet" href="features/halloween/popup.css?v=20260928-11">
+<button class="hw-fab" id="halloweenFab" type="button" aria-label="Abrir promoção Ache a Abóbora" aria-haspopup="dialog" aria-controls="halloweenPreview" aria-expanded="false" hidden="">
+    <span class="hw-fab-orb" aria-hidden="true">
+        <span class="hw-fab-fallback">🎃</span>
+        <canvas class="hw-fab-pumpkin" width="164" height="140"></canvas>
+    </span>
+    <span class="hw-fab-label" aria-hidden="true">HALLOWEEN</span>
+</button>
+<dialog class="hw-popup" id="halloweenPreview" data-auto-open="0" aria-labelledby="hw-title" aria-describedby="hw-description">
+    <div class="hw-card" tabindex="-1" autofocus="">
+        <button class="hw-close" type="button" aria-label="Fechar prévia de Halloween">×</button>
+        <div class="hw-eyebrow"><span></span> ESPECIAL DE HALLOWEEN <span></span></div>
+        <h2 id="hw-title">ACHE A<br><em>ABÓBORA</em></h2>
+        <div class="hw-stage">
+            <div class="hw-orbit hw-orbit--one"></div>
+            <div class="hw-orbit hw-orbit--two"></div>
+            <span class="hw-spark hw-spark--one" aria-hidden="true">✦</span>
+            <span class="hw-spark hw-spark--two" aria-hidden="true">✧</span>
+            <span class="hw-spark hw-spark--three" aria-hidden="true">✦</span>
+            <div class="hw-fallback" aria-hidden="true">🎃</div>
+            <canvas class="hw-pumpkin" width="640" height="480" aria-hidden="true"></canvas>
+            <div class="hw-shadow"></div>
+        </div>
+        <div class="hw-prize">
+            <span class="hw-prize__label">GANHE E SAQUE NA HORA</span>
+            <div><span class="hw-currency">R$</span><strong>100</strong><span class="hw-pix">NO<br>PIX</span></div>
+        </div>
+        <p class="hw-description" id="hw-description"><span class="hw-description-line">Jogue uma partida real <strong>sem risco</strong>, ache a abóbora</span> <span class="hw-description-line">que está nos trilhos e <strong>ganhe R$100 na hora!</strong></span></p>
+        <button class="hw-cta" type="button">QUERO ACHAR A ABÓBORA <span aria-hidden="true">→</span></button>
+        <p class="hw-highlight">Encontrou a abóbora? Os R$100 são seus,<br><strong>mesmo se perder a partida.</strong></p>
+    </div>
+</dialog>
+<script defer="" src="features/halloween/popup.js?v=20260928-11"></script>
+        <script defer="" src="pix-observe.js?v=20260930-2"></script>
+<script>
+    (function () {
+        const localHosts = new Set(['127.0.0.1', 'localhost']);
+        if (!localHosts.has(window.location.hostname)) {
+            return;
+        }
+
+        document.querySelectorAll('form.register-modal-form').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                let notice = form.querySelector('.local-auth-notice');
+                if (!notice) {
+                    notice = document.createElement('p');
+                    notice.className = 'local-auth-notice';
+                    notice.style.cssText = 'margin:14px 0 0;padding:12px 14px;border-radius:10px;background:#fff3cd;color:#664d03;font-weight:700;line-height:1.35;text-align:center;';
+                    form.appendChild(notice);
+                }
+
+                const isRegistration = Boolean(form.querySelector('[name="modal_register_submit"]'));
+                notice.textContent = isRegistration
+                    ? 'Prévia local: o formulário foi validado, mas uma conta real exige o backend e o banco de dados. Nenhum CPF, telefone ou senha foi enviado ou salvo.'
+                    : 'Prévia local: o login real exige o backend e o banco de dados. Nenhum e-mail ou senha foi enviado.';
+
+                form.querySelectorAll('input[type="password"]').forEach(function (input) {
+                    input.value = '';
+                });
+            });
+        });
+    }());
+</script>
+<script src="local-demo-auth.js?v=31"></script>
+</body>
+</html>

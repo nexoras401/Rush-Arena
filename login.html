@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Entrar — Rush Arena</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090807;color:#fff;font:16px system-ui;padding:20px}
+    .card{width:min(420px,100%);padding:28px;border:1px solid #ffffff1f;border-radius:20px;background:#171717;box-shadow:0 24px 70px #0009}
+    img{display:block;max-width:190px;margin:0 auto 22px}h1{margin:0 0 8px;text-align:center;font-size:26px}p{margin:0 0 22px;text-align:center;color:#bbb}
+    label{display:block;margin:14px 0 6px;font-weight:700}input{width:100%;padding:13px 14px;border:1px solid #ffffff2a;border-radius:10px;background:#0c0c0c;color:#fff;font-size:16px}
+    button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:#ed720f;color:white;font-weight:800;font-size:16px;cursor:pointer}
+    a{display:block;margin-top:18px;text-align:center;color:#ddd}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img src="/uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena">
+    <h1>Entrar</h1>
+    <p>Acesse sua conta Rush Arena</p>
+    <form id="loginForm">
+      <label for="loginEmail">E-mail</label>
+      <input id="loginEmail" name="email" type="email" placeholder="E-mail" autocomplete="username" required>
+      <label for="loginPassword">Senha</label>
+      <input id="loginPassword" name="password" type="password" placeholder="Senha" autocomplete="current-password" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <a href="/">Voltar ao site</a>
+  </main>
+  <script src="/production-api.js?v=7"></script>
+</body>
+</html>

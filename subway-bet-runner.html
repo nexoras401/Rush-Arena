@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rush Arena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: sans-serif; }
+        canvas { display: block; margin: 0 auto; background: #333; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        #ui-overlay { pointer-events: none; }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen">
+    <div id="ui-overlay" class="absolute inset-0 flex flex-col items-center justify-between p-6 z-10">
+        <div class="bg-black/60 backdrop-blur-md border-2 border-yellow-500 p-4 rounded-2xl text-center min-w-[200px]" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000;">
+            <p class="text-gray-300 text-xs uppercase font-bold tracking-widest">Saldo da Aposta</p>
+            <h1 id="game-balance" class="text-4xl font-black text-yellow-400">R$ 0,00</h1>
+        </div>
+        <div id="game-over" class="hidden bg-red-600 text-white p-8 rounded-3xl text-center shadow-2xl pointer-events-auto border-4 border-white">
+            <h2 class="text-3xl font-black mb-2">BATEU! 💥</h2>
+            <p class="text-lg mb-4">Você perdeu todo o seu saldo!</p>
+            <button onclick="resetGame()" class="bg-white text-red-600 px-6 py-2 rounded-full font-bold hover:bg-gray-200 transition">TENTAR NOVAMENTE</button>
+        </div>
+        <div class="bg-black/40 text-white p-2 rounded-lg text-sm">Use <span class="font-bold text-yellow-400">A / D</span> ou <span class="font-bold text-yellow-400">Setas</span> para mover</div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const balanceEl = document.getElementById('game-balance');
+        const gameOverEl = document.getElementById('game-over');
+        canvas.width = 400;
+        canvas.height = 600;
+
+        let gameActive = true;
+        let balance = 0.00;
+        const coinValue = 0.10;
+        const player = { lane: 1, width: 40, height: 60, color: '#f97316', x: 0 };
+        const lanes = [80, 200, 320];
+        let obstacles = [], coins = [], gameSpeed = 5, frameCount = 0;
+
+        window.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+            if ((e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') && player.lane > 0) player.lane--;
+            if ((e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') && player.lane < 2) player.lane++;
+        });
+
+        function spawnObjects() {
+            frameCount++;
+            if (frameCount % 60 === 0) {
+                const lane = Math.floor(Math.random() * 3);
+                if (Math.random() > 0.3) obstacles.push({ x: lanes[lane], y: -50, width: 50, height: 50 });
+                else coins.push({ x: lanes[lane], y: -50, radius: 15 });
+            }
+        }
+
+        function update() {
+            if (!gameActive) return;
+            player.x = lanes[player.lane];
+            spawnObjects();
+            obstacles.forEach((obs, index) => {
+                obs.y += gameSpeed;
+                if (obs.y + obs.height > canvas.height - 100 && obs.y < canvas.height - 100 + player.height && obs.x === player.x) endGame();
+                if (obs.y > canvas.height) obstacles.splice(index, 1);
+            });
+            coins.forEach((coin, index) => {
+                coin.y += gameSpeed;
+                if (coin.y + coin.radius > canvas.height - 100 && coin.y - coin.radius < canvas.height - 100 + player.height && coin.x === player.x) {
+                    balance += coinValue;
+                    balanceEl.innerText = `R$ ${balance.toFixed(2).replace('.', ',')}`;
+                    coins.splice(index, 1);
+                }
+                if (coin.y > canvas.height) coins.splice(index, 1);
+            });
+            gameSpeed += 0.001;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#444'; ctx.fillRect(50, 0, 300, canvas.height);
+            ctx.strokeStyle = '#666'; ctx.setLineDash([20, 20]); ctx.beginPath();
+            ctx.moveTo(140, 0); ctx.lineTo(140, canvas.height); ctx.moveTo(260, 0); ctx.lineTo(260, canvas.height); ctx.stroke();
+            ctx.fillStyle = player.color; ctx.shadowBlur = 15; ctx.shadowColor = player.color;
+            ctx.fillRect(player.x - player.width / 2, canvas.height - 100, player.width, player.height); ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ef4444'; obstacles.forEach(obs => ctx.fillRect(obs.x - obs.width / 2, obs.y, obs.width, obs.height));
+            ctx.fillStyle = '#facc15'; coins.forEach(coin => { ctx.beginPath(); ctx.arc(coin.x, coin.y, coin.radius, 0, Math.PI * 2); ctx.fill(); });
+        }
+
+        function endGame() { gameActive = false; balance = 0; balanceEl.innerText = 'R$ 0,00'; gameOverEl.classList.remove('hidden'); }
+        function resetGame() { balance = 0; balanceEl.innerText = 'R$ 0,00'; obstacles = []; coins = []; gameSpeed = 5; gameActive = true; gameOverEl.classList.add('hidden'); requestAnimationFrame(gameLoop); }
+        function gameLoop() { update(); draw(); if (gameActive) requestAnimationFrame(gameLoop); }
+        gameLoop();
+    </script>
+</body>
+</html>

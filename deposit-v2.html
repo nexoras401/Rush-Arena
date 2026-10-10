@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Depósito — Rush Arena</title>
+    <style>
+        @font-face { font-family: RushDisplay; src: url("play/assets/font/titan-one.woff2") format("woff2"); font-display: swap; }
+        * { box-sizing: border-box; }
+        :root { color-scheme: dark; }
+        body { min-height: 100vh; margin: 0; color: #fff; background: #06120a url("uploads/platform/rush-arena-banner-01.png") center/cover fixed no-repeat; font: 700 16px/1.25 system-ui, sans-serif; }
+        body::before { content: ""; position: fixed; inset: 0; background: rgba(1, 8, 4, .78); backdrop-filter: blur(5px); }
+        .deposit-layer { position: relative; z-index: 1; min-height: 100vh; display: grid; place-items: center; padding: 32px 18px; }
+        .deposit-card { position: relative; width: min(100%, 590px); max-height: calc(100vh - 40px); overflow: auto; padding: 28px; border: 1px solid rgba(132, 182, 116, .28); border-radius: 24px; background: linear-gradient(180deg, rgba(37,40,34,.98), rgba(14,21,15,.99)); box-shadow: 0 30px 90px #000c, 0 0 0 1px rgba(255,255,255,.025) inset; }
+        .close { position: absolute; z-index: 3; top: 16px; right: 16px; width: 52px; height: 52px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.15); border-radius: 17px; color: #fff; background: rgba(255,255,255,.04); text-decoration: none; font-size: 34px; line-height: 1; }
+        .deposit-brand { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 58px 22px 0; }
+        .deposit-brand img { display:block; width:112px; height:auto; }
+        .trust-badge { display:inline-flex; align-items:center; gap:7px; padding:9px 12px; border:1px solid rgba(94,220,111,.25); border-radius:999px; color:#c9f7ce; background:rgba(38,133,53,.13); font-size:12px; white-space:nowrap; }
+        .promo-timer { margin: 0 0 24px; padding: 17px 20px; border: 1px solid rgba(255,141,88,.28); border-radius: 18px; background: linear-gradient(135deg, rgba(179,64,26,.92), rgba(125,42,23,.94)); box-shadow: 0 14px 30px rgba(0,0,0,.18); text-align: center; }
+        .promo-timer__label { display: block; margin-bottom: 8px; font-size: 15px; letter-spacing:.05em; text-transform: uppercase; }
+        .countdown { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .countdown b { min-width: 48px; padding: 7px 8px; border-radius: 12px; color: #222; background: #fff; font-size: 25px; }
+        .countdown span { font-size: 24px; }
+        .promo-timer p { margin: 0; font-size: 15px; line-height: 1.45; }
+        h1 { display: flex; gap: 11px; align-items: center; margin: 0 0 12px; font: 400 clamp(27px, 5vw, 38px)/1.1 RushDisplay, system-ui, sans-serif; }
+        h1::before { content: "◆"; color: #64df67; font: 16px/1 system-ui; transform: rotate(45deg); }
+        .intro { margin: 0 0 24px; color: #c9cfca; font-size: 16px; line-height:1.5; }
+        .offers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .offer { position: relative; min-height: 74px; padding: 14px; border: 1px solid #356c2b; border-radius: 23px; color: #fff; background: linear-gradient(180deg, #294726, #1d351c); cursor: pointer; font: 900 23px/1 system-ui; }
+        .offer:hover { filter: brightness(1.1); }
+        .offer.is-selected { border-color: #48ef4c; background: linear-gradient(180deg, #48e747, #20bd2b); box-shadow: 0 12px 27px rgba(47,223,59,.22); }
+        .offer-bonus { position: absolute; top: -17px; right: -9px; padding: 8px 12px; border-radius: 18px; color: #ffe36d; background: #aa5904; font-size: 13px; white-space: nowrap; }
+        .amount-label { display: block; margin: 26px 0 9px; color: #e5e9e5; font-size: 13px; letter-spacing:.06em; text-transform: uppercase; }
+        .amount-wrap { position: relative; }
+        .amount-prefix { position: absolute; left: 50%; top: 50%; transform: translate(-112px,-50%); z-index: 1; font-size: 35px; pointer-events: none; }
+        #amount { width: 100%; height: 88px; padding: 12px 22px 12px 52%; border: 1px solid #25862b; border-radius: 13px; outline: 0; color: #fff; background: linear-gradient(180deg, #176222, #10521a); font: 900 36px/1 system-ui; appearance: textfield; }
+        #amount::-webkit-inner-spin-button { display: none; }
+        .amount-wrap input:not(#amount) { width:100%; min-height:58px; padding:14px 16px; border:1px solid rgba(113,166,105,.45); border-radius:13px; outline:0; color:#fff; background:#0c160e; font:700 17px/1.2 system-ui; letter-spacing:.02em; transition:border-color .18s, box-shadow .18s; }
+        .amount-wrap input:focus { border-color:#50dd58 !important; box-shadow:0 0 0 4px rgba(67,208,77,.13); }
+        .summary { margin: 15px 0 0; color: #d6e8d6; text-align: center; font-size: 15px; }
+        .secure { display: flex; justify-content: center; gap: 8px; margin: 22px 0 14px; color: #f6f0dc; text-align: center; font-size: 14px; }
+        .primary { display:flex; align-items:center; justify-content:center; width: 100%; min-height: 62px; border: 0; border-radius: 14px; color: #fff; background: linear-gradient(180deg, #45df4c, #22ad30); box-shadow: 0 6px 0 #147b20, 0 16px 28px rgba(30,202,48,.18); cursor: pointer; font: 400 21px/1 RushDisplay, system-ui; text-transform: uppercase; }
+        .primary:disabled { cursor:wait; opacity:.7; filter:saturate(.65); }
+        .warning { margin-top: 20px; padding:12px 14px; border-radius:12px; color: #d7ded8; background:rgba(255,255,255,.035); text-align: center; font-size: 12px; line-height:1.5; }
+        @media (max-width: 560px) { .deposit-layer { padding: 8px; place-items: stretch; } .deposit-card { max-height: none; min-height: calc(100vh - 16px); padding: 18px; border-radius: 20px; } .deposit-brand { margin:0 48px 18px 0; } .deposit-brand img { width:92px; } .trust-badge { padding:7px 9px; font-size:10px; } .promo-timer { padding: 15px 12px; border-radius: 15px; } .close { top: 12px; right: 12px; width: 42px; height: 42px; border-radius:12px; } .offers { gap: 10px; } .offer { min-height: 64px; border-radius: 15px; font-size: 19px; } .offer-bonus { right: -4px; padding: 6px 8px; font-size: 9px; } #amount { height:76px; padding-left: 50%; font-size: 30px; } .amount-prefix { transform: translate(-94px,-50%); font-size: 29px; } }
+    </style>
+</head>
+<body>
+    <div class="deposit-layer"><main class="deposit-card">
+        <a class="close" href="/" aria-label="Fechar">×</a>
+        <header class="deposit-brand">
+            <img src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena">
+            <span class="trust-badge"><span aria-hidden="true">🔒</span> Pagamento protegido</span>
+        </header>
+        <section class="promo-timer" aria-label="Promoção de primeiro depósito">
+            <span class="promo-timer__label">Prêmio expira em:</span>
+            <div class="countdown"><b id="minutes">04</b><span>:</span><b id="seconds">59</b></div>
+            <p>Deposite R$ 50 e ganhe R$ 20 extra. Para um prêmio maior, no R$ 100 você ganha R$ 50 extra.</p>
+        </section>
+        <h1>Escolha o valor:</h1>
+        <p class="intro">Escolha o valor do seu primeiro depósito. Mín. R$ 20,00 / Máx. R$ 10.000,00</p>
+        <div class="offers" aria-label="Ofertas de depósito">
+            <button class="offer" type="button" data-amount="20">R$ 20</button>
+            <button class="offer" type="button" data-amount="30"><span class="offer-bonus">GANHE R$ 10 EXTRA</span>R$ 30</button>
+            <button class="offer" type="button" data-amount="50"><span class="offer-bonus">GANHE R$ 20 EXTRA</span>R$ 50</button>
+            <button class="offer" type="button" data-amount="100"><span class="offer-bonus">GANHE R$ 50 EXTRA</span>R$ 100</button>
+        </div>
+        <form id="depositForm">
+            <label class="amount-label" for="amount">Valor do depósito</label>
+            <div class="amount-wrap"><span class="amount-prefix">R$</span><input id="amount" name="amount" type="number" min="20" max="10000" step="1" value="20" required></div>
+            <label class="amount-label" for="payerCpf">CPF do pagador</label>
+            <div class="amount-wrap"><input id="payerCpf" name="payerDocument" type="text" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" minlength="11" maxlength="14" required></div>
+            <div class="summary" id="summary">Total liberado: R$ 20,00</div>
+            <div class="secure"><span aria-hidden="true">🔒</span> Faça seu primeiro depósito seguro e ganhe bônus</div>
+            <button class="primary" type="submit">Gerar PIX</button>
+        </form>
+        <div class="warning">O saldo será liberado automaticamente após a confirmação do pagamento.</div>
+    </main></div>
+    <script>
+        (function () {
+            if (!localStorage.getItem('rushArenaLocalTestSession')) { location.replace('/test-account.html?next=deposit'); return; }
+            if (new URLSearchParams(location.search).get('reason') === 'insufficient_balance') {
+                document.querySelector('.intro').textContent = 'Seu saldo é insuficiente para jogar. Faça um depósito e mantenha pelo menos R$ 10,00 disponíveis para a entrada.';
+            }
+            const amountInput = document.getElementById('amount'); const summary = document.getElementById('summary'); const offers = Array.from(document.querySelectorAll('.offer'));
+            function bonusFor(amount) { if (amount >= 100) return 50; if (amount >= 50) return 20; if (amount >= 30) return 10; return 0; }
+            function money(value) { return Number(value || 0).toFixed(2).replace('.', ','); }
+            function referralCodeFor(email) { let hash = 0; String(email || '').toLowerCase().split('').forEach(function (char) { hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0; }); return 'RUSH-' + Math.abs(hash).toString(36).toUpperCase().padStart(6, '0').slice(0, 8); }
+            function registerReferralCommission(amount, createdAt) {
+                let pending = null; let account = null; let ledger = {};
+                try { pending = JSON.parse(localStorage.getItem('rushArenaPendingReferral') || 'null'); } catch (error) { pending = null; }
+                try { account = JSON.parse(localStorage.getItem('rushArenaLocalTestSession') || 'null'); } catch (error) { account = null; }
+                try { ledger = JSON.parse(localStorage.getItem('rushArenaLocalReferralLedger') || '{}') || {}; } catch (error) { ledger = {}; }
+                const code = pending && String(pending.code || '').toUpperCase();
+                if (!code || !account || code === referralCodeFor(account.email)) return;
+                const existingProfile = ledger[code] || null;
+                const commissionRate = existingProfile && existingProfile.isInfluencer ? 30 : 10;
+                const commission = Math.round(Number(amount || 0) * commissionRate) / 100;
+                const profile = existingProfile || { commissionBalance: 0, totalCommission: 0, totalDeposits: 0, referredUsers: [], transactions: [], commissionRate: 10, isInfluencer: false };
+                if (!Array.isArray(profile.referredUsers)) profile.referredUsers = [];
+                if (!Array.isArray(profile.transactions)) profile.transactions = [];
+                profile.commissionRate = commissionRate;
+                if (account.email && !profile.referredUsers.includes(account.email)) profile.referredUsers.push(account.email);
+                profile.commissionBalance = Math.round((Number(profile.commissionBalance || 0) + commission) * 100) / 100;
+                profile.totalCommission = Math.round((Number(profile.totalCommission || 0) + commission) * 100) / 100;
+                profile.totalDeposits = Math.round((Number(profile.totalDeposits || 0) + Number(amount || 0)) * 100) / 100;
+                profile.transactions.unshift({ user: account.email || 'Usuário indicado', deposit: Number(amount || 0), commission: commission, createdAt: createdAt });
+                ledger[code] = profile;
+                localStorage.setItem('rushArenaLocalReferralLedger', JSON.stringify(ledger));
+            }
+            function render() { const amount = Number(amountInput.value || 0); const bonus = bonusFor(amount); const total = amount + bonus; summary.textContent = amount >= 20 ? 'Depósito R$ ' + money(amount) + ' + bônus R$ ' + money(bonus) + ' • Total liberado: R$ ' + money(total) : 'O depósito mínimo é R$ 20,00.'; offers.forEach(function (offer) { offer.classList.toggle('is-selected', Number(offer.dataset.amount) === amount); }); }
+            offers.forEach(function (offer) { offer.addEventListener('click', function () { amountInput.value = offer.dataset.amount; render(); }); }); amountInput.addEventListener('input', render);
+            document.getElementById('depositForm').addEventListener('submit', function (event) {
+                if (!['127.0.0.1', 'localhost'].includes(location.hostname)) return;
+                event.preventDefault();
+                const amount = Number(amountInput.value || 0);
+                if (amount < 20 || amount > 10000) { render(); amountInput.focus(); return; }
+                const bonus = bonusFor(amount); const credited = amount + bonus; const createdAt = new Date().toISOString();
+                localStorage.setItem('rushArenaLocalTestDeposit', JSON.stringify({ amount: amount, bonus: bonus, total: credited, simulated: true, createdAt: createdAt }));
+                let wallet = null;
+                try { wallet = JSON.parse(localStorage.getItem('rushArenaLocalTestWallet') || 'null'); } catch (error) { wallet = null; }
+                if (!wallet || !Number.isFinite(Number(wallet.balance))) wallet = { balance: 0, simulated: true, transactions: [] };
+                if (!Array.isArray(wallet.transactions)) wallet.transactions = [];
+                wallet.balance = Math.round((Number(wallet.balance || 0) + credited) * 100) / 100;
+                wallet.simulated = true;
+                wallet.transactions.push({ type: 'deposit', amount: credited, depositAmount: amount, bonus: bonus, createdAt: createdAt });
+                localStorage.setItem('rushArenaLocalTestWallet', JSON.stringify(wallet));
+                registerReferralCommission(amount, createdAt);
+                location.href = '/';
+            });
+            let remaining = 299; window.setInterval(function () { remaining = Math.max(0, remaining - 1); document.getElementById('minutes').textContent = String(Math.floor(remaining / 60)).padStart(2, '0'); document.getElementById('seconds').textContent = String(remaining % 60).padStart(2, '0'); }, 1000); render();
+        }());
+    </script>
+<script src="/production-api.js?v=7" defer></script>
+</body>
+</html>

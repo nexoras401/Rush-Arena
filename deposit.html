@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Depósito de teste — Rush Arena</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; color: #fff; background: radial-gradient(circle at top, #26385c, #080a10 70%); font: 16px/1.45 system-ui, sans-serif; }
+        main { width: min(100%, 620px); padding: 28px; border: 1px solid #34466c; border-radius: 24px; background: #121722; box-shadow: 0 24px 70px #000a; }
+        h1 { margin: 0 0 8px; font-size: clamp(28px, 6vw, 40px); }
+        p { margin: 0 0 22px; color: #bdc7da; }
+        .offers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .offer { padding: 18px 10px; border: 1px solid #49608c; border-radius: 16px; color: #fff; background: #1b263a; cursor: pointer; text-align: center; }
+        .offer strong { display: block; font-size: 24px; }
+        .offer span { color: #57e782; font-weight: 800; }
+        .offer.is-selected { outline: 3px solid #43db70; background: #203d32; }
+        label { display: grid; gap: 7px; margin-top: 20px; font-weight: 800; }
+        input { padding: 13px 14px; border: 1px solid #49608c; border-radius: 11px; color: #fff; background: #0b0e15; font: inherit; }
+        .summary { margin: 18px 0 0; padding: 14px; border-radius: 12px; background: #0b0e15; color: #dce5f5; }
+        .primary, .back { width: 100%; min-height: 50px; border-radius: 11px; font-weight: 900; }
+        .primary { margin-top: 18px; border: 0; color: #07110a; background: #43db70; cursor: pointer; }
+        .back { display: grid; place-items: center; margin-top: 10px; color: #dce5f5; text-decoration: none; }
+        .warning { margin-top: 18px; color: #e8bd69; font-size: 14px; }
+        @media (max-width: 560px) { .offers { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Depósito</h1>
+        <p>Escolha um valor. O depósito mínimo é R$ 20,00.</p>
+        <div class="offers" aria-label="Ofertas de depósito">
+            <button class="offer" type="button" data-amount="30" data-bonus="10"><strong>R$ 30</strong><span>+ R$ 10 bônus</span></button>
+            <button class="offer" type="button" data-amount="50" data-bonus="20"><strong>R$ 50</strong><span>+ R$ 20 bônus</span></button>
+            <button class="offer" type="button" data-amount="100" data-bonus="50"><strong>R$ 100</strong><span>+ R$ 50 bônus</span></button>
+        </div>
+        <form id="depositForm">
+            <label>Outro valor<input id="amount" type="number" min="20" step="1" value="20" required></label>
+            <div class="summary" id="summary">Você libera R$ 20,00 para jogar.</div>
+            <button class="primary" type="submit">Simular depósito e liberar jogo</button>
+        </form>
+        <a class="back" href="/">Voltar ao site</a>
+        <div class="warning">Ambiente local de demonstração: nenhum pagamento real será cobrado ou processado.</div>
+    </main>
+    <script>
+        (function () {
+            if (!localStorage.getItem('rushArenaLocalTestSession')) {
+                location.replace('/test-account.html?next=deposit');
+                return;
+            }
+            const amountInput = document.getElementById('amount');
+            const summary = document.getElementById('summary');
+            const offers = Array.from(document.querySelectorAll('.offer'));
+            function bonusFor(amount) { if (amount >= 100) return 50; if (amount >= 50) return 20; if (amount >= 30) return 10; return 0; }
+            function render() {
+                const amount = Number(amountInput.value || 0); const bonus = bonusFor(amount); const total = amount + bonus;
+                summary.textContent = amount >= 20 ? 'Depósito: R$ ' + amount.toFixed(2).replace('.', ',') + ' • Bônus: R$ ' + bonus.toFixed(2).replace('.', ',') + ' • Total liberado: R$ ' + total.toFixed(2).replace('.', ',') : 'O depósito mínimo é R$ 20,00.';
+                offers.forEach(function (offer) { offer.classList.toggle('is-selected', Number(offer.dataset.amount) === amount); });
+            }
+            offers.forEach(function (offer) { offer.addEventListener('click', function () { amountInput.value = offer.dataset.amount; render(); }); });
+            amountInput.addEventListener('input', render);
+            document.getElementById('depositForm').addEventListener('submit', function (event) {
+                event.preventDefault(); const amount = Number(amountInput.value || 0); if (amount < 20) { render(); amountInput.focus(); return; }
+                const bonus = bonusFor(amount);
+                localStorage.setItem('rushArenaLocalTestDeposit', JSON.stringify({ amount: amount, bonus: bonus, total: amount + bonus, simulated: true, createdAt: new Date().toISOString() }));
+                location.href = '/';
+            });
+            render();
+        }());
+    </script>
+</body>
+</html>

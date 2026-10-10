@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Painel do Influenciador — Rush Arena</title>
+  <script>(function(){try{const session=JSON.parse(localStorage.getItem('rushArenaLocalPanelSession')||'null');if(session&&session.role==='admin'){location.replace('admin.html?view=dashboard')}if(!session){location.replace('panel.html')}}catch(error){location.replace('panel.html')}}());</script>
+  <style>
+    :root{color-scheme:dark;--bg:#080b09;--card:#121813;--line:#273129;--green:#39dc58;--text:#f4f7f4;--muted:#87938a;--danger:#ff7885}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% 0,#14321e 0,transparent 34%),var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif}.hidden{display:none!important}.login-shell{min-height:100vh;display:grid;place-items:center;padding:20px}.login-card{width:min(430px,100%);padding:28px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#182119,#101411);box-shadow:0 28px 80px #0009}.logo{display:flex;align-items:center;gap:13px;margin-bottom:24px}.logo img{width:62px;height:62px;object-fit:contain}.logo h1{margin:0;font-size:22px}.logo p,.muted{margin:4px 0 0;color:var(--muted)}label{display:grid;gap:7px;margin:14px 0;color:#96a199;font-size:11px;font-weight:900;text-transform:uppercase}input{width:100%;min-height:50px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;outline:0;color:#fff;background:#0b100c;font:inherit}input:focus{border-color:var(--green)}button{min-height:48px;padding:0 16px;border:0;border-radius:11px;color:#061008;background:linear-gradient(#4bed69,#28bb46);font-weight:950;cursor:pointer}.login-card button{width:100%;margin-top:7px}.status{min-height:22px;margin:13px 0 0;color:#ff98a1;font-weight:750;text-align:center}.demo-note{margin-top:18px;padding:12px;border:1px solid #28452d;border-radius:11px;color:#9fb0a1;background:#102015;font-size:12px;line-height:1.5}.app{min-height:100vh}.topbar{display:flex;align-items:center;gap:14px;padding:17px max(18px,calc((100% - 1180px)/2));border-bottom:1px solid var(--line);background:#0b0f0cdd;backdrop-filter:blur(12px)}.topbar img{width:48px;height:48px;object-fit:contain}.topbar h1{margin:0;font-size:20px}.user{margin-left:auto;text-align:right}.user strong{display:block}.logout{min-height:36px;margin-left:10px;border:1px solid var(--line);color:#c5cec7;background:#151b16}.content{max-width:1180px;margin:auto;padding:26px 18px 50px}.welcome{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:19px}.welcome h2{margin:0;font-size:26px}.badge{display:inline-flex;padding:7px 10px;border-radius:99px;color:#73ed87;background:#15371d;font-size:11px;font-weight:900}.tabs{display:flex;gap:8px;margin-bottom:17px;padding:5px;border:1px solid var(--line);border-radius:13px;background:#0d120e;width:max-content}.tab-button{display:flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:11px;color:#9ba69e;background:transparent;font-weight:950;text-decoration:none}.tab-button.is-active{color:#071008;background:var(--green)}.tab-panel{display:none}.tab-panel.is-active{display:block}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.card{border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#171e18,var(--card));box-shadow:0 18px 50px #0003}.kpi{min-height:140px;padding:18px}.kpi span{color:#7f8a82;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.kpi strong{display:block;margin-top:13px;font-size:26px}.kpi small{display:block;margin-top:9px;color:#60e577}.grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,.7fr);gap:13px;margin-top:13px}.panel{padding:19px}.panel h3{margin:0 0 15px;font-size:17px}.affiliate{display:flex;gap:8px}.affiliate input{min-height:45px}.affiliate button{flex:0 0 auto}.history{display:grid;gap:9px;margin-top:15px}.row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px;border-radius:11px;background:#0c110d}.row small{display:block;margin-top:3px;color:var(--muted)}.positive{color:#63e878}.negative{color:var(--danger)}.empty{padding:28px;color:var(--muted);text-align:center}.withdraw-form button{width:100%;margin-top:7px}.withdraw-status{min-height:20px;color:#d9bd75;font-weight:750;text-align:center}.security{margin-top:14px;color:#717b73;font-size:12px;line-height:1.5}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}table{width:100%;min-width:720px;border-collapse:collapse}th,td{padding:14px;border-bottom:1px solid #222b24;text-align:left}th{color:#7d8980;background:#0c100d;font-size:10px;letter-spacing:.08em;text-transform:uppercase}td{color:#cad1cb}tr:last-child td{border-bottom:0}.referral-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:15px}.referral-head h3{margin:0 0 5px;font-size:20px}@media(max-width:850px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:520px){.kpis{grid-template-columns:1fr}.welcome,.referral-head{align-items:flex-start;flex-direction:column}.user{display:none}.topbar h1{font-size:16px}.affiliate{align-items:stretch;flex-direction:column}.tabs{width:100%}.tab-button{flex:1}}
+  </style>
+</head>
+<body>
+  <section class="login-shell" id="loginView">
+    <article class="login-card">
+      <div class="logo"><img src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena"><div><h1>Painel do Influenciador</h1><p>Entre com o acesso criado pelo administrador</p></div></div>
+      <form id="loginForm"><label>Login<input name="login" required autocomplete="username"></label><label>Senha<input name="password" type="password" required autocomplete="current-password"></label><button type="submit">Entrar no dashboard</button><p class="status" id="loginStatus" aria-live="polite"></p></form>
+      <div class="demo-note"><strong>Ambiente de demonstração local.</strong> Os dados ficam somente neste navegador e não representam pagamentos reais.</div>
+    </article>
+  </section>
+
+  <section class="app hidden" id="dashboardView">
+    <header class="topbar"><img src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena"><div><h1>Rush Gestão</h1><p class="muted">Área exclusiva do influenciador</p></div><div class="user"><strong id="headerName">Influenciador</strong><span class="muted" id="headerLogin"></span></div><button class="logout" id="logoutButton">Sair</button></header>
+    <main class="content">
+      <div class="welcome"><div><h2>Olá, <span id="welcomeName">Influenciador</span></h2><p class="muted">Acompanhe suas indicações, depósitos e comissões.</p></div></div>
+      <nav class="tabs" aria-label="Seções do painel"><a class="tab-button is-active" id="overviewTabButton" href="?tab=overview">Dashboard</a><a class="tab-button" id="referralsTabButton" href="?tab=referrals">Indicações <span id="referralTabCount">0</span></a></nav>
+      <section class="tab-panel is-active" data-tab-panel="overview"><section class="kpis"><article class="card kpi"><span>Saldo disponível</span><strong id="balanceValue">R$ 0,00</strong><small>Comissão disponível</small></article><article class="card kpi"><span>Comissão total</span><strong id="commissionValue">R$ 0,00</strong><small>Recebida no período</small></article><article class="card kpi"><span>Depósitos indicados</span><strong id="depositsValue">R$ 0,00</strong><small>Volume da sua rede</small></article><article class="card kpi"><span>Indicados</span><strong id="referredValue">0</strong><small>Usuários únicos</small></article></section>
+      <div class="grid"><article class="card panel"><h3>Seu link de afiliado</h3><div class="affiliate"><input id="affiliateLink" readonly><button id="copyButton">Copiar link</button></div><h3 style="margin-top:23px">Movimentações</h3><div class="history" id="history"></div></article><article class="card panel"><h3>Solicitar saque</h3><p class="muted">Saque mínimo de R$ 20,00.</p><form class="withdraw-form" id="withdrawForm"><label>Chave Pix<input name="pixKey" required minlength="3" maxlength="120" autocomplete="off"></label><label>Valor<input name="amount" type="number" min="20" step="0.01" required placeholder="Mínimo R$ 20,00"></label><button type="submit">Solicitar saque de teste</button><p class="withdraw-status" id="withdrawStatus" aria-live="polite"></p></form><p class="security">A chave fica mascarada no histórico. Este painel não mostra contas, PIX ou saldos de outros usuários e não possui funções administrativas.</p></article></div></section>
+      <section class="tab-panel" data-tab-panel="referrals"><article class="card panel"><div class="referral-head"><div><h3>Suas indicações</h3><p class="muted">Pessoas cadastradas pelo seu link de afiliado.</p></div><span class="badge" id="referralSummary">0 indicados</span></div><div class="table-wrap"><table><thead><tr><th>Usuário indicado</th><th>Depósitos</th><th>Total depositado</th><th>Sua comissão</th><th>Última atividade</th></tr></thead><tbody id="referralRows"></tbody></table></div><p class="security">Os dados pessoais aparecem parcialmente mascarados. Esta lista contém apenas indicações vinculadas ao seu código.</p></article></section>
+    </main>
+  </section>
+  <script>
+  (function(){'use strict';
+    const live = !['localhost', '127.0.0.1'].includes(location.hostname);
+    const money = value => Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const safe = value => String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+
+    if (live) {
+      document.querySelectorAll('.demo-note').forEach(n => n.hidden = true);
+      const token = () => localStorage.getItem('rushArenaApiToken') || '';
+
+      function showLogin(){document.getElementById('loginView').classList.remove('hidden');document.getElementById('dashboardView').classList.add('hidden');}
+      function showDashboard(){document.getElementById('loginView').classList.add('hidden');document.getElementById('dashboardView').classList.remove('hidden');renderLive();}
+
+      async function api(path, options = {}) {
+        const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+        if (token()) headers.Authorization = `Bearer ${token()}`;
+        const response = await fetch(`/api${path}`, { ...options, headers });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.error || 'Erro na requisição.');
+        return body;
+      }
+
+      function maskReferral(value) {
+        const text = String(value || 'Usuário indicado');
+        if (text.includes('@')) {
+          const parts = text.split('@');
+          return (parts[0].slice(0, 2) || 'us') + '***@' + parts.slice(1).join('@');
+        }
+        return text;
+      }
+
+      async function renderLive() {
+        try {
+          const data = await api('/influencer/overview');
+          const me = await api('/me');
+
+          document.getElementById('headerName').textContent = me.name || 'Influenciador';
+          document.getElementById('headerLogin').textContent = me.email || '';
+          document.getElementById('welcomeName').textContent = me.name || 'Influenciador';
+          document.getElementById('balanceValue').textContent = money((data.balanceCents || 0) / 100);
+          document.getElementById('commissionValue').textContent = money((data.totalCommissionCents || 0) / 100);
+          document.getElementById('depositsValue').textContent = money((data.totalDepositsCents || 0) / 100);
+          document.getElementById('referredValue').textContent = String(data.totalReferredUsers || 0);
+          document.getElementById('referralTabCount').textContent = '(' + (data.totalReferredUsers || 0) + ')';
+          document.getElementById('referralSummary').textContent = (data.totalReferredUsers || 0) + ' indicado' + (data.totalReferredUsers === 1 ? '' : 's');
+
+          const rows = Array.isArray(data.referredUsers) ? data.referredUsers : [];
+          document.getElementById('referralRows').innerHTML = rows.length ? rows.map(item =>
+            '<tr><td><strong>' + safe(maskReferral(item.email || item.name)) + '</strong></td><td>' + item.deposits_count + '</td><td>' + money((item.deposits_cents || 0) / 100) + '</td><td class="positive">+' + money((item.commission_cents || 0) / 100) + '</td><td>' + (item.last_activity ? new Date(item.last_activity).toLocaleString('pt-BR') : 'Sem depósito') + '</td></tr>'
+          ).join('') : '<tr><td colspan="5" class="empty">Nenhuma indicação vinculada ao seu link ainda.</td></tr>';
+
+          document.getElementById('affiliateLink').value = location.origin + '/?ref=' + encodeURIComponent(data.referralCode);
+
+          const history = Array.isArray(data.history) ? data.history : [];
+          document.getElementById('history').innerHTML = history.length ? history.slice(0, 20).map(item =>
+            item.kind === 'withdrawal_hold'
+              ? '<div class="row"><div><strong>Saque solicitado</strong><small>' + new Date(item.created_at).toLocaleString('pt-BR') + '</small></div><b class="negative">-' + money(Math.abs(item.amount_cents) / 100) + '</b></div>'
+              : '<div class="row"><div><strong>Comissão de depósito</strong><small>' + new Date(item.created_at).toLocaleString('pt-BR') + '</small></div><b class="positive">+' + money(Math.abs(item.amount_cents) / 100) + '</b></div>'
+          ).join('') : '<div class="empty">Nenhuma movimentação ainda.</div>';
+        } catch (err) {
+          localStorage.removeItem('rushArenaApiToken');
+          showLogin();
+        }
+      }
+
+      document.getElementById('loginForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        const email = String(data.get('login') || '').trim().toLowerCase();
+        const password = String(data.get('password') || '');
+        const status = document.getElementById('loginStatus');
+        status.textContent = 'Entrando...';
+        try {
+          const res = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+          localStorage.setItem('rushArenaApiToken', res.token);
+          status.textContent = '';
+          showDashboard();
+        } catch (err) {
+          status.textContent = err.message || 'Login ou senha inválidos.';
+        }
+      });
+
+      document.getElementById('copyButton').addEventListener('click', async () => {
+        const button = document.getElementById('copyButton');
+        try {
+          await navigator.clipboard.writeText(document.getElementById('affiliateLink').value);
+          button.textContent = 'Copiado!';
+        } catch (_) {
+          document.getElementById('affiliateLink').select();
+          document.execCommand('copy');
+          button.textContent = 'Copiado!';
+        }
+        setTimeout(() => { button.textContent = 'Copiar link'; }, 1800);
+      });
+
+      document.getElementById('withdrawForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const amount = Number(formData.get('amount'));
+        const pixKey = String(formData.get('pixKey') || '').trim();
+        const status = document.getElementById('withdrawStatus');
+        status.textContent = 'Processando...';
+        try {
+          await api('/influencer/withdraw', { method: 'POST', body: JSON.stringify({ amountCents: Math.round(amount * 100), pixKey, pixType: 'random' }) });
+          event.currentTarget.reset();
+          status.textContent = 'Saque solicitado com sucesso.';
+          await renderLive();
+        } catch (err) {
+          status.textContent = err.message;
+        }
+      });
+
+      document.getElementById('logoutButton').addEventListener('click', () => {
+        localStorage.removeItem('rushArenaApiToken');
+        location.replace('panel.html');
+      });
+
+      document.getElementById('overviewTabButton').onclick = (e) => { e.preventDefault(); activateTab('overview'); };
+      document.getElementById('referralsTabButton').onclick = (e) => { e.preventDefault(); activateTab('referrals'); };
+
+      function activateTab(name){
+        document.getElementById('overviewTabButton').classList.toggle('is-active', name==='overview');
+        document.getElementById('referralsTabButton').classList.toggle('is-active', name==='referrals');
+        document.querySelectorAll('[data-tab-panel]').forEach(panel => panel.classList.toggle('is-active', panel.dataset.tabPanel===name));
+      }
+
+      if (token()) showDashboard(); else showLogin();
+      return;
+    }
+
+    const keys={access:'rushArenaLocalInfluencerAccess',session:'rushArenaLocalInfluencerSession',ledger:'rushArenaLocalReferralLedger'};
+    const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch(error){return fallback}};
+    const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+    const money=value=>Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    const safe=value=>String(value==null?'':value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const bytesToHex=bytes=>Array.from(bytes,value=>value.toString(16).padStart(2,'0')).join('');
+    async function passwordHash(password,salt){const encoded=new TextEncoder().encode(String(salt)+':'+String(password));return bytesToHex(new Uint8Array(await crypto.subtle.digest('SHA-256',encoded)))}
+    let activeSession=read(keys.session,null);
+    function showLogin(){document.getElementById('loginView').classList.remove('hidden');document.getElementById('dashboardView').classList.add('hidden')}
+    function showDashboard(){document.getElementById('loginView').classList.add('hidden');document.getElementById('dashboardView').classList.remove('hidden');render()}
+    function currentAccess(){return read(keys.access,[]).find(item=>item.active!==false&&activeSession&&item.id===activeSession.id)}
+    function currentProfile(){const access=currentAccess();return access?{access,ledger:read(keys.ledger,{}),profile:read(keys.ledger,{})[access.referralCode]}:null}
+    function maskReferral(value){const text=String(value||'Usuário indicado');if(text.includes('@')){const parts=text.split('@');return(parts[0].slice(0,2)||'us')+'***@'+parts.slice(1).join('@')}const digits=text.replace(/\D/g,'');if(digits.length>=8)return'(**) *****-'+digits.slice(-4);return text.length>4?text.slice(0,2)+'***'+text.slice(-1):'Usuário indicado'}
+    function referralStats(profile){const map=new Map();(profile.referredUsers||[]).forEach(user=>{const key=String(user||'').toLowerCase();if(key&&!map.has(key))map.set(key,{user:String(user),count:0,deposits:0,commission:0,last:null})});(profile.transactions||[]).filter(item=>item.type!=='influencer_withdrawal').forEach(item=>{const user=String(item.user||'Usuário indicado');const key=user.toLowerCase();const row=map.get(key)||{user,count:0,deposits:0,commission:0,last:null};row.count+=1;row.deposits+=Number(item.deposit||0);row.commission+=Number(item.commission||0);if(!row.last||new Date(item.createdAt)>new Date(row.last))row.last=item.createdAt;map.set(key,row)});return Array.from(map.values()).sort((a,b)=>new Date(b.last||0)-new Date(a.last||0))}
+    function render(){const data=currentProfile();if(!data||!data.profile){localStorage.removeItem(keys.session);activeSession=null;showLogin();return}const {access,profile}=data;const referrals=referralStats(profile);document.getElementById('headerName').textContent=access.name;document.getElementById('headerLogin').textContent=access.login;document.getElementById('welcomeName').textContent=access.name;document.getElementById('balanceValue').textContent=money(profile.commissionBalance);document.getElementById('commissionValue').textContent=money(profile.totalCommission);document.getElementById('depositsValue').textContent=money(profile.totalDeposits);document.getElementById('referredValue').textContent=String(referrals.length);document.getElementById('referralTabCount').textContent='('+referrals.length+')';document.getElementById('referralSummary').textContent=referrals.length+' indicado'+(referrals.length===1?'':'s');document.getElementById('referralRows').innerHTML=referrals.length?referrals.map(item=>'<tr><td><strong>'+safe(maskReferral(item.user))+'</strong></td><td>'+item.count+'</td><td>'+money(item.deposits)+'</td><td class="positive">+'+money(item.commission)+'</td><td>'+(item.last?new Date(item.last).toLocaleString('pt-BR'):'Sem depósito')+'</td></tr>').join(''):'<tr><td colspan="5" class="empty">Nenhuma indicação vinculada ao seu link ainda.</td></tr>';document.getElementById('affiliateLink').value=location.origin+'/?ref='+encodeURIComponent(access.referralCode);const items=[...(profile.transactions||[]),...(profile.withdrawals||[])].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));document.getElementById('history').innerHTML=items.length?items.slice(0,20).map(item=>item.type==='influencer_withdrawal'?'<div class="row"><div><strong>Saque solicitado</strong><small>'+new Date(item.createdAt).toLocaleString('pt-BR')+' · '+safe(item.pixKeyMasked||'PIX mascarado')+'</small></div><b class="negative">-'+money(item.amount)+'</b></div>':'<div class="row"><div><strong>Comissão de depósito</strong><small>'+safe(maskReferral(item.user))+' · '+new Date(item.createdAt).toLocaleString('pt-BR')+'</small></div><b class="positive">+'+money(item.commission)+'</b></div>').join(''):'<div class="empty">Nenhuma movimentação ainda.</div>'}
+    document.getElementById('loginForm').addEventListener('submit',async event=>{event.preventDefault();const data=new FormData(event.currentTarget);const login=String(data.get('login')||'').trim().toLowerCase();const password=String(data.get('password')||'');const access=read(keys.access,[]).find(item=>item.active!==false&&String(item.login).toLowerCase()===login);const status=document.getElementById('loginStatus');if(!access||await passwordHash(password,access.salt)!==access.passwordHash){status.textContent='Login ou senha inválidos.';return}activeSession={id:access.id,login:access.login,referralCode:access.referralCode,loggedAt:new Date().toISOString()};write(keys.session,activeSession);event.currentTarget.reset();status.textContent='';showDashboard()});
+    document.getElementById('copyButton').addEventListener('click',async()=>{const button=document.getElementById('copyButton');try{await navigator.clipboard.writeText(document.getElementById('affiliateLink').value);button.textContent='Copiado!'}catch(error){button.textContent='Selecione e copie'}});
+    function activateTab(name){document.getElementById('overviewTabButton').classList.toggle('is-active',name==='overview');document.getElementById('referralsTabButton').classList.toggle('is-active',name==='referrals');document.querySelectorAll('[data-tab-panel]').forEach(panel=>panel.classList.toggle('is-active',panel.dataset.tabPanel===name))}
+    document.getElementById('withdrawForm').addEventListener('submit',event=>{event.preventDefault();const data=currentProfile();if(!data)return;const formData=new FormData(event.currentTarget);const amount=Number(formData.get('amount'));const pixKey=String(formData.get('pixKey')||'').trim();const status=document.getElementById('withdrawStatus');if(!Number.isFinite(amount)||amount<20){status.textContent='O saque mínimo é R$ 20,00.';return}if(amount>Number(data.profile.commissionBalance||0)){status.textContent='Saldo de comissão insuficiente.';return}const masked=pixKey.length>7?pixKey.slice(0,3)+'••••'+pixKey.slice(-3):'••••'+pixKey.slice(-2);data.profile.commissionBalance=Number(data.profile.commissionBalance||0)-amount;data.profile.withdrawals=Array.isArray(data.profile.withdrawals)?data.profile.withdrawals:[];data.profile.withdrawals.unshift({type:'influencer_withdrawal',amount,pixKeyMasked:masked,status:'simulated',createdAt:new Date().toISOString()});data.ledger[data.access.referralCode]=data.profile;write(keys.ledger,data.ledger);event.currentTarget.reset();status.textContent='Saque de teste solicitado.';render()});
+    document.getElementById('logoutButton').addEventListener('click',()=>{localStorage.removeItem(keys.session);localStorage.removeItem('rushArenaLocalPanelSession');activeSession=null;location.replace('panel.html')});
+    window.addEventListener('storage',event=>{if(event.key===keys.ledger||event.key===keys.access)render()});window.setInterval(()=>{if(activeSession)render()},1500);
+    const sharedSession=read('rushArenaLocalPanelSession',null);if(sharedSession&&sharedSession.role==='influencer'&&!activeSession){activeSession=sharedSession;write(keys.session,sharedSession)}currentAccess()?showDashboard():showLogin();activateTab(new URLSearchParams(location.search).get('tab')==='referrals'?'referrals':'overview');
+  }());
+  </script>
+</body>
+</html>

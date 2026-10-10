@@ -1,0 +1,104 @@
+/* Replace only the logo area. Original background, progress bar and game stay untouched. */
+.hw-demo-loading[hidden] { display: none !important; }
+.hw-demo-loading {
+    position: fixed;
+    top: 18px;
+    left: 0;
+    width: 100%;
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    background: transparent;
+    color: #fff5dc;
+    pointer-events: none;
+    user-select: none;
+    text-align: center;
+}
+.hw-demo-loading-content { width: min(calc(100% - 32px), 360px); margin: min(22vh, 220px) auto 0; }
+.hw-demo-pumpkin {
+    position: relative;
+    width: min(46vw, 224px, max(80px, calc(28vh - 26px)));
+    aspect-ratio: 1;
+    margin: 0 auto 12px;
+}
+.hw-demo-pumpkin img, .hw-demo-pumpkin-sprite, .hw-demo-pumpkin-fallback {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+.hw-demo-pumpkin-fallback { display: grid; place-items: center; font-size: 100px; }
+.hw-demo-pumpkin[data-poster-ready] .hw-demo-pumpkin-fallback { visibility: hidden; }
+.hw-demo-pumpkin-sprite {
+    display: none;
+    background-repeat: no-repeat;
+    background-size: 800% 400%;
+    animation: hw-demo-turn 5.6s steps(1, end) infinite alternate;
+}
+.hw-demo-loading[data-sprite-ready] .hw-demo-pumpkin-sprite { display: block; }
+.hw-demo-loading[data-sprite-ready] .hw-demo-pumpkin img { visibility: hidden; }
+.hw-demo-loading h1 {
+    margin: 0;
+    font: 400 clamp(33px, 9vw, 49px)/.96 SubwayButton, Arial, sans-serif;
+    letter-spacing: -.7px;
+    text-shadow: 0 2px 2px rgba(39, 18, 24, .45);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.hw-demo-loading h1 strong {
+    display: block;
+    margin-top: 4px;
+    font: inherit;
+    font-size: 1.22em;
+    color: #ffb44d;
+    text-shadow: 0 2px 2px rgba(104, 48, 28, .45);
+}
+.hw-demo-loading[hidden] .hw-demo-pumpkin-sprite,
+.hw-demo-loading[data-document-hidden] .hw-demo-pumpkin-sprite { animation-play-state: paused; }
+html.hw-demo-loading-active #message .game-loading-logo { visibility: hidden !important; }
+/* 32 whole frames, no interpolation across atlas cells. */
+@keyframes hw-demo-turn {
+    0% { background-position: 0% 0%; }
+    3.225806% { background-position: 14.285714285714286% 0%; }
+    6.451613% { background-position: 28.571428571428573% 0%; }
+    9.677419% { background-position: 42.857142857142854% 0%; }
+    12.903226% { background-position: 57.142857142857146% 0%; }
+    16.129032% { background-position: 71.42857142857143% 0%; }
+    19.354839% { background-position: 85.71428571428571% 0%; }
+    22.580645% { background-position: 100% 0%; }
+    25.806452% { background-position: 0% 33.333333333333336%; }
+    29.032258% { background-position: 14.285714285714286% 33.333333333333336%; }
+    32.258065% { background-position: 28.571428571428573% 33.333333333333336%; }
+    35.483871% { background-position: 42.857142857142854% 33.333333333333336%; }
+    38.709677% { background-position: 57.142857142857146% 33.333333333333336%; }
+    41.935484% { background-position: 71.42857142857143% 33.333333333333336%; }
+    45.161290% { background-position: 85.71428571428571% 33.333333333333336%; }
+    48.387097% { background-position: 100% 33.333333333333336%; }
+    51.612903% { background-position: 0% 66.66666666666667%; }
+    54.838710% { background-position: 14.285714285714286% 66.66666666666667%; }
+    58.064516% { background-position: 28.571428571428573% 66.66666666666667%; }
+    61.290323% { background-position: 42.857142857142854% 66.66666666666667%; }
+    64.516129% { background-position: 57.142857142857146% 66.66666666666667%; }
+    67.741935% { background-position: 71.42857142857143% 66.66666666666667%; }
+    70.967742% { background-position: 85.71428571428571% 66.66666666666667%; }
+    74.193548% { background-position: 100% 66.66666666666667%; }
+    77.419355% { background-position: 0% 100%; }
+    80.645161% { background-position: 14.285714285714286% 100%; }
+    83.870968% { background-position: 28.571428571428573% 100%; }
+    87.096774% { background-position: 42.857142857142854% 100%; }
+    90.322581% { background-position: 57.142857142857146% 100%; }
+    93.548387% { background-position: 71.42857142857143% 100%; }
+    96.774194% { background-position: 85.71428571428571% 100%; }
+    100% { background-position: 100% 100%; }
+}
+@media (max-height: 430px) {
+    .hw-demo-pumpkin { width: min(128px, 30vh); margin-bottom: 6px; }
+    .hw-demo-loading h1 { font-size: 29px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hw-demo-pumpkin-sprite { animation: none; }
+}

@@ -1,0 +1,1878 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script type="text/javascript">
+        const aposta = 5;
+    </script>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="viewport" content="height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover">
+    <meta name="description" content="">
+    <link href="css/popupresgate-1.css?v=1787227898" rel="stylesheet" type="text/css">
+    <link href="arquivos/page-1.css?v=1787227898" rel="stylesheet" type="text/css">
+            <link rel="stylesheet" href="../features/halloween/demo-preview-1.css?v=20260928-15">
+        <link rel="preload" href="js/dependencies.bundle-1.js?v=1787227898" as="script" fetchpriority="high">
+    <link rel="preload" href="js/index-1.js?v=1787227898" as="script" fetchpriority="high">
+    <link rel="preload" href="assets/characters-basic/jake-game-1.gb?h=1gsekmuvol7ftjgsz&amp;h=1gsekmuvol7ftjgsz" as="fetch" crossorigin="" fetchpriority="low">
+    <link rel="preload" href="assets/game-basic/model-guard-movement-1.gb?h=1gsekmuvol7ftjgsz" as="fetch" crossorigin="" fetchpriority="low">
+    <link rel="preload" href="bundles/199-venice/game-full/environment-full-1.gb" as="fetch" crossorigin="" fetchpriority="low">
+    <link rel="manifest" href="subwaysurfers-1.webmanifest">
+    <link rel="icon" href="../uploads/platform/rush-arena-logo.png?v=20261007" type="image/png">
+    <link rel="shortcut icon" href="../uploads/platform/rush-arena-logo.png?v=20261007">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../uploads/platform/rush-arena-logo.png?v=20261007">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../uploads/platform/rush-arena-logo.png?v=20261007">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="../uploads/platform/rush-arena-logo.png?v=20261007">
+    <link rel="apple-touch-icon-precomposed" href="../uploads/platform/rush-arena-logo.png?v=20261007">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Rush Arena</title>
+        <style>
+        @font-face {
+            font-family: "SubwayButton";
+            src: url("assets/font/lilita-one-1.woff2") format("woff2"),
+                 url("assets/font/lilita-one-1.woff") format("woff");
+            font-display: swap;
+        }
+
+        body,
+        html {
+            margin: 0;
+            height: 100%;
+            background-color: #0b316b;
+            overflow: hidden;
+        }
+
+        body.demo-scene-win::before,
+        body.demo-scene-loss::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        body.demo-scene-win::before {
+            background:
+                linear-gradient(180deg, rgba(12, 11, 15, 0.58) 0%, rgba(12, 11, 15, 0.72) 100%);
+        }
+
+        body.demo-scene-loss::before {
+            background:
+                linear-gradient(180deg, rgba(12, 11, 15, 0.58) 0%, rgba(12, 11, 15, 0.72) 100%);
+        }
+
+        body.demo-scene-win #message,
+        body.demo-scene-loss #message {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        body.demo-scene-frozen canvas {
+            pointer-events: none !important;
+            touch-action: none !important;
+        }
+
+        #message {
+            text-align: center;
+            font-size: 8px;
+            font-family: "Verdana", sans-serif;
+            color: #fff;
+            position: fixed;
+            width: 100%;
+            z-index: 9999;
+            top: 18px;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            pointer-events: none;
+        }
+
+        .game-loading-logo {
+            width: min(54vw, 360px);
+            max-width: calc(100vw - 48px);
+            height: auto;
+            display: block;
+            margin: min(22vh, 220px) auto 0;
+            filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.28));
+        }
+
+        #message h1 {
+            margin: 0;
+        }
+
+        #message h1:not(.dot),
+        #message .dot {
+            display: none;
+        }
+
+        .dot {
+            display: inline;
+            margin-left: 0.2em;
+            margin-right: 0.2em;
+            position: relative;
+            top: -1em;
+            font-size: 3.5em;
+            opacity: 0;
+            animation: showHideDot 2.5s ease-in-out infinite;
+        }
+
+        .dot.one { animation-delay: 0.2s; }
+        .dot.two { animation-delay: 0.4s; }
+        .dot.three { animation-delay: 0.6s; }
+
+        @keyframes showHideDot {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            60% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .ocultar {
+            display: none;
+        }
+
+        #resgatar {
+            position: fixed;
+            right: clamp(12px, 2vw, 20px);
+            top: clamp(250px, 35vh, 330px);
+            left: auto;
+            transform: none;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        button#sair {
+            display: none;
+            position: relative;
+            width: 172px;
+            height: 64px;
+            padding: 0;
+            line-height: 1;
+            font-size: 25px;
+            text-align: center;
+            font-weight: 900;
+            color: #2ed36e;
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            letter-spacing: 0.015em;
+            text-transform: none;
+            background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+            border: 0;
+            border-radius: 18px;
+            box-shadow:
+                0 8px 18px rgba(0, 0, 0, 0.18);
+            transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+            z-index: 100000;
+            pointer-events: auto;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 2px 0 rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+            animation: withdraw-spin-in .58s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+            transform-origin: right center;
+        }
+
+        button#sair .withdraw-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        button#sair .withdraw-emoji {
+            display: inline-block;
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        button#sair::before {
+            display: none;
+        }
+
+        button#sair::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+        }
+
+        button#sair:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.03);
+            box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
+        }
+
+        button#sair:active {
+            transform: translateY(2px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.16);
+        }
+
+        @keyframes withdraw-spin-in {
+            0% {
+                opacity: 0;
+                transform: translate3d(48px, -8px, 0) rotate(20deg) scale(0.88);
+            }
+
+            72% {
+                opacity: 1;
+                transform: translate3d(-4px, 1px, 0) rotate(-6deg) scale(1.02);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+            }
+        }
+
+        #run-progress-hud {
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 0px) + 92px);
+            right: calc(env(safe-area-inset-right, 0px) + 16px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        #run-progress-hud.is-ready .run-progress-hud__track {
+            box-shadow: none;
+        }
+
+        .run-progress-hud__amount {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 136px;
+            min-height: 48px;
+            padding: 0 18px;
+            border-radius: 13px;
+            background: rgba(63, 15, 24, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow:
+                0 10px 18px rgba(0, 0, 0, 0.12);
+            color: #ffffff;
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 0.015em;
+            text-shadow:
+                0 2px 0 rgba(63, 15, 24, 0.95),
+                0 4px 10px rgba(0, 0, 0, 0.18);
+        }
+
+        .run-progress-hud__amount::before {
+            display: none;
+        }
+
+        .run-progress-hud__amount-value {
+            position: relative;
+            line-height: 1;
+        }
+
+        .run-progress-hud__progress {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            width: auto;
+        }
+
+        .run-progress-hud__track {
+            display: none;
+        }
+
+        .run-progress-hud__fill {
+            transition: width .18s linear;
+        }
+
+        .run-progress-hud__meta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 0 14px;
+            min-height: 42px;
+            border-radius: 13px;
+            background: rgba(63, 15, 24, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow:
+                0 10px 18px rgba(0, 0, 0, 0.12);
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+            color: #ffffff;
+            white-space: nowrap;
+        }
+
+        .run-progress-hud__meta-current {
+            position: relative;
+            color: #ffffff;
+        }
+
+        .run-progress-hud__meta-separator {
+            position: relative;
+            display: none;
+        }
+
+        .run-progress-hud__meta-target {
+            position: relative;
+            color: #20cf59;
+        }
+
+        @media (max-width: 640px) {
+            #resgatar {
+                right: 10px;
+                top: clamp(235px, 36vh, 310px);
+            }
+
+            button#sair {
+                width: 160px;
+                height: 56px;
+                padding: 0;
+                font-size: 22px;
+                border-radius: 16px;
+            }
+
+            button#sair .withdraw-label {
+                gap: 8px;
+            }
+
+            button#sair .withdraw-emoji {
+                font-size: 24px;
+            }
+
+            #run-progress-hud {
+                top: calc(env(safe-area-inset-top, 0px) + 92px);
+                right: calc(env(safe-area-inset-right, 0px) + 12px);
+                gap: 8px;
+            }
+
+            .run-progress-hud__amount {
+                min-width: 118px;
+                min-height: 40px;
+                padding: 0 14px;
+                border-radius: 12px;
+                font-size: 22px;
+            }
+
+            .run-progress-hud__meta {
+                min-height: 36px;
+                padding: 0 12px;
+                font-size: 17px;
+            }
+        }
+
+.demo-loss-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 100001;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.demo-loss-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.demo-loss-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11, 10, 14, 0.12) 0%, rgba(11, 10, 14, 0.18) 100%);
+    opacity: 0;
+}
+
+.demo-loss-modal__card {
+    position: relative;
+    width: min(100%, 900px);
+    padding: 34px 30px 38px;
+    border-radius: 30px;
+    border: 1px solid rgba(224, 228, 236, 0.98);
+    background: #ffffff;
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.24),
+        0 5px 0 rgba(178, 186, 201, 0.48);
+    color: #18202d;
+    font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+    text-align: center;
+    overflow: hidden;
+    opacity: 0;
+    transform: translate3d(0, 42px, 0) scale(0.985);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+.demo-loss-modal.is-open .demo-loss-modal__backdrop {
+    animation: demoModalBackdropFadeIn 260ms ease forwards;
+}
+
+.demo-loss-modal.is-open .demo-loss-modal__card {
+    animation: demoModalRiseIn 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+        .demo-loss-modal__card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+            pointer-events: none;
+        }
+
+        .demo-loss-modal__content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .demo-loss-modal__brand {
+            display: flex;
+            justify-content: center;
+            margin: 0 0 18px;
+        }
+
+        .demo-loss-modal__brand img {
+            width: min(246px, 58vw);
+            height: auto;
+            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.08));
+        }
+
+        .demo-loss-modal__close {
+            display: none;
+        }
+
+        .demo-loss-modal__badge {
+            display: none;
+        }
+
+        .demo-loss-modal__title {
+            margin: 2px 0 26px;
+            max-width: 100%;
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            font-size: clamp(38px, 6vw, 66px);
+            line-height: 1;
+            letter-spacing: -0.01em;
+            text-transform: none;
+            color: #2f69d2;
+            text-shadow:
+                0 3px 0 rgba(255, 255, 255, 0.96),
+                0 4px 0 rgba(179, 197, 227, 0.68);
+        }
+
+        .demo-loss-modal__text {
+            margin: 0;
+            max-width: 820px;
+            color: #243247;
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            font-size: clamp(22px, 3.1vw, 34px);
+            line-height: 1.28;
+            letter-spacing: -0.01em;
+        }
+
+        .demo-loss-modal__text + .demo-loss-modal__text {
+            margin-top: 22px;
+        }
+
+        .demo-loss-modal__text--lead {
+            color: #1c8a48;
+            font-weight: 700;
+            line-height: 1.28;
+        }
+
+        .demo-loss-modal__text--accent {
+            color: #1c8a48;
+            text-shadow: none;
+        }
+
+        .demo-loss-modal__text--body {
+            color: #243247;
+            font-weight: 700;
+        }
+
+        .demo-loss-modal__text--strong {
+            color: #243347;
+            font-weight: 700;
+        }
+
+        .demo-loss-modal__text--cta {
+            margin-top: 28px !important;
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            color: #233246;
+            font-weight: 700;
+            font-size: clamp(24px, 3.3vw, 38px);
+            line-height: 1.18;
+            letter-spacing: -0.01em;
+            text-shadow: none;
+            white-space: normal;
+        }
+
+        .demo-loss-modal__actions {
+            display: grid;
+            gap: 0;
+            width: 100%;
+            margin-top: 28px;
+            justify-items: center;
+            position: relative;
+            z-index: 3;
+            pointer-events: auto;
+        }
+
+        .demo-loss-modal__primary,
+        .demo-loss-modal__secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 92px;
+            padding: 16px 34px 18px;
+            border-radius: 10px;
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            font-size: clamp(28px, 3.4vw, 42px);
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: 0.01em;
+            position: relative;
+            z-index: 4;
+            pointer-events: auto;
+            touch-action: manipulation;
+        }
+
+        .demo-loss-modal__primary {
+            min-width: 330px;
+            background: #1d8740;
+            color: #ffffff;
+            box-shadow:
+                0 5px 0 rgba(18, 97, 42, 0.98);
+        }
+
+        .demo-loss-modal__secondary {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            .demo-loss-modal {
+                align-items: center;
+                padding: max(16px, env(safe-area-inset-top, 0px) + 8px) 12px max(16px, env(safe-area-inset-bottom, 0px) + 8px);
+            }
+
+            .demo-loss-modal__card {
+                width: min(94vw, 520px);
+                max-height: min(86vh, 980px);
+                padding: 24px 18px 22px;
+                border-radius: 24px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .demo-loss-modal__brand img {
+                width: min(190px, 44vw);
+            }
+
+            .demo-loss-modal__title {
+                margin: 0 0 16px;
+                font-size: clamp(30px, 8vw, 48px);
+            }
+
+            .demo-loss-modal__text {
+                max-width: 100%;
+                font-size: clamp(17px, 4.3vw, 24px);
+                line-height: 1.18;
+            }
+
+            .demo-loss-modal__text--lead,
+            .demo-loss-modal__text--strong {
+                font-size: clamp(17px, 4.3vw, 24px);
+            }
+
+            .demo-loss-modal__text + .demo-loss-modal__text {
+                margin-top: 16px;
+            }
+
+            .demo-loss-modal__text--cta {
+                margin-top: 18px !important;
+                font-size: clamp(18px, 4.8vw, 27px);
+                line-height: 1.16;
+            }
+
+            .demo-loss-modal__actions {
+                margin-top: 18px;
+            }
+
+            .demo-loss-modal__primary {
+                min-width: 0;
+                width: min(100%, 240px);
+                min-height: 64px;
+                padding: 10px 20px 12px;
+                font-size: clamp(22px, 5.2vw, 30px);
+                border-radius: 9px;
+            }
+        }
+
+        @media (max-width: 380px), (max-height: 760px) {
+            .demo-loss-modal {
+                align-items: center;
+                padding: max(12px, env(safe-area-inset-top, 0px) + 6px) 10px max(12px, env(safe-area-inset-bottom, 0px) + 6px);
+            }
+
+            .demo-loss-modal__card {
+                width: min(95vw, 500px);
+                padding: 20px 14px 18px;
+                max-height: min(88vh, 920px);
+            }
+
+            .demo-loss-modal__brand {
+                margin-bottom: 12px;
+            }
+
+            .demo-loss-modal__brand img {
+                width: min(160px, 38vw);
+            }
+
+            .demo-loss-modal__title {
+                margin-bottom: 12px;
+                font-size: clamp(26px, 7vw, 38px);
+            }
+
+            .demo-loss-modal__text {
+                font-size: clamp(15px, 4vw, 20px);
+                line-height: 1.15;
+            }
+
+            .demo-loss-modal__text + .demo-loss-modal__text {
+                margin-top: 12px;
+            }
+
+            .demo-loss-modal__text--cta {
+                margin-top: 14px !important;
+                font-size: clamp(17px, 4.6vw, 23px);
+            }
+
+            .demo-loss-modal__actions {
+                margin-top: 14px;
+            }
+
+            .demo-loss-modal__primary {
+                width: min(100%, 228px);
+                min-height: 58px;
+                font-size: clamp(20px, 5vw, 26px);
+            }
+        }
+
+.demo-win-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 100001;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.demo-win-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.demo-win-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11, 10, 14, 0.12) 0%, rgba(11, 10, 14, 0.18) 100%);
+    opacity: 0;
+}
+
+.demo-win-modal__card {
+    position: relative;
+    width: min(100%, 900px);
+    padding: 34px 30px 38px;
+    border-radius: 30px;
+    border: 1px solid rgba(224, 228, 236, 0.98);
+    background: #ffffff;
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.24),
+        0 5px 0 rgba(178, 186, 201, 0.48);
+    color: #18202d;
+    font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+    text-align: center;
+    overflow: hidden;
+    opacity: 0;
+    transform: translate3d(0, 42px, 0) scale(0.985);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+.demo-win-modal.is-open .demo-win-modal__backdrop {
+    animation: demoModalBackdropFadeIn 260ms ease forwards;
+}
+
+.demo-win-modal.is-open .demo-win-modal__card {
+    animation: demoModalRiseIn 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes demoModalBackdropFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes demoModalRiseIn {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 42px, 0) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .demo-loss-modal.is-open .demo-loss-modal__backdrop,
+    .demo-win-modal.is-open .demo-win-modal__backdrop,
+    .demo-loss-modal.is-open .demo-loss-modal__card,
+    .demo-win-modal.is-open .demo-win-modal__card {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
+
+        .demo-win-modal__close {
+            display: none;
+        }
+
+        .demo-win-modal__content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .demo-win-modal__brand {
+            display: flex;
+            justify-content: center;
+            margin: 0 0 18px;
+        }
+
+        .demo-win-modal__brand img {
+            width: min(246px, 58vw);
+            height: auto;
+            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.08));
+        }
+
+        .demo-win-modal__badge {
+            display: none;
+        }
+
+        .demo-win-modal__title {
+            margin: 4px 0 24px;
+            max-width: 760px;
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            font-size: clamp(32px, 5.4vw, 60px);
+            line-height: 1.12;
+            letter-spacing: -0.01em;
+            color: #2e6bd2;
+            text-shadow:
+                0 2px 0 rgba(255, 255, 255, 0.96),
+                0 4px 0 rgba(179, 197, 227, 0.68);
+        }
+
+        .demo-win-modal__text {
+            margin: 0;
+            max-width: 820px;
+            color: #243247;
+            font-size: clamp(22px, 3.1vw, 34px);
+            line-height: 1.28;
+            font-weight: 700;
+        }
+
+        .demo-win-modal__text + .demo-win-modal__text {
+            margin-top: 22px;
+        }
+
+        .demo-win-modal__text--steps {
+            color: #1c8a48;
+            line-height: 1.32;
+        }
+
+        .demo-win-modal__text--steps-highlight {
+            display: inline;
+            gap: 0;
+            margin-top: 0;
+        }
+
+        .demo-win-modal__step-badge {
+            display: block;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            min-height: auto;
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            color: #243247;
+            font-weight: 800;
+            text-shadow: none;
+            box-shadow: none;
+            line-height: 1.28;
+        }
+
+        .demo-win-modal__step-badge::before {
+            display: none;
+        }
+
+        .demo-win-modal__amount {
+            display: none !important;
+        }
+
+        .demo-win-modal__actions {
+            display: grid;
+            gap: 0;
+            width: 100%;
+            margin-top: 28px;
+            justify-items: center;
+            position: relative;
+            z-index: 3;
+            pointer-events: auto;
+        }
+
+        .demo-win-modal__primary,
+        .demo-win-modal__secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 92px;
+            padding: 16px 34px 18px;
+            border-radius: 10px;
+            font-family: "SubwayButton", "Trebuchet MS", sans-serif;
+            font-size: clamp(28px, 3.4vw, 42px);
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: 0.01em;
+            position: relative;
+            z-index: 4;
+            pointer-events: auto;
+            touch-action: manipulation;
+        }
+
+        .demo-win-modal__primary {
+            min-width: 330px;
+            background: #1d8740;
+            color: #ffffff;
+            box-shadow: 0 5px 0 rgba(18, 97, 42, 0.98);
+        }
+
+        .demo-win-modal__secondary {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            .demo-win-modal {
+                align-items: center;
+                padding: max(16px, env(safe-area-inset-top, 0px) + 8px) 12px max(16px, env(safe-area-inset-bottom, 0px) + 8px);
+            }
+
+            .demo-win-modal__card {
+                width: min(94vw, 520px);
+                max-height: min(86vh, 980px);
+                padding: 24px 18px 22px;
+                border-radius: 24px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .demo-win-modal__brand img {
+                width: min(190px, 44vw);
+            }
+
+            .demo-win-modal__title {
+                max-width: 100%;
+                margin: 0 0 16px;
+                font-size: clamp(30px, 8vw, 48px);
+                line-height: 1.14;
+            }
+
+            .demo-win-modal__text {
+                max-width: 100%;
+                font-size: clamp(17px, 4.3vw, 24px);
+                line-height: 1.18;
+            }
+
+            .demo-win-modal__text--steps {
+                font-size: clamp(17px, 4.3vw, 24px);
+                line-height: 1.22;
+            }
+
+            .demo-win-modal__text + .demo-win-modal__text {
+                margin-top: 16px;
+            }
+
+            .demo-win-modal__actions {
+                margin-top: 18px;
+            }
+
+            .demo-win-modal__primary {
+                min-width: 0;
+                width: min(100%, 240px);
+                min-height: 64px;
+                padding: 10px 20px 12px;
+                font-size: clamp(22px, 5.2vw, 30px);
+                border-radius: 9px;
+            }
+        }
+
+        @media (max-width: 380px), (max-height: 760px) {
+            .demo-win-modal {
+                align-items: center;
+                padding: max(12px, env(safe-area-inset-top, 0px) + 6px) 10px max(12px, env(safe-area-inset-bottom, 0px) + 6px);
+            }
+
+            .demo-win-modal__card {
+                width: min(95vw, 500px);
+                max-height: min(88vh, 920px);
+                padding: 20px 14px 18px;
+            }
+
+            .demo-win-modal__brand {
+                margin-bottom: 12px;
+            }
+
+            .demo-win-modal__brand img {
+                width: min(160px, 38vw);
+            }
+
+            .demo-win-modal__title {
+                margin-bottom: 12px;
+                font-size: clamp(26px, 7vw, 38px);
+            }
+
+            .demo-win-modal__text {
+                font-size: clamp(15px, 4vw, 20px);
+                line-height: 1.15;
+            }
+
+            .demo-win-modal__text--steps {
+                font-size: clamp(15px, 4vw, 20px);
+            }
+
+            .demo-win-modal__text + .demo-win-modal__text {
+                margin-top: 12px;
+            }
+
+            .demo-win-modal__actions {
+                margin-top: 14px;
+            }
+
+            .demo-win-modal__primary {
+                width: min(100%, 228px);
+                min-height: 58px;
+                font-size: clamp(20px, 5vw, 26px);
+            }
+        }
+
+        @media (max-width: 640px) and (max-height: 600px) {
+            .demo-loss-modal,
+            .demo-win-modal {
+                padding:
+                    max(8px, env(safe-area-inset-top, 0px))
+                    8px
+                    max(8px, env(safe-area-inset-bottom, 0px));
+            }
+
+            .demo-loss-modal__card,
+            .demo-win-modal__card {
+                width: min(96vw, 500px);
+                max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+                padding: 12px 12px 14px;
+                border-radius: 18px;
+            }
+
+            .demo-loss-modal__brand,
+            .demo-win-modal__brand {
+                display: none;
+            }
+
+            .demo-loss-modal__title,
+            .demo-win-modal__title {
+                margin: 0 0 8px;
+                font-size: clamp(22px, 6vw, 28px);
+                line-height: 1.05;
+            }
+
+            .demo-loss-modal__text,
+            .demo-loss-modal__text--lead,
+            .demo-loss-modal__text--strong,
+            .demo-win-modal__text,
+            .demo-win-modal__text--steps {
+                font-size: clamp(13px, 3.5vw, 16px);
+                line-height: 1.08;
+            }
+
+            .demo-loss-modal__text + .demo-loss-modal__text,
+            .demo-win-modal__text + .demo-win-modal__text {
+                margin-top: 6px;
+            }
+
+            .demo-loss-modal__text--cta {
+                margin-top: 8px !important;
+                font-size: clamp(14px, 3.8vw, 17px);
+                line-height: 1.08;
+            }
+
+            .demo-loss-modal__actions,
+            .demo-win-modal__actions {
+                margin-top: 10px;
+            }
+
+            .demo-loss-modal__primary,
+            .demo-win-modal__primary {
+                width: min(100%, 220px);
+                min-height: 48px;
+                padding: 8px 16px 10px;
+                font-size: clamp(18px, 4.8vw, 22px);
+            }
+        }
+
+        body.demo-native-flow-open {
+            overflow: hidden !important;
+            overscroll-behavior: none;
+        }
+
+        .demo-native-flow {
+            position: fixed;
+            inset: 0;
+            z-index: 2147483646;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            background: #090d11;
+            isolation: isolate;
+        }
+
+        .demo-native-flow[hidden] {
+            display: none !important;
+        }
+
+        .demo-native-flow__frame {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #090d11;
+        }
+
+        .demo-native-flow__loading {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: grid;
+            place-items: center;
+            padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
+            color: #ffffff;
+            background: #090d11;
+            font: 700 15px/1.4 Arial, sans-serif;
+            text-align: center;
+        }
+
+        .demo-native-flow__loading[hidden] {
+            display: none !important;
+        }
+
+        .demo-native-flow__close {
+            position: absolute;
+            top: max(10px, env(safe-area-inset-top));
+            left: max(10px, env(safe-area-inset-left));
+            z-index: 3;
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 999px;
+            color: #ffffff;
+            background: rgba(8, 12, 16, 0.82);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+            font: 700 25px/1 Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            backdrop-filter: blur(8px);
+        }
+
+        .demo-native-flow__close:focus-visible {
+            outline: 3px solid #ffd633;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="resgatar">
+        <form onsubmit="return redirCadastrar();">
+            <button type="submit" id="sair"><span class="withdraw-label">Retirar <span class="withdraw-emoji">🤑</span></span></button>
+        </form>
+    </div>
+
+    <div class="demo-loss-modal" id="demoLossModal" aria-hidden="true">
+        <div class="demo-loss-modal__backdrop" data-demo-loss-backdrop=""></div>
+        <div class="demo-loss-modal__card" role="dialog" aria-modal="true" aria-labelledby="demoLossModalTitle">
+            <button type="button" class="demo-loss-modal__close" id="demoLossModalClose" aria-label="Fechar">×</button>
+            <div class="demo-loss-modal__content">
+                <div class="demo-loss-modal__brand">
+                    <img src="../uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena">
+                </div>
+                <div class="demo-loss-modal__badge">RODADA GRÁTIS</div>
+                <h2 class="demo-loss-modal__title" id="demoLossModalTitle">Essa foi quase</h2>
+                <p class="demo-loss-modal__text demo-loss-modal__text--lead">
+                    Quase lá! Mas não se frustre você superou <span class="demo-loss-modal__text--accent">97% dos usuários</span> que jogaram na rodada grátis. Isso mostra o quanto você está na frente.
+                </p>
+                <p class="demo-loss-modal__text demo-loss-modal__text--strong">
+                    Agora é hora de transformar suas moedas em dinheiro real
+                </p>
+                <p class="demo-loss-modal__text demo-loss-modal__text--body">
+                                            Cadastre-se, deposite e libere seus ganhos direto no pix
+                                    </p>
+                <p class="demo-loss-modal__text demo-loss-modal__text--cta">
+                    Que tal tentar novamente jogando uma pra valer?
+                </p>
+                <div class="demo-loss-modal__actions">
+                    <a href="../index-1.htm?modal=register" class="demo-loss-modal__primary" data-demo-native-flow="">Criar conta</a>
+                    <a href="../index-2.htm?modal=login" class="demo-loss-modal__secondary" data-demo-native-flow="">Entrar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="demo-win-modal" id="demoWinModal" aria-hidden="true">
+        <div class="demo-win-modal__backdrop" data-demo-win-backdrop=""></div>
+        <div class="demo-win-modal__card" role="dialog" aria-modal="true" aria-labelledby="demoWinModalTitle">
+            <button type="button" class="demo-win-modal__close" id="demoWinModalClose" aria-label="Fechar">×</button>
+            <div class="demo-win-modal__content">
+                <div class="demo-win-modal__brand">
+                    <img src="../uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena">
+                </div>
+                <h2 class="demo-win-modal__title" id="demoWinModalTitle">🎉 Se na rodada grátis já deu prêmio... imagina jogando valendo dinheiro real</h2>
+                <p class="demo-win-modal__text demo-win-modal__text--steps">
+                    ✅ Diferente dos outros sites que só roubam o seu dinheiro, aqui você está seguro, e em uma plataforma LEGALIZADA pela SIGAP
+                </p>
+                <p class="demo-win-modal__text">
+                    💰 Transforme sua jogada em dinheiro real AGORA:
+                    <span class="demo-win-modal__text--steps-highlight">
+                        <span class="demo-win-modal__step-badge">1. Cadastre-se</span>
+                        <span class="demo-win-modal__step-badge">2. Deposite</span>
+                        <span class="demo-win-modal__step-badge">3. Libere seus ganhos direto no pix</span>
+                    </span>
+                </p>
+                <div class="demo-win-modal__amount" id="demoWinModalAmount" hidden=""></div>
+                <div class="demo-win-modal__actions">
+                    <a href="../index-1.htm?modal=register" class="demo-win-modal__primary" data-demo-native-flow="">Criar conta</a>
+                    <a href="../index-2.htm?modal=login" class="demo-win-modal__secondary" data-demo-native-flow="">Entrar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="demo-native-flow" id="demoNativeFlow" aria-label="Cadastro e acesso à plataforma" aria-hidden="true" hidden="">
+        <div class="demo-native-flow__loading" id="demoNativeFlowLoading" role="status" aria-live="polite">Carregando com segurança...</div>
+        <iframe class="demo-native-flow__frame" id="demoNativeFlowFrame" title="Cadastro e acesso à plataforma" referrerpolicy="strict-origin-when-cross-origin" allow="clipboard-read; clipboard-write"></iframe>
+        <button type="button" class="demo-native-flow__close" id="demoNativeFlowClose" aria-label="Voltar para a rodada">‹</button>
+    </section>
+
+    <script>
+        (function () {
+            const flow = document.getElementById('demoNativeFlow');
+            const frame = document.getElementById('demoNativeFlowFrame');
+            const loading = document.getElementById('demoNativeFlowLoading');
+            const closeButton = document.getElementById('demoNativeFlowClose');
+            let previousFocus = null;
+
+            function resolveSameOriginTarget(rawTarget) {
+                try {
+                    const target = new URL(rawTarget, window.location.href);
+                    return target.origin === window.location.origin ? target.href : '';
+                } catch (error) {
+                    return '';
+                }
+            }
+
+            function hideFlow() {
+                if (flow.hidden) {
+                    return;
+                }
+
+                flow.hidden = true;
+                flow.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('demo-native-flow-open');
+                loading.hidden = false;
+                frame.removeAttribute('src');
+
+                if (previousFocus && typeof previousFocus.focus === 'function') {
+                    previousFocus.focus({ preventScroll: true });
+                }
+            }
+
+            function openFlow(rawTarget) {
+                const target = resolveSameOriginTarget(rawTarget);
+
+                if (!target) {
+                    return false;
+                }
+
+                previousFocus = document.activeElement;
+                loading.hidden = false;
+                flow.hidden = false;
+                flow.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('demo-native-flow-open');
+
+                frame.src = target;
+                closeButton.focus({ preventScroll: true });
+                return true;
+            }
+
+            window.openDemoNativeFlow = openFlow;
+
+            document.querySelectorAll('[data-demo-native-flow]').forEach(function (link) {
+                link.addEventListener('click', function (event) {
+                    if (openFlow(link.getAttribute('href'))) {
+                        event.preventDefault();
+                    }
+                });
+            });
+
+            frame.addEventListener('load', function () {
+                loading.hidden = true;
+            });
+
+            closeButton.addEventListener('click', function () {
+                hideFlow();
+            });
+        })();
+    </script>
+
+    <script>
+        function redirCadastrar() {
+            if (window.handleLocalWithdrawal && window.handleLocalWithdrawal(typeof acumulado !== 'undefined' ? acumulado : 0)) {
+                return false;
+            }
+            if (window.handleDemoWin) {
+                window.handleDemoWin(typeof acumulado !== 'undefined' ? acumulado : 0);
+                return false;
+            }
+            if (window.openDemoNativeFlow && window.openDemoNativeFlow("..\/?modal=register")) {
+                return false;
+            }
+            window.location.href = "..\/?modal=register";
+            return false;
+        }
+    </script>
+
+    <script>
+        const demoIdleTarget = "..\/?modal=register";
+
+        function clearDemoSignupTimer() {
+            if (window.__demoSignupTimer) {
+                clearTimeout(window.__demoSignupTimer);
+                window.__demoSignupTimer = null;
+            }
+        }
+
+        // O cadastro deve ser aberto apenas por uma acao explicita do usuario.
+        // Redirecionamentos temporizados perdem o gesto de navegacao em WebViews.
+        window.__demoSignupTimer = null;
+        window.clearDemoSignupTimer = clearDemoSignupTimer;
+    </script>
+
+    <script>
+        window.NOSW = true;
+        window.SUBWAY_GAME_SCRIPT_URLS = {
+            dependencies: "js/dependencies.bundle.js?v=1787227898",
+            main: "js/index.js?v=1787227898",
+        };
+        window.GAME_CONFIG = {
+            leaderboard: 'mockup',
+            bundlesPath: './bundles',
+                        loadMode: "progressive",
+                        coinValue: 0.5,
+            metaValue: (() => { try { const active = JSON.parse(sessionStorage.getItem('rushArenaActiveGameEntry') || 'null'); const token = new URLSearchParams(location.search).get('entry'); const stake = active && active.paid && active.token === token ? Number(active.cost) : 10; return stake === 10 ? 15 : stake * 2; } catch (error) { return 15; } })(),
+            coinSpawnChance: 1,
+            speedStart: 130,
+            speedEnd: 320,
+            speedRampSeconds: 180,
+        }
+    </script>
+    <script>
+        window.freezeDemoScene = function (mode) {
+            if (window.__demoSceneFrozen) {
+                return;
+            }
+
+            window.__demoSceneFrozen = true;
+
+            if (typeof jogando !== 'undefined') {
+                jogando = false;
+            }
+
+            if (window.clearDemoSignupTimer) {
+                window.clearDemoSignupTimer();
+            }
+
+            const demoGame = window.__demoGameInstance;
+            const demoHud = window.__demoHudSystem || (demoGame && demoGame.hud ? demoGame.hud : null);
+
+            if (demoGame && typeof demoGame.pause === 'function') {
+                try {
+                    demoGame.pause();
+                } catch (error) {
+                    console.warn('Nao foi possivel pausar a demo nativamente.', error);
+                }
+            }
+
+            if (demoHud) {
+                try {
+                    if (demoHud.paused && typeof demoHud.paused.close === 'function') {
+                        demoHud.paused.close();
+                    }
+
+                    if (typeof demoHud.close === 'function') {
+                        demoHud.close();
+                    }
+                } catch (error) {
+                    console.warn('Nao foi possivel ajustar o HUD da demo.', error);
+                }
+            }
+
+            document.body.classList.add('demo-scene-frozen');
+            document.body.classList.remove('demo-scene-win', 'demo-scene-loss');
+            document.body.classList.add(mode === 'loss' ? 'demo-scene-loss' : 'demo-scene-win');
+
+            const message = document.getElementById('message');
+            if (message) {
+                message.style.display = 'none';
+            }
+
+            document.querySelectorAll('canvas').forEach((canvas) => {
+                canvas.style.pointerEvents = 'none';
+                canvas.style.touchAction = 'none';
+            });
+
+            try {
+                if (window.Howler && typeof window.Howler.mute === 'function') {
+                    window.Howler.mute(true);
+                } else if (window.Howler && typeof window.Howler.stop === 'function') {
+                    window.Howler.stop();
+                }
+            } catch (error) {
+                console.warn('Nao foi possivel parar o audio da demo.', error);
+            }
+        };
+    </script>
+    <script>
+        (function () {
+            const modal = document.getElementById('demoLossModal');
+            const closeButton = document.getElementById('demoLossModalClose');
+            const backdrop = modal.querySelector('[data-demo-loss-backdrop]');
+            const closeTarget = "..\/";
+
+            function redirectAfterDemoLoss() {
+                if (window.openDemoNativeFlow && window.openDemoNativeFlow(closeTarget)) {
+                    return;
+                }
+                window.location.href = closeTarget;
+            }
+
+            window.handleDemoLoss = function () {
+                if (window.__demoLossModalOpen) {
+                    return;
+                }
+
+                window.__demoLossModalOpen = true;
+
+                if (window.clearDemoSignupTimer) {
+                    window.clearDemoSignupTimer();
+                }
+
+                if (window.freezeDemoScene) {
+                    window.freezeDemoScene('loss');
+                }
+
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+            };
+
+            closeButton.addEventListener('click', redirectAfterDemoLoss);
+            backdrop.addEventListener('click', redirectAfterDemoLoss);
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                    redirectAfterDemoLoss();
+                }
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            const modal = document.getElementById('demoWinModal');
+            const modalAmount = document.getElementById('demoWinModalAmount');
+            const closeButton = document.getElementById('demoWinModalClose');
+            const backdrop = modal.querySelector('[data-demo-win-backdrop]');
+            const closeTarget = "..\/";
+
+            function formatCurrency(value) {
+                const amount = Number(value || 0);
+                return amount.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+            }
+
+            function redirectAfterDemoWin() {
+                if (window.openDemoNativeFlow && window.openDemoNativeFlow(closeTarget)) {
+                    return;
+                }
+                window.location.href = closeTarget;
+            }
+
+            window.handleDemoWin = function (amount) {
+                if (window.__demoWinModalOpen) {
+                    return;
+                }
+
+                window.__demoWinModalOpen = true;
+
+                if (window.clearDemoSignupTimer) {
+                    window.clearDemoSignupTimer();
+                }
+                
+                if (window.freezeDemoScene) {
+                    window.freezeDemoScene('win');
+                }
+
+                if (Number(amount || 0) > 0) {
+                    modalAmount.textContent = 'Se essa fosse uma rodada real, você já poderia retirar ' + formatCurrency(amount) + '.';
+                    modalAmount.hidden = false;
+                } else {
+                    modalAmount.hidden = true;
+                    modalAmount.textContent = '';
+                }
+
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+            };
+
+            closeButton.addEventListener('click', redirectAfterDemoWin);
+            backdrop.addEventListener('click', redirectAfterDemoWin);
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                    redirectAfterDemoWin();
+                }
+            });
+        })();
+    </script>
+    <div id="message">
+                    <img class="game-loading-logo" src="../uploads/platform/rush-arena-logo.png?v=20261007" alt="Logo do loading">
+                <h1>Loading</h1>
+        <h1 class="dot one">.</h1>
+        <h1 class="dot two">.</h1>
+        <h1 class="dot three">.</h1>
+    </div>
+    <script src="js/loading-1.js?v=1787227898"></script>
+    <section id="halloweenDemoLoading" class="hw-demo-loading" hidden="" role="status" aria-label="Carregando o jogo">
+    <div class="hw-demo-loading-content">
+        <div class="hw-demo-pumpkin" aria-hidden="true">
+            <span class="hw-demo-pumpkin-fallback">🎃</span>
+            <img src="../features/halloween/assets/pumpkin-poster-v15-1.webp" alt="" width="672" height="672" decoding="async">
+            <span class="hw-demo-pumpkin-sprite"></span>
+        </div>
+        <h1>ACHE A <strong>ABÓBORA</strong></h1>
+    </div>
+</section>
+<script src="../features/halloween/demo-preview-1.js?v=20260928-15" defer=""></script>
+    <script>
+        (function () {
+            const bootSrc = "js/boot.js?v=1787227898";
+            let bootStarted = false;
+            let visibilityPoll = null;
+            let initialLayoutProbe = null;
+            let initialLayoutAttempts = 0;
+
+            function stopInitialLayoutProbe() {
+                if (initialLayoutProbe !== null) {
+                    window.clearTimeout(initialLayoutProbe);
+                    initialLayoutProbe = null;
+                }
+            }
+
+            function ensureInitialGameLayout() {
+                if (window.__subwayInitialLayoutReady) {
+                    stopInitialLayoutProbe();
+                    return;
+                }
+
+                const canvas = document.querySelector('canvas');
+                const game = window.__demoGameInstance;
+                const canvasRect = canvas ? canvas.getBoundingClientRect() : null;
+                const canvasIsReady = Boolean(
+                    canvas
+                    && canvasRect
+                    && canvasRect.width > 0
+                    && canvasRect.height > 0
+                );
+                const gameIsIdle = !game || Number(game.state || 0) === 0;
+                const resizeSystem = game && game.app ? game.app.resize : null;
+                const resizeSignal = resizeSystem ? resizeSystem.onResize : null;
+                const sceneIsReady = Boolean(
+                    game
+                    && game.hero
+                    && game.view3d
+                    && resizeSystem
+                    && Number.isFinite(resizeSystem.w)
+                    && resizeSystem.w > 0
+                    && Number.isFinite(resizeSystem.h)
+                    && resizeSystem.h > 0
+                    && resizeSignal
+                    && typeof resizeSignal.emit === 'function'
+                );
+
+                if (canvasIsReady && sceneIsReady && gameIsIdle && !document.hidden) {
+                    stopInitialLayoutProbe();
+
+                    window.requestAnimationFrame(function () {
+                        window.requestAnimationFrame(function () {
+                            const currentGame = window.__demoGameInstance;
+                            const currentResize = currentGame && currentGame.app
+                                ? currentGame.app.resize
+                                : null;
+                            const currentResizeSignal = currentResize
+                                ? currentResize.onResize
+                                : null;
+
+                            if (
+                                !currentGame
+                                || Number(currentGame.state || 0) !== 0
+                                || !currentGame.hero
+                                || !currentGame.view3d
+                                || !currentResize
+                                || !currentResizeSignal
+                                || typeof currentResizeSignal.emit !== 'function'
+                                || document.hidden
+                            ) {
+                                initialLayoutProbe = window.setTimeout(ensureInitialGameLayout, 50);
+                                return;
+                            }
+
+                            window.__subwayInitialLayoutReady = true;
+                            currentResizeSignal.emit(currentResize.w, currentResize.h);
+                        });
+                    });
+                    return;
+                }
+
+                initialLayoutAttempts += 1;
+
+                if (initialLayoutAttempts >= 600) {
+                    stopInitialLayoutProbe();
+                    return;
+                }
+
+                initialLayoutProbe = window.setTimeout(ensureInitialGameLayout, 50);
+            }
+
+            function removeBootListeners() {
+                document.removeEventListener('visibilitychange', startBootWhenVisible);
+                window.removeEventListener('pageshow', startBootWhenVisible);
+                window.removeEventListener('focus', startBootWhenVisible);
+                window.removeEventListener('pointerdown', forceBootFromInteraction, true);
+                window.removeEventListener('touchstart', forceBootFromInteraction, true);
+
+                if (visibilityPoll !== null) {
+                    window.clearInterval(visibilityPoll);
+                    visibilityPoll = null;
+                }
+            }
+
+            function startBoot(force) {
+                if (bootStarted || (!force && document.hidden)) {
+                    return false;
+                }
+
+                bootStarted = true;
+                removeBootListeners();
+
+                const script = document.createElement('script');
+                script.src = bootSrc;
+                script.async = false;
+                script.addEventListener('load', ensureInitialGameLayout, { once: true });
+                document.body.appendChild(script);
+                return true;
+            }
+
+            function startBootWhenVisible() {
+                startBoot(false);
+            }
+
+            function forceBootFromInteraction() {
+                startBoot(true);
+            }
+
+            document.addEventListener('visibilitychange', startBootWhenVisible);
+            window.addEventListener('pageshow', startBootWhenVisible);
+            window.addEventListener('focus', startBootWhenVisible);
+            window.addEventListener('pointerdown', forceBootFromInteraction, true);
+            window.addEventListener('touchstart', forceBootFromInteraction, true);
+            visibilityPoll = window.setInterval(startBootWhenVisible, 250);
+
+            startBootWhenVisible();
+        })();
+    </script>
+    <script>
+        (function () {
+            const blockedHosts = new Set(['daanrox.com', 'www.daanrox.com']);
+
+            function isBlockedUrl(url) {
+                if (typeof url !== 'string') {
+                    return false;
+                }
+
+                const value = url.trim().toLowerCase();
+
+                if (!value || value === 'javascript:void(0)' || value === 'javascript:void(0);' || value === 'about:blank') {
+                    return true;
+                }
+
+                try {
+                    const parsed = new URL(url, window.location.href);
+                    return blockedHosts.has(parsed.hostname.toLowerCase());
+                } catch (error) {
+                    return false;
+                }
+            }
+
+            const originalOpen = typeof window.open === 'function' ? window.open.bind(window) : null;
+
+            if (originalOpen) {
+                window.open = function (url, ...args) {
+                    if (isBlockedUrl(url)) {
+                        return null;
+                    }
+
+                    return originalOpen(url, ...args);
+                };
+            }
+
+            if (window.location && typeof window.location.assign === 'function') {
+                const originalAssign = window.location.assign.bind(window.location);
+
+                window.location.assign = function (url) {
+                    if (isBlockedUrl(url)) {
+                        return;
+                    }
+
+                    return originalAssign(url);
+                };
+            }
+
+            if (window.location && typeof window.location.replace === 'function') {
+                const originalReplace = window.location.replace.bind(window.location);
+
+                window.location.replace = function (url) {
+                    if (isBlockedUrl(url)) {
+                        return;
+                    }
+
+                    return originalReplace(url);
+                };
+            }
+
+            function readTextureId(node) {
+                if (!node) {
+                    return '';
+                }
+
+                const parts = [];
+                const texture = node.texture || null;
+                const baseTexture = texture && texture.baseTexture ? texture.baseTexture : null;
+                const resource = baseTexture && baseTexture.resource ? baseTexture.resource : null;
+
+                if (texture && texture.textureCacheIds && texture.textureCacheIds.length) {
+                    parts.push(texture.textureCacheIds.join(' '));
+                }
+
+                if (baseTexture && typeof baseTexture.cacheId === 'string') {
+                    parts.push(baseTexture.cacheId);
+                }
+
+                if (resource && typeof resource.url === 'string') {
+                    parts.push(resource.url);
+                }
+
+                if (typeof node.name === 'string') {
+                    parts.push(node.name);
+                }
+
+                return parts.join(' ').toLowerCase();
+            }
+
+            function walkTree(node, visitor) {
+                if (!node) {
+                    return false;
+                }
+
+                if (visitor(node) === true) {
+                    return true;
+                }
+
+                if (!Array.isArray(node.children)) {
+                    return false;
+                }
+
+                for (const child of node.children) {
+                    if (walkTree(child, visitor)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            function findInfoSprite(node) {
+                let found = null;
+
+                walkTree(node, (current) => {
+                    if (readTextureId(current).includes('icon-info')) {
+                        found = current;
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                return found;
+            }
+
+            function findInfoTarget(sprite) {
+                let current = sprite;
+
+                while (current && current.parent) {
+                    const width = Number(current.width || 0);
+                    const height = Number(current.height || 0);
+                    const childCount = Array.isArray(current.children) ? current.children.length : 0;
+
+                    if (width >= 60 && width <= 900 && height >= 60 && height <= 260 && childCount >= 1) {
+                        return current;
+                    }
+
+                    current = current.parent;
+                }
+
+                return sprite;
+            }
+
+            function disableInfoEntry(root) {
+                if (!root || root.__infoEntryDisabled) {
+                    return;
+                }
+
+                const infoSprite = findInfoSprite(root);
+
+                if (!infoSprite) {
+                    return;
+                }
+
+                const target = findInfoTarget(infoSprite);
+
+                target.__infoEntryDisabled = true;
+                target.visible = false;
+                target.renderable = false;
+                target.alpha = 0;
+                target.interactive = false;
+                target.interactiveChildren = false;
+                target.buttonMode = false;
+
+                if (typeof target.onTap === 'function') {
+                    target.onTap = function () {};
+                }
+
+                if (typeof target.onClick === 'function') {
+                    target.onClick = function () {};
+                }
+
+                if (typeof target.onPointerTap === 'function') {
+                    target.onPointerTap = function () {};
+                }
+            }
+
+            function installInfoBlocker() {
+                if (!window.PIXI || !window.PIXI.Container || window.__subwayInfoEntryBlockerInstalled) {
+                    return Boolean(window.__subwayInfoEntryBlockerInstalled);
+                }
+
+                window.__subwayInfoEntryBlockerInstalled = true;
+
+                const originalAddChild = window.PIXI.Container.prototype.addChild;
+
+                window.PIXI.Container.prototype.addChild = function (...children) {
+                    const result = originalAddChild.apply(this, children);
+
+                    for (const child of children) {
+                        requestAnimationFrame(() => {
+                            try {
+                                disableInfoEntry(child);
+                                disableInfoEntry(this);
+                            } catch (error) {
+                                console.warn('Falha ao neutralizar item de info da demo:', error);
+                            }
+                        });
+                    }
+
+                    return result;
+                };
+
+                return true;
+            }
+
+            const bootstrapTimer = window.setInterval(() => {
+                if (installInfoBlocker()) {
+                    window.clearInterval(bootstrapTimer);
+                }
+            }, 250);
+
+            window.setTimeout(() => {
+                window.clearInterval(bootstrapTimer);
+            }, 15000);
+        })();
+    </script>
+<script src="local-demo-flow.js?v=8"></script>
+</body>
+</html>
