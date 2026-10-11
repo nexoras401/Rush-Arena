@@ -1,0 +1,5 @@
+/* Preserve the portrait playfield ratio while scaling it to the available viewport. */
+.bv-app{background:linear-gradient(90deg,#100a1bd9,#191129aa,#100a1bd9),url('valley.webp') center/cover fixed}
+.bv-frame{inset:auto;top:50%;left:50%;width:min(100vw,calc(100dvh * 396 / 760));height:auto;aspect-ratio:396 / 760;transform:translate(-50%,-50%);border:0;border-radius:0;background:transparent;box-shadow:none}
+.bv-board-bg{background:url('valley.webp') center/cover no-repeat}
+.bv-swap{left:5%;bottom:3%;width:clamp(36px,10vw,48px);height:clamp(36px,10vw,48px);font-size:clamp(22px,6vw,30px)}

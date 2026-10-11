@@ -13,6 +13,9 @@
                                 <link rel="preload" as="image" href="uploads/platform/rush-arena-banner-01.png?v=20261007" media="(min-width: 768px)" fetchpriority="high">
                             <link rel="preload" as="image" href="uploads/platform/rush-arena-banner-01.png?v=20261007" media="(max-width: 767px)" fetchpriority="high">
     <link rel="stylesheet" href="arquivos/home-retro.css?v=20261010-blockcash-r2">
+    <link rel="stylesheet" href="bubble-valley/game.css?v=3">
+    <link rel="stylesheet" href="bubble-valley/proportional.css?v=1">
+    <link rel="stylesheet" href="bubble-valley/home-card.css?v=2">
     <style id="halloween-home-cards">
 /* Decorative local preview only. The featured/Subway card never gets this class. */
 .game-card--halloween-muted:not(.game-card--featured)::after {
@@ -307,13 +310,20 @@
                                 </div>
                                                     </div>
 
-                                                    <div class="game-card game-card--featured game-card--interactive game-card--blockcash" data-game-card="" data-direct-game-url="block-cash/index.html?demo=1" role="link" tabindex="0" aria-label="Abrir Block Cash">
+                                                    <div class="game-card game-card--featured game-card--interactive game-card--blockcash" data-game-card="" role="button" tabindex="0" aria-expanded="false" aria-label="Block Cash">
                                 <img src="block-cash/block-cash-logo.png" alt="Block Cash" loading="lazy" decoding="async">
+                                <div class="game-card-actions" aria-hidden="true">
+                                    <button type="button" class="game-card-action game-card-action--primary" data-paid-game="Block Cash">Jogar</button>
+                                    <a class="game-card-action game-card-action--secondary" href="block-cash/index.html?demo=1">Testar grátis</a>
+                                </div>
                             </div>
-                                                    <div class="game-card game-card--placeholder game-card--halloween-muted">
-                                                                    <img src="arquivos/card-candyworld.webp" alt="Candy Cash" loading="lazy" decoding="async">
-                                                                                                    <div class="placeholder-label">Em breve</div>
-                                                                <span>Candy Cash</span>
+                                                    <div class="game-card game-card--placeholder game-card--bubble-valley game-card--interactive" data-game-card="" role="button" tabindex="0" aria-expanded="false" aria-label="Bubble Valley">
+                                                                    <img src="bubble-valley/bubble-valley-cover.png?v=2" alt="Capa ilustrada de Bubble Valley, um vale encantado com bolhas coloridas" loading="lazy" decoding="async">
+                                                                <span class="bubble-valley-card-title">Bubble Valley</span>
+                                <div class="game-card-actions" aria-hidden="true">
+                                    <button type="button" class="game-card-action game-card-action--primary" data-paid-game="Bubble Valley">Jogar</button>
+                                    <a class="game-card-action game-card-action--secondary" href="?game=bubble-valley&amp;demo=1">Testar grátis</a>
+                                </div>
                             </div>
                                                     <div class="game-card game-card--placeholder game-card--halloween-muted">
                                                                     <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22960%22%20height%3D%22640%22%20viewBox%3D%220%200%20960%20640%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23c7ef6d%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%237bc94f%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22960%22%20height%3D%22640%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22%2F%3E%3Ccircle%20cx%3D%22780%22%20cy%3D%22130%22%20r%3D%2288%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.15%29%22%2F%3E%3Ccircle%20cx%3D%22180%22%20cy%3D%22520%22%20r%3D%22110%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.12%29%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%22200%22%3E%F0%9F%A6%96%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Dino Run" loading="lazy" decoding="async">
@@ -3030,6 +3040,8 @@
         <p class="hw-highlight">Encontrou a abóbora? Os R$100 são seus,<br><strong>mesmo se perder a partida.</strong></p>
     </div>
 </dialog>
+<script type="module" src="bubble-valley/game.js?v=4"></script>
+<script defer src="game-actions.js?v=1"></script>
 <script defer="" src="features/halloween/popup.js?v=20260928-11"></script>
         <script defer="" src="pix-observe.js?v=20260930-2"></script>
 
