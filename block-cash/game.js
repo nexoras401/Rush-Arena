@@ -29,7 +29,10 @@
   async function finish(){if(!serverState||over||completed||amount<GOAL)return;await action('finish',{roundId:serverState.id,revision:serverState.revision})}
   function resetGame(){GOAL=selectedEntry*100;started=false;board=empty();score=0;amount=0;combo=0;difficulty=0;turn=0;over=false;completed=false;lastClear=0;lastGain=0;lastCashGain=0;makePieces();render()}
   async function startGame(){if(busy)return;await action('start',{entry:selectedEntry*100})}
-  document.addEventListener('click',e=>{if(e.target.closest('#tutorial-cashout')){e.preventDefault();finish()}},true);
+  document.addEventListener('click',e=>{
+    if(e.target.closest('#bb-start')){e.preventDefault();startGame();return}
+    if(e.target.closest('#tutorial-cashout')){e.preventDefault();finish()}
+  },true);
   let lastRoute=location.hash;addEventListener('hashchange',()=>{document.querySelectorAll('.bb-ghost').forEach(el=>el.remove());drag=null;const next=location.hash;if(next==='#/jogo'&&lastRoute!=='#/jogo')resetGame();lastRoute=next;setTimeout(render)});
   resetGame();setTimeout(render);if(localStorage.getItem('rushArenaApiToken'))demoApi('state').then(s=>{if(s&&s.status==='active')applyState(s)}).catch(()=>{});
 })();

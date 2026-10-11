@@ -48,8 +48,9 @@ class LocalAdminHttpTests(unittest.TestCase):
         for connection in cls.connections:
             connection.close()
 
-    def request(self, path, token=None, data=None):
+    def request(self, path, token=None, data=None, extra_headers=None):
         headers = {'Authorization': 'Bearer ' + token} if token else {}
+        headers.update(extra_headers or {})
         if data is not None:
             headers['Content-Type'] = 'application/json'
         try:
@@ -135,6 +136,33 @@ class LocalAdminHttpTests(unittest.TestCase):
         overview = json.loads(self.request('/api/admin/overview', 'test-admin-token')[1])
         partner = next(item for item in overview['influencers'] if item['referral_code'] == code)
         self.assertEqual(partner['referred_users'], 1)
+        user_id = partner['id']
+        self.assertEqual(self.request('/api/admin/influencers','test-admin-token',{'action':'update','userId':user_id,'active':False,'commissionRate':25})[0],200)
+        self.assertEqual(self.request('/api/influencer/overview',token)[0],403)
+        self.assertEqual(self.request('/api/admin/influencers','test-admin-token',{'action':'update','userId':user_id,'active':True,'commissionRate':25})[0],200)
+        self.assertEqual(self.request('/api/influencer/overview',token)[0],200)
+        login = json.loads(self.request('/api/auth/login',data={'email':'referral@example.test','password':'Example-test-8123'})[1])
+        referred_token = login['token']
+        status, body = self.request('/api/deposits',referred_token,{'amountCents':2000})
+        self.assertEqual(status,201)
+        deposit_id = json.loads(body)['id']
+        status, _ = self.request('/api/webhooks/sandbox',data={'eventId':'commission-test-event','depositId':deposit_id},extra_headers={'X-Webhook-Secret':backend.WEBHOOK_SECRET})
+        self.assertEqual(status,200)
+        influencer = json.loads(self.request('/api/influencer/overview',token)[1])
+        self.assertEqual(influencer['totalCommissionCents'],500)
+        self.assertEqual(influencer['balanceCents'],500)
+        self.assertEqual(self.request('/api/admin/influencers','test-admin-token',{'action':'reset_password','userId':user_id,'password':'New-test-password-29'})[0],200)
+        self.assertEqual(self.request('/api/me',token)[0],401)
+        self.assertEqual(self.request('/api/auth/login',data={'email':payload['email'],'password':'New-test-password-29'})[0],200)
+
+    def test_y_admin_balance_adjustment_is_audited(self):
+        before=json.loads(self.request('/api/me','test-customer-token')[1])['balanceCents']
+        payload={'userId':2,'amountCents':1250,'reason':'Crédito de teste auditado'}
+        self.assertEqual(self.request('/api/admin/balance-adjustments','test-customer-token',payload)[0],403)
+        self.assertEqual(self.request('/api/admin/balance-adjustments','test-admin-token',payload)[0],200)
+        self.assertEqual(json.loads(self.request('/api/me','test-customer-token')[1])['balanceCents'],before+1250)
+        overview=json.loads(self.request('/api/admin/overview','test-admin-token')[1])
+        self.assertTrue(any(row['kind']=='admin_credit' and row['amount_cents']==1250 for row in overview['transactions']))
 
 
 if __name__ == '__main__':

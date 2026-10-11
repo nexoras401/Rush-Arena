@@ -25,13 +25,13 @@
       <div class="welcome"><div><h2>Olá, <span id="welcomeName">Influenciador</span></h2><p class="muted">Acompanhe suas indicações, depósitos e comissões.</p></div></div>
       <nav class="tabs" aria-label="Seções do painel"><a class="tab-button is-active" id="overviewTabButton" href="?tab=overview">Dashboard</a><a class="tab-button" id="referralsTabButton" href="?tab=referrals">Indicações <span id="referralTabCount">0</span></a></nav>
       <section class="tab-panel is-active" data-tab-panel="overview"><section class="kpis"><article class="card kpi"><span>Saldo disponível</span><strong id="balanceValue">R$ 0,00</strong><small>Comissão disponível</small></article><article class="card kpi"><span>Comissão total</span><strong id="commissionValue">R$ 0,00</strong><small>Recebida no período</small></article><article class="card kpi"><span>Depósitos indicados</span><strong id="depositsValue">R$ 0,00</strong><small>Volume da sua rede</small></article><article class="card kpi"><span>Indicados</span><strong id="referredValue">0</strong><small>Usuários únicos</small></article></section>
-      <div class="grid"><article class="card panel"><h3>Seu link de afiliado</h3><div class="affiliate"><input id="affiliateLink" readonly><button id="copyButton">Copiar link</button></div><h3 style="margin-top:23px">Movimentações</h3><div class="history" id="history"></div></article><article class="card panel"><h3>Solicitar saque</h3><p class="muted">Saque mínimo de R$ 20,00.</p><form class="withdraw-form" id="withdrawForm"><label>Chave Pix<input name="pixKey" required minlength="3" maxlength="120" autocomplete="off"></label><label>Valor<input name="amount" type="number" min="20" step="0.01" required placeholder="Mínimo R$ 20,00"></label><button type="submit">Solicitar saque de teste</button><p class="withdraw-status" id="withdrawStatus" aria-live="polite"></p></form><p class="security">A chave fica mascarada no histórico. Este painel não mostra contas, PIX ou saldos de outros usuários e não possui funções administrativas.</p></article></div></section>
+      <div class="grid"><article class="card panel"><h3>Seu link de afiliado</h3><div class="affiliate"><input id="affiliateLink" readonly><button id="copyButton">Copiar link</button></div><h3 style="margin-top:23px">Movimentações</h3><div class="history" id="history"></div></article><article class="card panel"><h3>Solicitar saque</h3><p class="muted">Saque mínimo de R$ 20,00.</p><form class="withdraw-form" id="withdrawForm"><label>Chave Pix<input name="pixKey" required minlength="3" maxlength="120" autocomplete="off"></label><label>Valor<input name="amount" type="number" min="20" step="0.01" required placeholder="Mínimo R$ 20,00"></label><label>Senha da conta<input name="password" type="password" required autocomplete="current-password"></label><button type="submit">Solicitar saque</button><p class="withdraw-status" id="withdrawStatus" aria-live="polite"></p></form><p class="security">A chave fica mascarada no histórico. Este painel não mostra contas, PIX ou saldos de outros usuários e não possui funções administrativas.</p></article></div></section>
       <section class="tab-panel" data-tab-panel="referrals"><article class="card panel"><div class="referral-head"><div><h3>Suas indicações</h3><p class="muted">Pessoas cadastradas pelo seu link de afiliado.</p></div><span class="badge" id="referralSummary">0 indicados</span></div><div class="table-wrap"><table><thead><tr><th>Usuário indicado</th><th>Depósitos</th><th>Total depositado</th><th>Sua comissão</th><th>Última atividade</th></tr></thead><tbody id="referralRows"></tbody></table></div><p class="security">Os dados pessoais aparecem parcialmente mascarados. Esta lista contém apenas indicações vinculadas ao seu código.</p></article></section>
     </main>
   </section>
   <script>
   (function(){'use strict';
-    const live = !['localhost', '127.0.0.1'].includes(location.hostname);
+    const live = location.protocol === 'http:' || location.protocol === 'https:';
     const money = value => Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     const safe = value => String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 
@@ -129,10 +129,11 @@
         const formData = new FormData(event.currentTarget);
         const amount = Number(formData.get('amount'));
         const pixKey = String(formData.get('pixKey') || '').trim();
+        const withdrawalPassword = String(formData.get('password') || '');
         const status = document.getElementById('withdrawStatus');
         status.textContent = 'Processando...';
         try {
-          await api('/influencer/withdraw', { method: 'POST', body: JSON.stringify({ amountCents: Math.round(amount * 100), pixKey, pixType: 'random' }) });
+          await api('/influencer/withdraw', { method: 'POST', body: JSON.stringify({ amountCents: Math.round(amount * 100), pixKey, pixType: 'random', withdrawalPassword }) });
           event.currentTarget.reset();
           status.textContent = 'Saque solicitado com sucesso.';
           await renderLive();

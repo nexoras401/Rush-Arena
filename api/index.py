@@ -29,6 +29,22 @@ def bonus(amount): return {3000: 1000, 5000: 2000, 10000: 5000}.get(amount, 0)
 def payment_provider(): return "vulcanopay" if VULCANO_API_KEY else ("nyxpag" if NYXPAG_API_KEY else "not_configured")
 
 
+def credit_referral_commission(conn, deposit):
+    owner = conn.execute("""SELECT ref.id,i.commission_rate FROM users customer
+        JOIN users ref ON ref.referral_code=customer.referred_by_code
+        JOIN influencers i ON i.user_id=ref.id AND i.active=TRUE WHERE customer.id=%s""", (deposit["user_id"],)).fetchone()
+    if not owner: return
+    amount = int(deposit["amount_cents"]) * int(owner["commission_rate"]) // 100
+    if amount <= 0: return
+    cid = "comm_" + secrets.token_urlsafe(12)
+    inserted = conn.execute("""INSERT INTO commissions(id,beneficiary_user_id,referred_user_id,deposit_id,deposit_cents,commission_cents,rate_percent)
+        VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (deposit_id) DO NOTHING RETURNING id""",
+        (cid,owner["id"],deposit["user_id"],deposit["id"],deposit["amount_cents"],amount,owner["commission_rate"])).fetchone()
+    if not inserted: return
+    conn.execute("UPDATE wallets SET balance_cents=balance_cents+%s,updated_at=NOW() WHERE user_id=%s",(amount,owner["id"]))
+    conn.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id) VALUES(%s,%s,'referral_commission',%s,'commission',%s)",("tx_"+secrets.token_urlsafe(12),owner["id"],amount,cid))
+
+
 def signed_webhook_valid(raw, signature, secret, current_time=None):
     if not secret: return False
     parts = dict(x.strip().split("=", 1) for x in signature.split(",") if "=" in x)
@@ -63,8 +79,11 @@ def migrate():
         conn.execute("""CREATE TABLE IF NOT EXISTS wallet_transactions(id TEXT PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id),kind TEXT NOT NULL,amount_cents BIGINT NOT NULL,reference_type TEXT,reference_id TEXT,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),UNIQUE(kind,reference_type,reference_id))""")
         conn.execute("""CREATE TABLE IF NOT EXISTS admin_balance_adjustments(id TEXT PRIMARY KEY,admin_user_id BIGINT NOT NULL REFERENCES users(id),target_user_id BIGINT NOT NULL REFERENCES users(id),amount_cents BIGINT NOT NULL,reason TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
         conn.execute("""CREATE TABLE IF NOT EXISTS payment_events(event_id TEXT PRIMARY KEY,provider TEXT NOT NULL,payload JSONB NOT NULL,received_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),processed_at TIMESTAMPTZ)""")
+        conn.execute("ALTER TABLE payment_events ADD COLUMN IF NOT EXISTS processing_error TEXT")
         conn.execute("""CREATE TABLE IF NOT EXISTS influencers(user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,commission_rate INT NOT NULL DEFAULT 30,pix_key TEXT,pix_type TEXT,active BOOLEAN NOT NULL DEFAULT TRUE,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+        conn.execute("""INSERT INTO influencers(user_id) SELECT id FROM users WHERE role='influencer' ON CONFLICT(user_id) DO NOTHING""")
         conn.execute("""CREATE TABLE IF NOT EXISTS commissions(id TEXT PRIMARY KEY,beneficiary_user_id BIGINT NOT NULL REFERENCES users(id),referred_user_id BIGINT NOT NULL REFERENCES users(id),deposit_id TEXT NOT NULL REFERENCES deposits(id),deposit_cents BIGINT NOT NULL,commission_cents BIGINT NOT NULL,rate_percent INT NOT NULL,status TEXT NOT NULL DEFAULT 'credited',created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+        conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS commissions_deposit_unique ON commissions(deposit_id)""")
         conn.execute("""CREATE TABLE IF NOT EXISTS game_rounds(id TEXT PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id),stake_cents BIGINT NOT NULL,multiplier NUMERIC(6,2) DEFAULT 0,payout_cents BIGINT DEFAULT 0,status TEXT NOT NULL DEFAULT 'active',created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),completed_at TIMESTAMPTZ)""")
         conn.execute("""CREATE TABLE IF NOT EXISTS login_attempts(key_hash TEXT PRIMARY KEY,ip TEXT,email TEXT,attempts INT NOT NULL DEFAULT 1,blocked_until TIMESTAMPTZ,last_attempt TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
 
@@ -136,6 +155,11 @@ class handler(BaseHTTPRequestHandler):
                 return self.send_json(200, {"deposits": deposits, "withdrawals": withdrawals})
             if path == "/api/influencer/overview":
                 return self.influencer_overview()
+            if path == "/api/influencer/link":
+                user = self.user(("influencer",))
+                with db() as conn:
+                    total = conn.execute("SELECT COUNT(*) AS count FROM users WHERE referred_by_code=%s", (user["referral_code"],)).fetchone()["count"]
+                return self.send_json(200, {"name": user["name"], "referralCode": user["referral_code"], "referredUsers": total})
             if path == "/api/admin/overview":
                 return self.admin_overview()
             if path == "/api/admin/nyxpag-tx":
@@ -168,6 +192,7 @@ class handler(BaseHTTPRequestHandler):
             if path == "/api/withdrawals": return self.withdraw(data)
             if path == "/api/admin/withdrawals": return self.admin_withdrawal(data)
             if path == "/api/admin/balance-adjustments": return self.admin_balance_adjustment(data)
+            if path == "/api/admin/influencers": return self.admin_influencer(data)
             if path == "/api/influencer/withdraw": return self.influencer_withdraw(data)
             if path == "/api/game/bet": return self.game_bet(data)
             if path == "/api/game/end": return self.game_end(data)
@@ -436,19 +461,29 @@ class handler(BaseHTTPRequestHandler):
         signature = self.headers.get("X-Vulcano-Signature", "")
         if not signed_webhook_valid(raw, signature, VULCANO_WEBHOOK_SECRET):
             raise ApiError(401, "Assinatura inválida")
-        event = json.loads(raw); charge = event.get("data", {}); event_id = str(event.get("id", ""))
+        try: event = json.loads(raw)
+        except json.JSONDecodeError: raise ApiError(400, "JSON inválido")
+        charge = event.get("data", {})
+        event_id = str(event.get("id", "")).strip()
+        if not event_id or not isinstance(charge, dict): raise ApiError(400, "Evento inválido")
         expected_live = VULCANO_API_KEY.startswith("vk_live_")
         if bool(event.get("livemode", False)) != expected_live: return self.send_json(200, {"ok": True, "ignored": True})
 
         with db() as conn:
             try: conn.execute("INSERT INTO payment_events(event_id,provider,payload) VALUES(%s,'vulcanopay',%s)", (event_id, json.dumps(event)))
             except psycopg.errors.UniqueViolation: return self.send_json(200, {"ok": True, "duplicate": True})
-            dep = conn.execute("SELECT * FROM deposits WHERE provider_reference=%s OR id=%s FOR UPDATE", (str(charge.get("id", "")), str(charge.get("external_id", "")))).fetchone()
-            if dep and event.get("event") == "charge.paid" and dep["status"] != "paid":
+            dep = conn.execute("SELECT * FROM deposits WHERE provider='vulcanopay' AND (provider_reference=%s OR id=%s) FOR UPDATE", (str(charge.get("id", "")), str(charge.get("external_id", "")))).fetchone()
+            try: received_cents = int(charge.get("amount", -1))
+            except (TypeError, ValueError): received_cents = -1
+            if dep and event.get("event") == "charge.paid" and dep["status"] != "paid" and received_cents == dep["amount_cents"]:
                 credit = dep["amount_cents"] + dep["bonus_cents"]
                 conn.execute("UPDATE deposits SET status='paid',paid_at=NOW() WHERE id=%s", (dep["id"],))
                 conn.execute("UPDATE wallets SET balance_cents=balance_cents+%s,updated_at=NOW() WHERE user_id=%s", (credit, dep["user_id"]))
                 conn.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id) VALUES(%s,%s,'deposit_credit',%s,'deposit',%s)", ("tx_" + secrets.token_urlsafe(12), dep["user_id"], credit, dep["id"]))
+                credit_referral_commission(conn, dep)
+            elif dep and event.get("event") == "charge.paid" and received_cents != dep["amount_cents"]:
+                conn.execute("UPDATE payment_events SET processed_at=NOW(), processing_error=%s WHERE event_id=%s", ("Valor do webhook não confere com o depósito", event_id))
+                return self.send_json(200, {"ok": True, "ignored": True})
             elif dep and event.get("event") == "charge.expired" and dep["status"] == "pending":
                 conn.execute("UPDATE deposits SET status='expired' WHERE id=%s", (dep["id"],))
             conn.execute("UPDATE payment_events SET processed_at=NOW() WHERE event_id=%s", (event_id,))
@@ -476,7 +511,7 @@ class handler(BaseHTTPRequestHandler):
         self.send_json(201, {"id": wid, "status": "pending"})
 
     def influencer_overview(self):
-        user = self.user()
+        user = self.user(("influencer",))
         with db() as conn:
             wallet = conn.execute("SELECT balance_cents FROM wallets WHERE user_id=%s", (user["id"],)).fetchone()
             ref_code = user.get("referral_code") or ""
@@ -485,7 +520,8 @@ class handler(BaseHTTPRequestHandler):
                 conn.execute("UPDATE users SET referral_code=%s WHERE id=%s", (ref_code, user["id"]))
 
             inf_config = conn.execute("SELECT commission_rate, active FROM influencers WHERE user_id=%s", (user["id"],)).fetchone()
-            rate = inf_config["commission_rate"] if inf_config else (30 if user["role"] == "influencer" else 10)
+            if not inf_config or not inf_config["active"]: raise ApiError(403, "Acesso do influenciador desativado")
+            rate = inf_config["commission_rate"]
 
             stats = conn.execute("""
                 SELECT
@@ -531,7 +567,11 @@ class handler(BaseHTTPRequestHandler):
         })
 
     def influencer_withdraw(self, data):
-        user = self.user()
+        user = self.user(("influencer",))
+        supplied_password = str(data.get("withdrawalPassword", ""))
+        if not supplied_password: raise ApiError(422, "Informe sua senha para confirmar o saque")
+        digest, _ = password_hash(supplied_password, bytes.fromhex(user["password_salt"]))
+        if not hmac.compare_digest(digest, user["password_hash"]): raise ApiError(401, "Senha incorreta")
         amount = int(data.get("amountCents", 0))
         kind = str(data.get("pixType", "")).lower()
         key = str(data.get("pixKey", "")).strip()
@@ -622,9 +662,50 @@ class handler(BaseHTTPRequestHandler):
                 FROM influencers i JOIN users u ON u.id=i.user_id
                 LEFT JOIN wallets w ON w.user_id=u.id ORDER BY i.created_at DESC LIMIT 500
             """).fetchall()
-        self.send_json(200, {"accounts": accounts, "withdrawals": withdrawals, "totals": totals, "trend": trend,
+        self.send_json(200, {"environment": "production", "capabilities": {"balanceAdjustments": True, "withdrawalManagement": True, "autoPayout": payment_provider() == "nyxpag", "commissions": True, "influencers": True, "createInfluencers": True},
+                             "accounts": accounts, "withdrawals": withdrawals, "totals": totals, "trend": trend,
                              "activities": activities, "deposits": deposits, "transactions": transactions,
                              "commissions": commissions, "influencers": influencers})
+
+    def admin_influencer(self, data):
+        self.user(("admin",))
+        action = str(data.get("action") or "create").strip().lower()
+        if action == "create":
+            name = str(data.get("name", "")).strip()
+            email = str(data.get("email", "")).strip().lower()
+            password = str(data.get("password", ""))
+            if not 2 <= len(name) <= 120 or len(email) > 254 or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) or not 8 <= len(password) <= 128:
+                raise ApiError(422, "Informe nome, e-mail válido e senha de 8 a 128 caracteres")
+            digest, salt = password_hash(password)
+            code = "RUSH-" + secrets.token_hex(8).upper()
+            with db() as conn:
+                if conn.execute("SELECT 1 FROM users WHERE lower(email)=%s", (email,)).fetchone():
+                    raise ApiError(409, "Este e-mail já possui uma conta")
+                row = conn.execute("""INSERT INTO users(name,email,password_hash,password_salt,role,referral_code)
+                    VALUES(%s,%s,%s,%s,'influencer',%s) RETURNING id""", (name,email,digest,salt,code)).fetchone()
+                conn.execute("INSERT INTO wallets(user_id) VALUES(%s)", (row["id"],))
+                conn.execute("INSERT INTO influencers(user_id,commission_rate,active) VALUES(%s,30,TRUE)", (row["id"],))
+            return self.send_json(201, {"ok": True, "id": row["id"], "referralCode": code})
+        try: user_id = int(data.get("userId", 0))
+        except (TypeError, ValueError): raise ApiError(422, "Influenciador inválido")
+        if user_id <= 0: raise ApiError(422, "Influenciador inválido")
+        with db() as conn:
+            target = conn.execute("SELECT id,role FROM users WHERE id=%s FOR UPDATE", (user_id,)).fetchone()
+            if not target or target["role"] != "influencer": raise ApiError(404, "Influenciador não encontrado")
+            if action == "update":
+                rate = int(data.get("commissionRate", 30))
+                active = bool(data.get("active", True))
+                if rate < 0 or rate > 50: raise ApiError(422, "A comissão deve ficar entre 0% e 50%")
+                conn.execute("UPDATE influencers SET commission_rate=%s,active=%s WHERE user_id=%s", (rate,active,user_id))
+            elif action == "reset_password":
+                password = str(data.get("password", ""))
+                if not 8 <= len(password) <= 128: raise ApiError(422, "A nova senha deve ter entre 8 e 128 caracteres")
+                digest, salt = password_hash(password)
+                conn.execute("UPDATE users SET password_hash=%s,password_salt=%s WHERE id=%s", (digest,salt,user_id))
+                conn.execute("DELETE FROM sessions WHERE user_id=%s", (user_id,))
+            else:
+                raise ApiError(422, "Ação inválida")
+        self.send_json(200, {"ok": True})
 
     def admin_withdrawal(self, data):
         admin = self.user(("admin",))

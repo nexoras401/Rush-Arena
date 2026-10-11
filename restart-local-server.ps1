@@ -10,9 +10,15 @@ foreach ($listener in $listeners) {
     Stop-Process -Id $serverProcess.ProcessId
     Wait-Process -Id $serverProcess.ProcessId -ErrorAction SilentlyContinue -Timeout 10
 }
-$env:RUSH_HOST = '127.0.0.1'
-$env:RUSH_PORT = '8766'
-Start-Process -FilePath 'py.exe' -ArgumentList '-3','backend.py' -WorkingDirectory $siteRoot -WindowStyle Hidden -RedirectStandardOutput "$siteRoot\data\server-out.log" -RedirectStandardError "$siteRoot\data\server-error.log"
+$startInfo = New-Object System.Diagnostics.ProcessStartInfo
+$startInfo.FileName = 'C:\Users\Administrator\AppData\Local\Programs\Python\Launcher\py.exe'
+$startInfo.Arguments = '-3 backend.py'
+$startInfo.WorkingDirectory = $siteRoot
+$startInfo.UseShellExecute = $true
+$startInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
+$server = New-Object System.Diagnostics.Process
+$server.StartInfo = $startInfo
+[void]$server.Start()
 for ($attempt = 0; $attempt -lt 20; $attempt++) {
     Start-Sleep -Milliseconds 300
     try {

@@ -3,6 +3,9 @@
   const esc = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const money = cents => (Number(cents || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const date = value => value ? new Date(value).toLocaleString('pt-BR') : '—';
+  const statusLabels = { pending:'Pendente', paid:'Pago', approved:'Aprovado', rejected:'Recusado', expired:'Expirado', cancelled:'Cancelado', failed:'Falhou', credited:'Creditada' };
+  const roleLabels = { admin:'Administrador', customer:'Cliente', influencer:'Influenciador' };
+  const pixLabels = { cpf:'CPF', cnpj:'CNPJ', email:'E-mail', phone:'Telefone', random:'Aleatória' };
   const token = () => localStorage.getItem('rushArenaApiToken') || '';
   async function api(path, options) {
     const response = await fetch('/api' + path, Object.assign({}, options || {}, { headers: Object.assign({ 'Content-Type': 'application/json', Authorization: 'Bearer ' + token() }, options && options.headers || {}) }));
@@ -15,6 +18,7 @@
     return body;
   }
   function mask(value) { const raw = String(value || ''); return raw.length > 7 ? raw.slice(0, 2) + '•••••' + raw.slice(-5) : raw; }
+  function cpf(value, last4) { const digits=String(value||'').replace(/\D/g,''); return digits.length===11 ? digits.slice(0,3)+'.'+digits.slice(3,6)+'.'+digits.slice(6,9)+'-'+digits.slice(9) : (last4 ? 'CPF antigo: final '+last4 : 'Não informado'); }
   function renderChart(rows) {
     const data = Array.isArray(rows) ? rows.slice(-7) : [];
     while (data.length < 7) data.unshift({ day: '', deposits_cents: 0 });
@@ -36,23 +40,23 @@
     document.getElementById('chartTotal').textContent = money(values.reduce((sum, value) => sum + value, 0));
   }
   function renderActivities(rows) {
-    const labels = { deposit: 'Depósito pago', admin_credit: 'Crédito administrativo', admin_debit: 'Débito administrativo', withdrawal_hold: 'Saque solicitado', withdrawal_refund: 'Saque devolvido', game_bet: 'Entrada no jogo', game_win: 'Prêmio do jogo' };
+    const labels = { deposit: 'Depósito pago', deposit_credit: 'Depósito creditado', referral_commission: 'Comissão de indicação', admin_credit: 'Crédito administrativo', admin_debit: 'Débito administrativo', withdrawal_hold: 'Saque solicitado', withdrawal_refund: 'Saque devolvido', game_bet: 'Entrada no jogo', game_win: 'Prêmio do jogo' };
     const data = Array.isArray(rows) ? rows : [];
     document.getElementById('activityList').innerHTML = data.length ? data.map(item => {
       const amount = Number(item.amount_cents || 0);
       return '<div class="activity"><div class="activity-icon">' + (amount < 0 ? '↗' : '↙') + '</div><div><strong>' + esc(labels[item.kind] || item.kind || 'Movimentação') + '</strong><small>' + esc(item.name || item.email || 'Conta') + ' · ' + date(item.created_at) + '</small></div><b class="' + (amount < 0 ? 'negative' : 'positive') + '">' + (amount < 0 ? '-' : '+') + money(Math.abs(amount)) + '</b></div>';
     }).join('') : '<div class="empty">Nenhuma movimentação ainda.</div>';
   }
-  const kindLabels = { deposit: 'Depósito', admin_credit: 'Crédito administrativo', admin_debit: 'Débito administrativo', withdrawal_hold: 'Saque solicitado', withdrawal_refund: 'Saque devolvido', game_bet: 'Entrada no jogo', game_win: 'Prêmio do jogo' };
+  const kindLabels = { deposit: 'Depósito', deposit_credit: 'Depósito creditado', referral_commission: 'Comissão de indicação', admin_credit: 'Crédito administrativo', admin_debit: 'Débito administrativo', withdrawal_hold: 'Saque solicitado', withdrawal_refund: 'Saque devolvido', game_bet: 'Entrada no jogo', game_win: 'Prêmio do jogo' };
   function configureProductionViews() {
     const accountsPanel = document.querySelector('[data-view-panel="accounts"]');
     if (accountsPanel) {
       accountsPanel.querySelector('h2').textContent = 'Dados das contas';
-      accountsPanel.querySelector('.section-heading p').textContent = 'Nome, e-mail, telefone, final do CPF, perfil e data de cadastro.';
+      accountsPanel.querySelector('.section-heading p').textContent = 'Nome, e-mail, telefone, CPF cadastrado, perfil e data de cadastro.';
       accountsPanel.querySelectorAll('th')[1].textContent = 'E-mail';
-      accountsPanel.querySelectorAll('th')[3].textContent = 'CPF (final)';
-      accountsPanel.querySelector('.privacy').textContent = 'O CPF completo não é armazenado no cadastro atual: somente os últimos 4 dígitos e uma impressão digital para comparação. Senhas nunca são exibidas. Dados ausentes são identificados como não informados.';
-      document.getElementById('accountSearch').placeholder = 'Nome, e-mail, telefone ou final do CPF';
+      accountsPanel.querySelectorAll('th')[3].textContent = 'CPF';
+      accountsPanel.querySelector('.privacy').textContent = 'Cadastros novos exibem o CPF informado. Contas antigas podem mostrar somente os quatro últimos dígitos. Senhas nunca são exibidas.';
+      document.getElementById('accountSearch').placeholder = 'Nome, e-mail, telefone ou CPF';
     }
     const layouts = {
       demos: { label: '⇄ Transações', title: 'Transações da carteira', description: 'Movimentações registradas no banco de dados.', html: '<article class="card table-card"><div class="table-tools"><input class="search" id="transactionSearch" placeholder="Buscar por conta ou tipo"></div><div class="table-wrap"><table><thead><tr><th>Conta</th><th>Movimentação</th><th>Valor</th><th>Referência</th><th>Data</th></tr></thead><tbody id="transactionRows"></tbody></table></div></article>' },
@@ -74,6 +78,8 @@
     if (!token()) { location.replace('panel.html'); return; }
     configureProductionViews();
     const influencerPanel = document.querySelector('[data-view-panel="influencers"]');
+    const legacyInfluencerForm = document.getElementById('influencerForm');
+    if (legacyInfluencerForm) legacyInfluencerForm.closest('.two-col').hidden = true;
     influencerPanel.insertAdjacentHTML('afterbegin', '<form id="createInfluencer" class="card" hidden style="padding:20px;margin-bottom:20px"><h2>Criar conta de influenciador</h2><p>Conta sem crédito de saldo. O parceiro acessa seu link pelo portal de gestão.</p><label>Nome <input class="search" name="name" required minlength="2" maxlength="120"></label> <label>E-mail <input class="search" name="email" type="email" required maxlength="254"></label> <label>Senha inicial <input class="search" name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></label> <button class="filter is-active" type="submit">Criar conta</button><p id="influencerCreateStatus" role="status"></p><div id="influencerLinks"></div></form>');
     const activateView = view => {
       const button = document.querySelector('[data-view="' + CSS.escape(view) + '"]:not([hidden])') || document.querySelector('[data-view="dashboard"]');
@@ -98,11 +104,11 @@
       let currentWithdrawals = [];
       let currentData = {};
       const renderAccounts = accounts => {
-        document.getElementById('accountRows').innerHTML = accounts.length ? accounts.map(item => '<tr><td><strong>' + esc(item.name) + '</strong><br><span class="muted">' + esc(item.role) + '</span></td><td>' + esc(item.email) + '</td><td>' + esc(item.phone || 'Não informado') + '</td><td>' + esc(item.cpf_last4 ? '•••' + item.cpf_last4 : 'Não informado') + '</td><td><span class="badge">Ref: ' + esc(item.referral_code || '—') + '</span></td><td><span class="badge">Protegida</span></td><td><strong>' + money(item.balance_cents) + '</strong></td><td><button class="filter is-active" data-live-balance="' + esc(item.id) + '" data-live-email="' + esc(item.email) + '">Ajustar saldo</button></td><td>' + date(item.created_at) + '</td></tr>').join('') : '<tr><td colspan="9" class="empty">Nenhuma conta.</td></tr>';
+        document.getElementById('accountRows').innerHTML = accounts.length ? accounts.map(item => '<tr><td><strong>' + esc(item.name) + '</strong><br><span class="muted">' + esc(roleLabels[item.role] || item.role) + '</span></td><td>' + esc(item.email) + '</td><td>' + esc(item.phone || 'Não informado') + '</td><td>' + esc(cpf(item.cpf,item.cpf_last4)) + '</td><td><span class="badge">Ref: ' + esc(item.referral_code || '—') + '</span></td><td><span class="badge">Protegida</span></td><td><strong>' + money(item.balance_cents) + '</strong></td><td><button class="filter is-active" data-live-balance="' + esc(item.id) + '" data-live-email="' + esc(item.email) + '">Ajustar saldo</button></td><td>' + date(item.created_at) + '</td></tr>').join('') : '<tr><td colspan="9" class="empty">Nenhuma conta.</td></tr>';
       };
       const renderWithdrawals = withdrawals => {
         document.getElementById('pixCount').textContent = String(withdrawals.length);
-        document.getElementById('pixRows').innerHTML = withdrawals.length ? withdrawals.map(item => '<tr><td><strong>' + esc(item.name) + '</strong><br>' + esc(item.email) + '</td><td><span class="badge">' + esc(item.pix_type) + '</span></td><td><input class="search" data-live-pix="' + esc(item.id) + '" value="' + esc(item.pix_key) + '"></td><td>' + money(item.amount_cents) + '</td><td><span class="badge">' + esc(item.status) + '</span>' + (item.provider_reference ? '<br><small class="muted">' + esc(item.provider_reference) + '</small>' : '') + '</td><td>' + date(item.created_at) + '</td><td><button class="filter" data-live-save="' + esc(item.id) + '">Salvar</button>' + (item.status === 'pending' ? ' <button class="filter is-active" data-live-approve="' + esc(item.id) + '">Aprovar</button> <button class="filter" data-live-approve-pay="' + esc(item.id) + '">Aprovar &amp; Pagar Pix</button> <button class="filter" data-live-reject="' + esc(item.id) + '">Rejeitar</button>' : '') + '</td></tr>').join('') : '<tr><td colspan="7" class="empty">Nenhum saque.</td></tr>';
+        document.getElementById('pixRows').innerHTML = withdrawals.length ? withdrawals.map(item => '<tr><td><strong>' + esc(item.name) + '</strong><br>' + esc(item.email) + '</td><td><span class="badge">' + esc(pixLabels[item.pix_type] || item.pix_type) + '</span></td><td><input class="search" data-live-pix="' + esc(item.id) + '" value="' + esc(item.pix_key) + '"></td><td>' + money(item.amount_cents) + '</td><td><span class="badge">' + esc(statusLabels[item.status] || item.status) + '</span>' + (item.provider_reference ? '<br><small class="muted">' + esc(item.provider_reference) + '</small>' : '') + '</td><td>' + date(item.created_at) + '</td><td><button class="filter" data-live-save="' + esc(item.id) + '">Salvar</button>' + (item.status === 'pending' ? ' <button class="filter is-active" data-live-approve="' + esc(item.id) + '">Aprovar</button> <button class="filter" data-live-approve-pay="' + esc(item.id) + '">Aprovar &amp; Pagar Pix</button> <button class="filter" data-live-reject="' + esc(item.id) + '">Rejeitar</button>' : '') + '</td></tr>').join('') : '<tr><td colspan="7" class="empty">Nenhum saque.</td></tr>';
       };
       const renderTransactions = rows => {
         const target = document.getElementById('transactionRows');
@@ -112,17 +118,17 @@
       const renderDeposits = rows => {
         const target = document.getElementById('depositRows');
         if (!target) return;
-        target.innerHTML = rows.length ? rows.map(item => '<tr><td><strong>' + esc(item.name) + '</strong><br><span class="muted">' + esc(item.email) + '</span></td><td>' + money(item.amount_cents) + (Number(item.bonus_cents) ? '<br><small class="muted">Bônus: ' + money(item.bonus_cents) + '</small>' : '') + '</td><td>' + esc(item.provider) + '</td><td><span class="badge">' + esc(item.status) + '</span></td><td>' + esc(item.provider_reference || item.id) + '</td><td>' + date(item.created_at) + '</td><td>' + date(item.paid_at) + '</td></tr>').join('') : '<tr><td colspan="7" class="empty">Nenhum depósito registrado.</td></tr>';
+        target.innerHTML = rows.length ? rows.map(item => '<tr><td><strong>' + esc(item.name) + '</strong><br><span class="muted">' + esc(item.email) + '</span></td><td>' + money(item.amount_cents) + (Number(item.bonus_cents) ? '<br><small class="muted">Bônus: ' + money(item.bonus_cents) + '</small>' : '') + '</td><td>' + esc(item.provider) + '</td><td><span class="badge">' + esc(statusLabels[item.status] || item.status) + '</span></td><td>' + esc(item.provider_reference || item.id) + '</td><td>' + date(item.created_at) + '</td><td>' + date(item.paid_at) + '</td></tr>').join('') : '<tr><td colspan="7" class="empty">Nenhum depósito registrado.</td></tr>';
       };
       const renderCommissions = rows => {
         const target = document.getElementById('commissionRows');
         if (!target) return;
-        target.innerHTML = rows.length ? rows.map(item => '<tr><td><strong>' + esc(item.beneficiary_name) + '</strong><br><span class="muted">' + esc(item.beneficiary_email) + '</span></td><td>' + esc(item.referred_name) + '<br><span class="muted">' + esc(item.referred_email) + '</span></td><td>' + money(item.deposit_cents) + '</td><td class="positive">+' + money(item.commission_cents) + '</td><td>' + esc(item.rate_percent) + '%</td><td><span class="badge">' + esc(item.status) + '</span></td><td>' + date(item.created_at) + '</td></tr>').join('') : '<tr><td colspan="7" class="empty">Nenhuma comissão registrada.</td></tr>';
+        target.innerHTML = rows.length ? rows.map(item => '<tr><td><strong>' + esc(item.beneficiary_name) + '</strong><br><span class="muted">' + esc(item.beneficiary_email) + '</span></td><td>' + esc(item.referred_name) + '<br><span class="muted">' + esc(item.referred_email) + '</span></td><td>' + money(item.deposit_cents) + '</td><td class="positive">+' + money(item.commission_cents) + '</td><td>' + esc(item.rate_percent) + '%</td><td><span class="badge">' + esc(statusLabels[item.status] || item.status) + '</span></td><td>' + date(item.created_at) + '</td></tr>').join('') : '<tr><td colspan="7" class="empty">Nenhuma comissão registrada.</td></tr>';
       };
       const renderInfluencers = rows => {
         const target = document.getElementById('influencerRows');
         if (!target) return;
-        target.innerHTML = rows.length ? rows.map(item => '<tr><td><strong>' + esc(item.name) + '</strong></td><td>' + esc(item.email) + '</td><td><span class="badge">' + esc(item.referral_code || '—') + '</span></td><td>' + esc(item.referred_users) + '</td><td>' + money(item.commission_cents) + '</td><td>' + money(item.balance_cents) + '</td><td>' + esc(item.commission_rate) + '%</td><td><span class="badge">' + (item.active ? 'Ativo' : 'Inativo') + '</span></td></tr>').join('') : '<tr><td colspan="8" class="empty">Nenhum parceiro cadastrado.</td></tr>';
+        target.innerHTML = rows.length ? rows.map(item => '<tr><td><strong>' + esc(item.name) + '</strong></td><td>' + esc(item.email) + '</td><td><a href="/?ref=' + encodeURIComponent(item.referral_code || '') + '"><span class="badge">' + esc(item.referral_code || '—') + '</span></a></td><td>' + esc(item.referred_users) + '</td><td>' + money(item.commission_cents) + '</td><td>' + money(item.balance_cents) + '</td><td><input class="search" style="width:76px" type="number" min="0" max="50" value="' + esc(item.commission_rate) + '" data-rate="' + esc(item.id) + '"></td><td><button class="filter" data-toggle-influencer="' + esc(item.id) + '" data-active="' + (item.active ? '1' : '0') + '">' + (item.active ? 'Desativar' : 'Ativar') + '</button> <button class="filter" data-reset-influencer="' + esc(item.id) + '">Trocar senha</button></td></tr>').join('') : '<tr><td colspan="8" class="empty">Nenhum parceiro cadastrado.</td></tr>';
       };
       async function refresh() {
         const data = await api('/admin/overview'); const totals = data.totals || {}; const accounts = data.accounts || []; const withdrawals = data.withdrawals || [];
@@ -140,21 +146,42 @@
         document.getElementById('createInfluencer').hidden = !capabilities.createInfluencers;
         document.getElementById('influencerLinks').innerHTML = (data.influencers || []).filter(item => item.referral_code).map(item => '<p>'+esc(item.name)+': <a href="/?ref='+encodeURIComponent(item.referral_code)+'">'+esc(location.origin+'/?ref='+encodeURIComponent(item.referral_code))+'</a></p>').join('');
         const banner = document.querySelector('.local-banner');
-        if (banner && data.environment === 'local') banner.textContent = 'Banco local: dados reais desta instalação. Funções não implementadas estão desativadas.';
+        if (banner && data.environment === 'local') banner.textContent = 'Banco local: dados persistentes desta instalação. Transferências Pix automáticas permanecem desativadas sem um provedor de payout configurado.';
         if (capabilities.balanceAdjustments === false) document.querySelectorAll('[data-live-balance]').forEach(button => { button.disabled = true; button.title = 'Ajustes indisponíveis neste servidor local'; });
         if (capabilities.withdrawalManagement === false) document.querySelectorAll('[data-live-save],[data-live-approve],[data-live-approve-pay],[data-live-reject],[data-live-pix]').forEach(control => { control.disabled = true; control.title = 'Gestão de saques indisponível neste servidor local'; });
+        if (capabilities.autoPayout === false) document.querySelectorAll('[data-live-approve-pay]').forEach(button => { button.hidden = true; });
         if (capabilities.commissions === false) document.getElementById('commissionRows').innerHTML = '<tr><td colspan="7" class="empty">Comissões não implementadas neste servidor local.</td></tr>';
         if (capabilities.influencers === false) document.getElementById('influencerRows').innerHTML = '<tr><td colspan="8" class="empty">Gestão de parceiros não implementada neste servidor local.</td></tr>';
         document.getElementById('commissionTotal').textContent = money(totals.commissions_cents || 0);
         document.getElementById('networkDeposits').textContent = money((data.commissions || []).reduce((sum, item) => sum + Number(item.deposit_cents || 0), 0));
         document.getElementById('networkUsers').textContent = String((data.influencers || []).length);
       }
-      document.getElementById('accountSearch').addEventListener('input', event => { const q = event.target.value.trim().toLowerCase(); renderAccounts(currentAccounts.filter(item => [item.name,item.email,item.phone,item.cpf_last4,item.role].map(value=>String(value || '')).join(' ').toLowerCase().includes(q))); if (currentData.capabilities && currentData.capabilities.balanceAdjustments === false) document.querySelectorAll('[data-live-balance]').forEach(button => { button.disabled = true; }); });
+      document.getElementById('accountSearch').addEventListener('input', event => { const q = event.target.value.trim().toLowerCase(); renderAccounts(currentAccounts.filter(item => [item.name,item.email,item.phone,item.cpf,item.cpf_last4,item.role].map(value=>String(value || '')).join(' ').toLowerCase().includes(q))); if (currentData.capabilities && currentData.capabilities.balanceAdjustments === false) document.querySelectorAll('[data-live-balance]').forEach(button => { button.disabled = true; }); });
       document.getElementById('pixSearch').addEventListener('input', event => { const q = event.target.value.trim().toLowerCase(); renderWithdrawals(currentWithdrawals.filter(item => (String(item.name) + ' ' + String(item.email) + ' ' + String(item.pix_key)).toLowerCase().includes(q))); });
       document.getElementById('transactionSearch').addEventListener('input', event => { const q = event.target.value.trim().toLowerCase(); renderTransactions((currentData.transactions || []).filter(item => (String(item.name) + ' ' + String(item.email) + ' ' + String(item.kind)).toLowerCase().includes(q))); });
       document.getElementById('depositSearch').addEventListener('input', event => { const q = event.target.value.trim().toLowerCase(); renderDeposits((currentData.deposits || []).filter(item => (String(item.name) + ' ' + String(item.email) + ' ' + String(item.status) + ' ' + String(item.id)).toLowerCase().includes(q))); });
       document.getElementById('influencerSearch').addEventListener('input', event => { const q = event.target.value.trim().toLowerCase(); renderInfluencers((currentData.influencers || []).filter(item => (String(item.name) + ' ' + String(item.email) + ' ' + String(item.referral_code)).toLowerCase().includes(q))); });
       document.addEventListener('click', async event => {
+        const toggleInfluencer = event.target.closest('[data-toggle-influencer]');
+        const resetInfluencer = event.target.closest('[data-reset-influencer]');
+        if (toggleInfluencer || resetInfluencer) {
+          const button = toggleInfluencer || resetInfluencer;
+          const userId = Number(button.getAttribute(toggleInfluencer ? 'data-toggle-influencer' : 'data-reset-influencer'));
+          button.disabled = true;
+          try {
+            if (toggleInfluencer) {
+              const rate = Number(document.querySelector('[data-rate="' + CSS.escape(String(userId)) + '"]').value);
+              await api('/admin/influencers', {method:'POST', body:JSON.stringify({action:'update',userId,active:button.dataset.active !== '1',commissionRate:rate})});
+            } else {
+              const password = prompt('Nova senha (mínimo de 8 caracteres):');
+              if (password == null) { button.disabled=false; return; }
+              await api('/admin/influencers', {method:'POST', body:JSON.stringify({action:'reset_password',userId,password})});
+              alert('Senha alterada e sessões antigas encerradas.');
+            }
+            await refresh();
+          } catch (error) { alert(error.message); button.disabled=false; }
+          return;
+        }
         const balanceButton = event.target.closest('[data-live-balance]');
         if (balanceButton) {
           const accountEmail = balanceButton.getAttribute('data-live-email') || 'esta conta';

@@ -134,6 +134,31 @@ def migrate() -> None:
                 received_at TEXT NOT NULL,
                 processed_at TEXT
             );
+            CREATE TABLE IF NOT EXISTS influencers (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                commission_rate INTEGER NOT NULL DEFAULT 30,
+                active INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS commissions (
+                id TEXT PRIMARY KEY,
+                beneficiary_user_id INTEGER NOT NULL REFERENCES users(id),
+                referred_user_id INTEGER NOT NULL REFERENCES users(id),
+                deposit_id TEXT NOT NULL UNIQUE REFERENCES deposits(id),
+                deposit_cents INTEGER NOT NULL,
+                commission_cents INTEGER NOT NULL,
+                rate_percent INTEGER NOT NULL,
+                status TEXT NOT NULL DEFAULT 'credited',
+                created_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS admin_balance_adjustments (
+                id TEXT PRIMARY KEY,
+                admin_user_id INTEGER NOT NULL REFERENCES users(id),
+                target_user_id INTEGER NOT NULL REFERENCES users(id),
+                amount_cents INTEGER NOT NULL,
+                reason TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
             CREATE INDEX IF NOT EXISTS idx_deposits_user ON deposits(user_id, created_at DESC);
             CREATE INDEX IF NOT EXISTS idx_withdrawals_user ON withdrawals(user_id, created_at DESC);
             CREATE INDEX IF NOT EXISTS idx_transactions_user ON wallet_transactions(user_id, created_at DESC);
@@ -155,6 +180,10 @@ def migrate() -> None:
             db.execute("ALTER TABLE deposits ADD COLUMN pix_code TEXT")
         if "expires_at" not in deposit_columns:
             db.execute("ALTER TABLE deposits ADD COLUMN expires_at TEXT")
+        event_columns = {row["name"] for row in db.execute("PRAGMA table_info(payment_events)")}
+        if "processing_error" not in event_columns:
+            db.execute("ALTER TABLE payment_events ADD COLUMN processing_error TEXT")
+        db.execute("INSERT OR IGNORE INTO influencers(user_id,commission_rate,active,created_at) SELECT id,30,1,created_at FROM users WHERE role='influencer'")
 
 
 def password_hash(password: str, salt: bytes | None = None) -> tuple[str, str]:
@@ -174,6 +203,26 @@ def token_hash(token: str) -> str:
 
 def money_bonus(amount: int) -> int:
     return {3_000: 1_000, 5_000: 2_000, 10_000: 5_000}.get(amount, 0)
+
+
+def credit_referral_commission(database: sqlite3.Connection, deposit: sqlite3.Row) -> None:
+    referred = database.execute("SELECT referred_by_code FROM users WHERE id=?", (deposit["user_id"],)).fetchone()
+    if not referred or not referred["referred_by_code"]:
+        return
+    influencer = database.execute("""SELECT u.id,i.commission_rate FROM users u JOIN influencers i ON i.user_id=u.id
+        WHERE u.referral_code=? AND i.active=1""", (referred["referred_by_code"],)).fetchone()
+    if not influencer:
+        return
+    amount = deposit["amount_cents"] * influencer["commission_rate"] // 100
+    if amount <= 0:
+        return
+    commission_id = "com_" + secrets.token_urlsafe(12)
+    try:
+        database.execute("INSERT INTO commissions(id,beneficiary_user_id,referred_user_id,deposit_id,deposit_cents,commission_cents,rate_percent,created_at) VALUES(?,?,?,?,?,?,?,?)", (commission_id,influencer["id"],deposit["user_id"],deposit["id"],deposit["amount_cents"],amount,influencer["commission_rate"],utc_now()))
+    except sqlite3.IntegrityError:
+        return
+    database.execute("UPDATE wallets SET balance_cents=balance_cents+?,updated_at=? WHERE user_id=?", (amount,utc_now(),influencer["id"]))
+    database.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)", ("tx_"+secrets.token_urlsafe(12),influencer["id"],"referral_commission",amount,"commission",commission_id,utc_now()))
 
 
 def zoryx_request(path: str, payload: dict) -> dict:
@@ -267,7 +316,10 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
         self.send_header("Cross-Origin-Opener-Policy", "same-origin")
         self.send_header("Cross-Origin-Resource-Policy", "same-origin")
-        self.send_header("Content-Security-Policy", "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; connect-src 'self'")
+        is_game_asset = urlparse(self.path).path.startswith("/play/")
+        script_policy = "'self' 'unsafe-inline' 'unsafe-eval'" if is_game_asset else "'self' 'unsafe-inline'"
+        connect_policy = "'self' data: https://unpkg.com" if is_game_asset else "'self'"
+        self.send_header("Content-Security-Policy", f"default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src {script_policy}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; connect-src {connect_policy}")
         self.send_header("Cache-Control", "no-store" if self.path.startswith("/api/") else "no-cache")
         super().end_headers()
 
@@ -358,6 +410,8 @@ class Handler(SimpleHTTPRequestHandler):
                 with connect() as db:
                     count = db.execute("SELECT COUNT(*) FROM users WHERE referred_by_code=?", (user["referral_code"],)).fetchone()[0]
                 return self.json_response(200, {"name": user["name"], "referralCode": user["referral_code"], "referredUsers": count})
+            if path == "/api/influencer/overview":
+                return self.influencer_overview()
             if path.startswith("/api/"):
                 raise ApiError(404, "Rota não encontrada")
             if self.forbidden_static_path():
@@ -384,6 +438,12 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.login(data)
             if path == "/api/admin/influencers":
                 return self.create_influencer(data)
+            if path == "/api/admin/balance-adjustments":
+                return self.admin_balance_adjustment(data)
+            if path == "/api/admin/withdrawals":
+                return self.admin_withdrawal(data)
+            if path == "/api/influencer/withdraw":
+                return self.influencer_withdraw(data)
             if path.startswith("/api/demo/block-cash/"):
                 return self.demo_block_action(path.rsplit('/', 1)[-1], data)
             if path == "/api/deposits":
@@ -587,11 +647,19 @@ class Handler(SimpleHTTPRequestHandler):
             if not deposit:
                 db.execute("UPDATE payment_events SET processed_at=? WHERE event_id=?", (utc_now(), event_id))
                 return self.json_response(200, {"ok": True, "ignored": True})
-            if event_name == "charge.paid" and deposit["status"] != "paid":
+            try:
+                received_cents = int(charge.get("amount", -1))
+            except (TypeError, ValueError):
+                received_cents = -1
+            if event_name == "charge.paid" and deposit["status"] != "paid" and received_cents == deposit["amount_cents"]:
                 credit = deposit["amount_cents"] + deposit["bonus_cents"]
                 db.execute("UPDATE deposits SET status='paid',paid_at=? WHERE id=?", (utc_now(), deposit["id"]))
                 db.execute("UPDATE wallets SET balance_cents=balance_cents+?,updated_at=? WHERE user_id=?", (credit, utc_now(), deposit["user_id"]))
                 db.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)", ("tx_" + secrets.token_urlsafe(12), deposit["user_id"], "deposit_credit", credit, "deposit", deposit["id"], utc_now()))
+                credit_referral_commission(db, deposit)
+            elif event_name == "charge.paid" and received_cents != deposit["amount_cents"]:
+                db.execute("UPDATE payment_events SET processed_at=?,processing_error=? WHERE event_id=?", (utc_now(), "Valor do webhook não confere com o depósito", event_id))
+                return self.json_response(200, {"ok": True, "ignored": True})
             elif event_name == "charge.expired" and deposit["status"] == "pending":
                 db.execute("UPDATE deposits SET status='expired' WHERE id=?", (deposit["id"],))
             db.execute("UPDATE payment_events SET processed_at=? WHERE event_id=?", (utc_now(), event_id))
@@ -620,6 +688,7 @@ class Handler(SimpleHTTPRequestHandler):
                 db.execute("UPDATE deposits SET status='paid',paid_at=? WHERE id=?", (utc_now(), external_id))
                 db.execute("UPDATE wallets SET balance_cents=balance_cents+?,updated_at=? WHERE user_id=?", (credit, utc_now(), deposit["user_id"]))
                 db.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)", ("tx_" + secrets.token_urlsafe(12), deposit["user_id"], "deposit_credit", credit, "deposit", external_id, utc_now()))
+                credit_referral_commission(db, deposit)
             elif status in {"failed", "canceled"} and deposit["status"] == "pending":
                 db.execute("UPDATE deposits SET status=? WHERE id=?", ("cancelled" if status == "canceled" else "failed", external_id))
             db.execute("UPDATE payment_events SET processed_at=? WHERE event_id=?", (utc_now(), event_id))
@@ -648,6 +717,7 @@ class Handler(SimpleHTTPRequestHandler):
                 db.execute("UPDATE deposits SET status='paid',paid_at=? WHERE id=?", (utc_now(), deposit["id"]))
                 db.execute("UPDATE wallets SET balance_cents=balance_cents+?,updated_at=? WHERE user_id=?", (credit, utc_now(), deposit["user_id"]))
                 db.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)", ("tx_" + secrets.token_urlsafe(12), deposit["user_id"], "deposit_credit", credit, "deposit", deposit["id"], utc_now()))
+                credit_referral_commission(db, deposit)
             elif status in {"FALHA", "CANCELADO"} and deposit["status"] == "pending":
                 db.execute("UPDATE deposits SET status=? WHERE id=?", ("cancelled" if status == "CANCELADO" else "failed", deposit["id"]))
             db.execute("UPDATE payment_events SET processed_at=? WHERE event_id=?", (utc_now(), event_id))
@@ -674,6 +744,7 @@ class Handler(SimpleHTTPRequestHandler):
                 db.execute("UPDATE deposits SET status='paid',paid_at=?,provider_reference=? WHERE id=?", (utc_now(), event_id, deposit_id))
                 db.execute("UPDATE wallets SET balance_cents=balance_cents+?,updated_at=? WHERE user_id=?", (credit, utc_now(), deposit["user_id"]))
                 db.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)", ("tx_" + secrets.token_urlsafe(12), deposit["user_id"], "deposit_credit", credit, "deposit", deposit_id, utc_now()))
+                credit_referral_commission(db, deposit)
             db.execute("UPDATE payment_events SET processed_at=? WHERE event_id=?", (utc_now(), event_id))
         return self.json_response(200, {"ok": True})
 
@@ -736,6 +807,32 @@ class Handler(SimpleHTTPRequestHandler):
 
     def create_influencer(self, data):
         self.auth(("admin",))
+        action = str(data.get("action") or "create").strip().lower()
+        if action != "create":
+            try:
+                user_id = int(data.get("userId", 0))
+            except (TypeError, ValueError):
+                raise ApiError(422, "Influenciador inválido")
+            with connect() as db:
+                target = db.execute("SELECT id,role FROM users WHERE id=?", (user_id,)).fetchone()
+                if not target or target["role"] != "influencer":
+                    raise ApiError(404, "Influenciador não encontrado")
+                if action == "update":
+                    rate = int(data.get("commissionRate", 30))
+                    active = 1 if bool(data.get("active", True)) else 0
+                    if not 0 <= rate <= 50:
+                        raise ApiError(422, "A comissão deve ficar entre 0% e 50%")
+                    db.execute("UPDATE influencers SET commission_rate=?,active=? WHERE user_id=?", (rate,active,user_id))
+                elif action == "reset_password":
+                    password = str(data.get("password", ""))
+                    if not 8 <= len(password) <= 128:
+                        raise ApiError(422, "A nova senha deve ter entre 8 e 128 caracteres")
+                    digest,salt = password_hash(password)
+                    db.execute("UPDATE users SET password_hash=?,password_salt=? WHERE id=?", (digest,salt,user_id))
+                    db.execute("DELETE FROM sessions WHERE user_id=?", (user_id,))
+                else:
+                    raise ApiError(422, "Ação inválida")
+            return self.json_response(200, {"ok": True})
         name = str(data.get("name", "")).strip()
         email = str(data.get("email", "")).strip().lower()
         password = str(data.get("password", ""))
@@ -749,7 +846,80 @@ class Handler(SimpleHTTPRequestHandler):
                 raise ApiError(409, "Este e-mail já possui uma conta. Nenhuma alteração foi feita.")
             cursor = db.execute("INSERT INTO users(name,email,role,password_hash,password_salt,referral_code,created_at) VALUES(?,?,'influencer',?,?,?,?)", (name,email,digest,salt,code,utc_now()))
             db.execute("INSERT INTO wallets(user_id,balance_cents,updated_at) VALUES(?,0,?)", (cursor.lastrowid,utc_now()))
+            db.execute("INSERT INTO influencers(user_id,commission_rate,active,created_at) VALUES(?,30,1,?)", (cursor.lastrowid,utc_now()))
         return self.json_response(201, {"id": cursor.lastrowid, "referralCode": code})
+
+    def influencer_overview(self):
+        user = self.auth(("influencer",))
+        with connect() as db:
+            config = db.execute("SELECT commission_rate,active FROM influencers WHERE user_id=?", (user["id"],)).fetchone()
+            if not config or not config["active"]:
+                raise ApiError(403, "Acesso do influenciador desativado")
+            wallet = db.execute("SELECT balance_cents FROM wallets WHERE user_id=?", (user["id"],)).fetchone()
+            referred = [dict(row) for row in db.execute("""SELECT u.name,u.email,u.created_at,COUNT(c.id) AS deposits_count,
+                COALESCE(SUM(c.deposit_cents),0) AS deposits_cents,COALESCE(SUM(c.commission_cents),0) AS commission_cents,
+                MAX(c.created_at) AS last_activity FROM users u LEFT JOIN commissions c ON c.referred_user_id=u.id AND c.beneficiary_user_id=?
+                WHERE u.referred_by_code=? GROUP BY u.id ORDER BY u.created_at DESC""", (user["id"],user["referral_code"]))]
+            history = [dict(row) for row in db.execute("SELECT kind,amount_cents,reference_type,reference_id,created_at FROM wallet_transactions WHERE user_id=? AND kind IN ('referral_commission','withdrawal_hold','withdrawal_refund') ORDER BY created_at DESC LIMIT 50", (user["id"],))]
+            stats = db.execute("SELECT COALESCE(SUM(commission_cents),0) AS commission,COALESCE(SUM(deposit_cents),0) AS deposits FROM commissions WHERE beneficiary_user_id=?", (user["id"],)).fetchone()
+        return self.json_response(200, {"referralCode":user["referral_code"],"commissionRate":config["commission_rate"],"balanceCents":wallet["balance_cents"] if wallet else 0,"totalCommissionCents":stats["commission"],"totalDepositsCents":stats["deposits"],"totalReferredUsers":len(referred),"referredUsers":referred,"history":history})
+
+    def influencer_withdraw(self, data):
+        user = self.auth(("influencer",))
+        password = str(data.get("withdrawalPassword", ""))
+        if not verify_password(password,user["password_hash"],user["password_salt"]): raise ApiError(403,"Senha da conta incorreta")
+        amount=int(data.get("amountCents",0)); kind=str(data.get("pixType","")).lower(); key=str(data.get("pixKey","")).strip()
+        if amount < 2000 or kind not in {"cpf","cnpj","email","phone","random"} or len(key)<3: raise ApiError(422,"Saque mínimo de R$ 20,00 e chave Pix válida")
+        wid="wd_inf_"+secrets.token_urlsafe(12)
+        with connect() as db:
+            db.execute("BEGIN IMMEDIATE"); wallet=db.execute("SELECT balance_cents FROM wallets WHERE user_id=?",(user["id"],)).fetchone()
+            if not wallet or wallet["balance_cents"]<amount: raise ApiError(409,"Saldo insuficiente")
+            db.execute("UPDATE wallets SET balance_cents=balance_cents-?,updated_at=? WHERE user_id=?",(amount,utc_now(),user["id"]))
+            db.execute("INSERT INTO withdrawals(id,user_id,amount_cents,pix_type,pix_key,created_at) VALUES(?,?,?,?,?,?)",(wid,user["id"],amount,kind,key,utc_now()))
+            db.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)",("tx_"+secrets.token_urlsafe(12),user["id"],"withdrawal_hold",-amount,"influencer_withdrawal",wid,utc_now()))
+        return self.json_response(201,{"id":wid,"status":"pending"})
+
+    def admin_balance_adjustment(self, data):
+        admin = self.auth(("admin",))
+        try:
+            user_id, amount = int(data.get("userId",0)), int(data.get("amountCents",0))
+        except (TypeError,ValueError):
+            raise ApiError(422,"Usuário ou valor inválido")
+        reason = str(data.get("reason","")).strip()
+        if user_id <= 0 or amount == 0 or abs(amount) > 1_000_000 or not 3 <= len(reason) <= 200:
+            raise ApiError(422,"Informe um valor válido e um motivo de 3 a 200 caracteres")
+        adjustment = "adj_"+secrets.token_urlsafe(12)
+        with connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            wallet = db.execute("SELECT balance_cents FROM wallets WHERE user_id=?",(user_id,)).fetchone()
+            if not wallet: raise ApiError(404,"Conta não encontrada")
+            balance = wallet["balance_cents"]+amount
+            if balance < 0: raise ApiError(409,"O ajuste deixaria o saldo negativo")
+            db.execute("UPDATE wallets SET balance_cents=?,updated_at=? WHERE user_id=?",(balance,utc_now(),user_id))
+            db.execute("INSERT INTO admin_balance_adjustments VALUES(?,?,?,?,?,?)",(adjustment,admin["id"],user_id,amount,reason,utc_now()))
+            db.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)",("tx_"+secrets.token_urlsafe(12),user_id,"admin_credit" if amount>0 else "admin_debit",amount,"admin_adjustment",adjustment,utc_now()))
+        return self.json_response(200,{"ok":True,"balanceCents":balance})
+
+    def admin_withdrawal(self, data):
+        admin = self.auth(("admin",))
+        wid,action = str(data.get("id","")).strip(),str(data.get("action","")).strip()
+        if not wid or action not in {"approve","reject","update_pix","approve_and_pay"}: raise ApiError(422,"Ação inválida")
+        if action == "approve_and_pay": raise ApiError(503,"Transferência automática não configurada no servidor local")
+        with connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row=db.execute("SELECT * FROM withdrawals WHERE id=?",(wid,)).fetchone()
+            if not row: raise ApiError(404,"Saque não encontrado")
+            if action == "update_pix":
+                key=str(data.get("pixKey","")).strip()
+                if len(key)<3: raise ApiError(422,"Chave Pix inválida")
+                db.execute("UPDATE withdrawals SET pix_key=? WHERE id=?",(key,wid))
+            elif row["status"] != "pending": raise ApiError(409,"Saque já analisado")
+            elif action == "approve": db.execute("UPDATE withdrawals SET status='approved',reviewed_at=?,reviewed_by=? WHERE id=?",(utc_now(),admin["id"],wid))
+            else:
+                db.execute("UPDATE withdrawals SET status='rejected',reviewed_at=?,reviewed_by=? WHERE id=?",(utc_now(),admin["id"],wid))
+                db.execute("UPDATE wallets SET balance_cents=balance_cents+?,updated_at=? WHERE user_id=?",(row["amount_cents"],utc_now(),row["user_id"]))
+                db.execute("INSERT OR IGNORE INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)",("tx_"+secrets.token_urlsafe(12),row["user_id"],"withdrawal_refund",row["amount_cents"],"withdrawal",wid,utc_now()))
+        return self.json_response(200,{"ok":True})
 
     def admin_overview(self):
         self.auth(("admin",))
@@ -760,18 +930,24 @@ class Handler(SimpleHTTPRequestHandler):
             deposits = [dict(row) for row in db.execute("SELECT d.*,u.name,u.email FROM deposits d JOIN users u ON u.id=d.user_id ORDER BY d.created_at DESC LIMIT 500")]
             transactions = [dict(row) for row in db.execute("SELECT t.*,u.name,u.email FROM wallet_transactions t JOIN users u ON u.id=t.user_id ORDER BY t.created_at DESC LIMIT 500")]
             paid = db.execute("SELECT COALESCE(SUM(amount_cents),0) FROM deposits WHERE status='paid'").fetchone()[0]
-            influencers = [dict(row) for row in db.execute("SELECT u.id,u.name,u.email,u.referral_code,0 AS commission_cents,0 AS balance_cents,0 AS commission_rate,1 AS active,(SELECT COUNT(*) FROM users r WHERE r.referred_by_code=u.referral_code) AS referred_users FROM users u WHERE u.role='influencer' ORDER BY u.id DESC")]
+            influencers = [dict(row) for row in db.execute("""SELECT u.id,u.name,u.email,u.referral_code,
+                COALESCE((SELECT SUM(c.commission_cents) FROM commissions c WHERE c.beneficiary_user_id=u.id),0) AS commission_cents,
+                w.balance_cents,i.commission_rate,i.active,(SELECT COUNT(*) FROM users r WHERE r.referred_by_code=u.referral_code) AS referred_users
+                FROM influencers i JOIN users u ON u.id=i.user_id JOIN wallets w ON w.user_id=u.id ORDER BY u.id DESC""")]
+            commissions = [dict(row) for row in db.execute("""SELECT c.*,b.name AS beneficiary_name,b.email AS beneficiary_email,
+                r.name AS referred_name,r.email AS referred_email FROM commissions c JOIN users b ON b.id=c.beneficiary_user_id
+                JOIN users r ON r.id=c.referred_user_id ORDER BY c.created_at DESC LIMIT 500""")]
             trend = []
             for offset in range(6, -1, -1):
                 day = (datetime.now(timezone.utc) - timedelta(days=offset)).date().isoformat()
                 total = db.execute("SELECT COALESCE(SUM(amount_cents),0) FROM deposits WHERE status='paid' AND substr(paid_at,1,10)=?", (day,)).fetchone()[0]
                 trend.append({"day": day, "deposits_cents": total})
         return self.json_response(200, {
-            "environment": "local", "capabilities": {"balanceAdjustments": False, "withdrawalManagement": False, "commissions": False, "influencers": True, "createInfluencers": True},
-            "totals": {"accounts": len(accounts), "wallet_cents": sum(row["balance_cents"] for row in accounts), "deposits_cents": paid, "commissions_cents": 0},
+            "environment": "local", "capabilities": {"balanceAdjustments": True, "withdrawalManagement": True, "autoPayout": False, "commissions": True, "influencers": True, "createInfluencers": True},
+            "totals": {"accounts": len(accounts), "wallet_cents": sum(row["balance_cents"] for row in accounts), "deposits_cents": paid, "commissions_cents": sum(row["commission_cents"] for row in commissions)},
             "accounts": accounts, "withdrawals": withdrawals, "deposits": deposits,
             "transactions": transactions, "activities": transactions[:15], "trend": trend,
-            "commissions": [], "influencers": influencers,
+            "commissions": commissions, "influencers": influencers,
         })
 
     def approve_withdrawal(self, withdrawal_id: str):
