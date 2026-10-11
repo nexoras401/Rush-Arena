@@ -3,6 +3,8 @@
 
     if (['127.0.0.1', 'localhost'].includes(window.location.hostname)) return;
 
+    const pageParams = new URLSearchParams(window.location.search);
+    const isDemoMode = pageParams.get('demo_gate') === '1' || pageParams.get('mode') === 'test';
     const token = localStorage.getItem('rushArenaApiToken') || '';
     const activeRoundKey = 'rushArenaActiveRoundId';
     const activeStakeKey = 'rushArenaActiveStakeCents';
@@ -18,6 +20,13 @@
         const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(body.error || 'Erro na requisição.');
         return body;
+    }
+
+    if (isDemoMode) {
+        // The public game buttons intentionally open a free test round. A
+        // logged-in session must not turn that test into a paid balance round.
+        document.documentElement.dataset.gameMode = 'demo';
+        return;
     }
 
     if (!token) {

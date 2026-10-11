@@ -17,11 +17,12 @@ import sqlite3
 import sys
 import threading
 import time
+from api import demo_blocks
 from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -48,7 +49,7 @@ MIN_DEPOSIT_CENTS = 2_000
 MIN_WITHDRAWAL_CENTS = 3_000
 RATE_LIMITS: dict[tuple[str, str], list[float]] = {}
 RATE_LOCK = threading.Lock()
-BLOCKED_SUFFIXES = {".py", ".pyc", ".md", ".cmd", ".bat", ".sqlite3", ".db", ".log", ".env", ".map"}
+BLOCKED_SUFFIXES = {".py", ".pyc", ".md", ".cmd", ".bat", ".ps1", ".cjs", ".sqlite3", ".db", ".log", ".env", ".map"}
 BLOCKED_NAMES = {"backend_smoke_test.py", "inspect_video.py", "sync_missing_assets.py", "webcopy-origin.txt"}
 
 
@@ -143,6 +144,12 @@ def migrate() -> None:
             db.execute("ALTER TABLE users ADD COLUMN cpf_hash TEXT")
         if "cpf_last4" not in columns:
             db.execute("ALTER TABLE users ADD COLUMN cpf_last4 TEXT")
+        if "referral_code" not in columns:
+            db.execute("ALTER TABLE users ADD COLUMN referral_code TEXT")
+        if "referred_by_code" not in columns:
+            db.execute("ALTER TABLE users ADD COLUMN referred_by_code TEXT")
+        db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_referral ON users(referral_code)")
+        db.execute("CREATE TABLE IF NOT EXISTS demo_block_rounds(user_id INTEGER PRIMARY KEY REFERENCES users(id),state TEXT NOT NULL,last_request TEXT,last_payload TEXT)")
         deposit_columns = {row["name"] for row in db.execute("PRAGMA table_info(deposits)")}
         if "pix_code" not in deposit_columns:
             db.execute("ALTER TABLE deposits ADD COLUMN pix_code TEXT")
@@ -248,6 +255,11 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
+    def translate_path(self, path: str) -> str:
+        if urlparse(path).path == "/":
+            return str(ROOT / "index.htm")
+        return super().translate_path(path)
+
     def end_headers(self):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "SAMEORIGIN")
@@ -265,12 +277,12 @@ class Handler(SimpleHTTPRequestHandler):
 
     def forbidden_static_path(self) -> bool:
         path = urlparse(self.path).path
-        normalized = path.replace("\\", "/").lower()
+        normalized = unquote(path).replace("\\", "/").lower()
         name = Path(normalized).name
         return (
             normalized.startswith("/data/")
             or normalized.startswith("/video-")
-            or name.startswith(".")
+            or any(part.startswith(".") for part in normalized.split("/") if part)
             or name in BLOCKED_NAMES
             or Path(name).suffix in BLOCKED_SUFFIXES
         )
@@ -339,6 +351,15 @@ class Handler(SimpleHTTPRequestHandler):
                     deposits = [dict(row) for row in db.execute("SELECT id,amount_cents,bonus_cents,status,created_at,paid_at FROM deposits WHERE user_id=? ORDER BY created_at DESC", (user["id"],))]
                     withdrawals = [dict(row) for row in db.execute("SELECT id,amount_cents,pix_type,pix_key,status,created_at,reviewed_at FROM withdrawals WHERE user_id=? ORDER BY created_at DESC", (user["id"],))]
                 return self.json_response(200, {"deposits": deposits, "withdrawals": withdrawals})
+            if path == "/api/admin/overview":
+                return self.admin_overview()
+            if path == "/api/influencer/link":
+                user = self.auth(("influencer",))
+                with connect() as db:
+                    count = db.execute("SELECT COUNT(*) FROM users WHERE referred_by_code=?", (user["referral_code"],)).fetchone()[0]
+                return self.json_response(200, {"name": user["name"], "referralCode": user["referral_code"], "referredUsers": count})
+            if path.startswith("/api/"):
+                raise ApiError(404, "Rota não encontrada")
             if self.forbidden_static_path():
                 raise ApiError(404, "Recurso não encontrado")
             return super().do_GET()
@@ -361,6 +382,10 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.register(data)
             if path == "/api/auth/login":
                 return self.login(data)
+            if path == "/api/admin/influencers":
+                return self.create_influencer(data)
+            if path.startswith("/api/demo/block-cash/"):
+                return self.demo_block_action(path.rsplit('/', 1)[-1], data)
             if path == "/api/deposits":
                 return self.create_deposit(data)
             if path == "/api/withdrawals":
@@ -396,11 +421,16 @@ class Handler(SimpleHTTPRequestHandler):
             raise ApiError(422, "Nome, e-mail ou senha inválidos")
         digest, salt = password_hash(password)
         cpf_digits = re.sub(r"\D", "", str(data.get("cpf", "")))
+        if cpf_digits and len(cpf_digits) != 11:
+            raise ApiError(422, "O CPF deve conter 11 dígitos")
         cpf_digest = hashlib.sha256(cpf_digits.encode()).hexdigest() if cpf_digits else None
         cpf_last4 = cpf_digits[-4:] if cpf_digits else None
         with connect() as db:
-            cursor = db.execute("INSERT INTO users(name,email,phone,cpf,cpf_hash,cpf_last4,password_hash,password_salt,created_at) VALUES(?,?,?,?,?,?,?,?,?)", (name, email, str(data.get("phone", "")), None, cpf_digest, cpf_last4, digest, salt, utc_now()))
+            cursor = db.execute("INSERT INTO users(name,email,phone,cpf,cpf_hash,cpf_last4,password_hash,password_salt,created_at) VALUES(?,?,?,?,?,?,?,?,?)", (name, email, str(data.get("phone", "")), cpf_digits or None, cpf_digest, cpf_last4, digest, salt, utc_now()))
             db.execute("INSERT INTO wallets(user_id,balance_cents,updated_at) VALUES(?,0,?)", (cursor.lastrowid, utc_now()))
+            referral = str(data.get("referralCode", "")).strip().upper()
+            if referral and db.execute("SELECT 1 FROM users WHERE referral_code=? AND role='influencer'", (referral,)).fetchone():
+                db.execute("UPDATE users SET referred_by_code=? WHERE id=?", (referral, cursor.lastrowid))
         return self.json_response(201, {"ok": True})
 
     def login(self, data: dict):
@@ -649,6 +679,9 @@ class Handler(SimpleHTTPRequestHandler):
 
     def create_withdrawal(self, data: dict):
         user = self.auth()
+        password = str(data.get("withdrawalPassword", ""))
+        if not verify_password(password, user["password_hash"], user["password_salt"]):
+            raise ApiError(403, "Senha da conta incorreta")
         amount = int(data.get("amountCents", 0))
         pix_type = str(data.get("pixType", "")).strip().lower()
         pix_key = str(data.get("pixKey", "")).strip()
@@ -664,6 +697,82 @@ class Handler(SimpleHTTPRequestHandler):
             db.execute("INSERT INTO withdrawals(id,user_id,amount_cents,pix_type,pix_key,created_at) VALUES(?,?,?,?,?,?)", (withdrawal_id, user["id"], amount, pix_type, pix_key, utc_now()))
             db.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id,created_at) VALUES(?,?,?,?,?,?,?)", ("tx_" + secrets.token_urlsafe(12), user["id"], "withdrawal_hold", -amount, "withdrawal", withdrawal_id, utc_now()))
         return self.json_response(201, {"id": withdrawal_id, "status": "pending"})
+
+    def demo_block_action(self, action, data):
+        user = self.auth()
+        if action not in {'start','move','finish','state'}:
+            raise ApiError(404, 'Rota não encontrada')
+        allowed = {'start': {'requestId','entry'}, 'move': {'requestId','roundId','revision','piece','x','y'}, 'finish': {'requestId','roundId','revision'}, 'state': set()}[action]
+        if set(data) - allowed:
+            raise ApiError(422, 'Campos não permitidos. O resultado é calculado pelo servidor.')
+        request_id = data.get('requestId')
+        if action != 'state' and (not isinstance(request_id,str) or not 8 <= len(request_id) <= 100):
+            raise ApiError(422, 'Identificador de requisição inválido')
+        payload = json.dumps([action,data],sort_keys=True)
+        with connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            row = db.execute('SELECT * FROM demo_block_rounds WHERE user_id=?',(user['id'],)).fetchone()
+            current = json.loads(row['state']) if row else None
+            if action == 'state':
+                return self.json_response(200, {'state': current})
+            if row and row['last_request'] == request_id:
+                if row['last_payload'] != payload: raise ApiError(409, 'Identificador reutilizado para outra ação')
+                return self.json_response(200, {'state': current})
+            try:
+                if action == 'start':
+                    if current and current['status'] == 'active':
+                        raise ApiError(409, 'Existe uma partida ativa. Retome a partida atual.')
+                    state = demo_blocks.new_game(data.get('entry'))
+                else:
+                    if not current or current['id'] != data.get('roundId'):
+                        raise ApiError(404, 'Partida não encontrada nesta conta')
+                    if type(data.get('revision')) is not int or current['revision'] != data['revision']:
+                        raise ApiError(409, 'Partida desatualizada. Sincronize antes de jogar.')
+                    state = demo_blocks.advance(current, action, data)
+            except ValueError as error:
+                raise ApiError(422, str(error))
+            db.execute('INSERT INTO demo_block_rounds(user_id,state,last_request,last_payload) VALUES(?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET state=excluded.state,last_request=excluded.last_request,last_payload=excluded.last_payload', (user['id'],json.dumps(state),request_id,payload))
+        return self.json_response(200, {'state':state})
+
+    def create_influencer(self, data):
+        self.auth(("admin",))
+        name = str(data.get("name", "")).strip()
+        email = str(data.get("email", "")).strip().lower()
+        password = str(data.get("password", ""))
+        if not 2 <= len(name) <= 120 or len(email) > 254 or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) or not 8 <= len(password) <= 128:
+            raise ApiError(422, "Informe nome, e-mail válido e senha de 8 a 128 caracteres")
+        digest, salt = password_hash(password)
+        code = "RUSH-" + secrets.token_hex(8).upper()
+        with connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            if db.execute("SELECT 1 FROM users WHERE email=?", (email,)).fetchone():
+                raise ApiError(409, "Este e-mail já possui uma conta. Nenhuma alteração foi feita.")
+            cursor = db.execute("INSERT INTO users(name,email,role,password_hash,password_salt,referral_code,created_at) VALUES(?,?,'influencer',?,?,?,?)", (name,email,digest,salt,code,utc_now()))
+            db.execute("INSERT INTO wallets(user_id,balance_cents,updated_at) VALUES(?,0,?)", (cursor.lastrowid,utc_now()))
+        return self.json_response(201, {"id": cursor.lastrowid, "referralCode": code})
+
+    def admin_overview(self):
+        self.auth(("admin",))
+        with connect() as db:
+            db.execute("BEGIN")
+            accounts = [dict(row) for row in db.execute("SELECT u.id,u.name,u.email,u.phone,u.cpf,u.cpf_last4,u.role,u.created_at,w.balance_cents FROM users u JOIN wallets w ON w.user_id=u.id ORDER BY u.id DESC")]
+            withdrawals = [dict(row) for row in db.execute("SELECT w.*,u.name,u.email FROM withdrawals w JOIN users u ON u.id=w.user_id ORDER BY w.created_at DESC LIMIT 500")]
+            deposits = [dict(row) for row in db.execute("SELECT d.*,u.name,u.email FROM deposits d JOIN users u ON u.id=d.user_id ORDER BY d.created_at DESC LIMIT 500")]
+            transactions = [dict(row) for row in db.execute("SELECT t.*,u.name,u.email FROM wallet_transactions t JOIN users u ON u.id=t.user_id ORDER BY t.created_at DESC LIMIT 500")]
+            paid = db.execute("SELECT COALESCE(SUM(amount_cents),0) FROM deposits WHERE status='paid'").fetchone()[0]
+            influencers = [dict(row) for row in db.execute("SELECT u.id,u.name,u.email,u.referral_code,0 AS commission_cents,0 AS balance_cents,0 AS commission_rate,1 AS active,(SELECT COUNT(*) FROM users r WHERE r.referred_by_code=u.referral_code) AS referred_users FROM users u WHERE u.role='influencer' ORDER BY u.id DESC")]
+            trend = []
+            for offset in range(6, -1, -1):
+                day = (datetime.now(timezone.utc) - timedelta(days=offset)).date().isoformat()
+                total = db.execute("SELECT COALESCE(SUM(amount_cents),0) FROM deposits WHERE status='paid' AND substr(paid_at,1,10)=?", (day,)).fetchone()[0]
+                trend.append({"day": day, "deposits_cents": total})
+        return self.json_response(200, {
+            "environment": "local", "capabilities": {"balanceAdjustments": False, "withdrawalManagement": False, "commissions": False, "influencers": True, "createInfluencers": True},
+            "totals": {"accounts": len(accounts), "wallet_cents": sum(row["balance_cents"] for row in accounts), "deposits_cents": paid, "commissions_cents": 0},
+            "accounts": accounts, "withdrawals": withdrawals, "deposits": deposits,
+            "transactions": transactions, "activities": transactions[:15], "trend": trend,
+            "commissions": [], "influencers": influencers,
+        })
 
     def approve_withdrawal(self, withdrawal_id: str):
         admin = self.auth(("admin",))

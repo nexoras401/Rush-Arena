@@ -18981,9 +18981,9 @@ btnSair().addEventListener('click', () => {
 			}
 			play(t, e = {}) {
 				Array.isArray(t) && (t = t[Math.floor(Math.random() * t.length)]);
-				const i = this.getAnimationName(t),
-					n = this.animations[i];
-				if (!n) throw new Error("[Anim] Animation not available: '" + i + "'");
+                                const i = this.getAnimationName(t),
+                                        n = this.animations[i];
+                                if (!n) throw new Error("[Anim] Animation not available: '" + i + "'");
 				if (this.currentAnimationName === i) return;
 				this.currentAnimationName = i;
 				const o = c(c({}, p), e);
@@ -20783,10 +20783,10 @@ btnSair().addEventListener('click', () => {
 					const n = this.getManifestFromIds(t),
 						r = this._version;
 					this._verbose;
-					const o = this._collectAssetsFromManifests(n);
+                                        const o = this._collectAssetsFromManifests(n);
 					this.onLoadStart.emit(), this.onLoadProgress.emit(0), yield Object(p.c)(o, t => {
 						this.onLoadProgress.emit(100 * t)
-					}), this._verbose;
+                                        }), this._verbose;
 					for (let t = 0; t < n.length; t++) {
 						const o = n[t];
 						o.loaded || (gt(o, r, this._basePath, this._imageFormatPreference), ft(o), pt(o)), o.loaded = !0, o.formated || (yt(o.image, this._canOptimise), o.formated = !0), (null !== (i = e.uploadTexturesOnLoad) && void 0 !== i ? i : this._uploadTexturesOnLoad) && (o.uploaded || (yield bt(o.image, this._version, this._basePath, this._renderer, this._imageFormatPreference), o.uploaded = !0))
@@ -48004,7 +48004,7 @@ btnSair().addEventListener('click', () => {
 					if (n) {
 						const i = t.cache[e],
 							o = n[1];
-						r.b.appendDictionary(o, i)
+                                                r.b.appendDictionary(o, i)
 					}
 				}
 			}

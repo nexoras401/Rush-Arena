@@ -52,40 +52,40 @@
       "game-idle/environment-tex.png": {
         "shortcut": "environment-tex.png",
         "webp": {
-          "high": "game-idle/environment-tex@2x.webp",
+          "high": "game-idle/environment-tex.webp",
           "default": "game-idle/environment-tex.webp",
-          "low": "game-idle/environment-tex@0.5x.webp"
+          "low": "game-idle/environment-tex.webp"
         },
         "standard": {
-          "high": "game-idle/environment-tex@2x.png",
+          "high": "game-idle/environment-tex.png",
           "default": "game-idle/environment-tex.png",
-          "low": "game-idle/environment-tex@0.5x.png"
+          "low": "game-idle/environment-tex.png"
         }
       },
       "game-idle/train-start.png": {
         "shortcut": "train-start.png",
         "webp": {
-          "high": "game-idle/train-start@2x.webp",
+          "high": "game-idle/train-start.webp",
           "default": "game-idle/train-start.webp",
-          "low": "game-idle/train-start@0.5x.webp"
+          "low": "game-idle/train-start.webp"
         },
         "standard": {
-          "high": "game-idle/train-start@2x.png",
+          "high": "game-idle/train-start.png",
           "default": "game-idle/train-start.png",
-          "low": "game-idle/train-start@0.5x.png"
+          "low": "game-idle/train-start.png"
         }
       },
       "game-idle/trains-tex.png": {
         "shortcut": "trains-tex.png",
         "webp": {
-          "high": "game-idle/trains-tex@2x.webp",
+          "high": "game-idle/trains-tex.webp",
           "default": "game-idle/trains-tex.webp",
-          "low": "game-idle/trains-tex@0.5x.webp"
+          "low": "game-idle/trains-tex.webp"
         },
         "standard": {
-          "high": "game-idle/trains-tex@2x.png",
+          "high": "game-idle/trains-tex.png",
           "default": "game-idle/trains-tex.png",
-          "low": "game-idle/trains-tex@0.5x.png"
+          "low": "game-idle/trains-tex.png"
         }
       }
     },

@@ -17,7 +17,7 @@
   <script>
   (function(){'use strict';
     const keys={admin:'rushArenaLocalAdminAccess',influencers:'rushArenaLocalInfluencerAccess',panelSession:'rushArenaLocalPanelSession',legacyInfluencer:'rushArenaLocalInfluencerSession'};
-    const live=!['localhost','127.0.0.1'].includes(location.hostname);
+    const live=location.protocol==='http:'||location.protocol==='https:';
     if(live){
       document.getElementById('setup').hidden=true;
       document.getElementById('loginForm').addEventListener('submit',async event=>{
@@ -27,10 +27,11 @@
           const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:String(data.get('login')||'').trim(),password:String(data.get('password')||'')})});
           const result=await response.json();if(!response.ok)throw new Error(result.error||'Login inválido');
           const profileResponse=await fetch('/api/me',{headers:{Authorization:'Bearer '+result.token}});const profile=await profileResponse.json();
-          if(!profileResponse.ok||profile.role!=='admin')throw new Error('Acesso permitido somente para administradores.');
-          localStorage.setItem('rushArenaApiToken',result.token);location.replace('admin.html?view=dashboard');
+          if(!profileResponse.ok||!['admin','influencer'].includes(profile.role))throw new Error('Acesso permitido somente para administradores e influenciadores.');
+          localStorage.setItem('rushArenaApiToken',result.token);location.replace(profile.role==='admin'?'admin.html?view=dashboard':'affiliate.html');
         }catch(error){status.textContent=error.message||'Login ou senha inválidos.'}
       },true);
+      return;
     }
     const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch(error){return fallback}};
     const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));

@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Conta de teste — Rush Arena</title>
+    <script>
+        if (!['127.0.0.1', 'localhost'].includes(location.hostname)) {
+            const next = new URLSearchParams(location.search).get('next') === 'deposit' ? '/deposit-v2.html' : '/';
+            location.replace('/login.html?next=' + encodeURIComponent(next));
+        }
+    </script>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -86,7 +92,7 @@
             </label>
             <button type="submit">Criar conta de teste e entrar</button>
         </form>
-        <a href="/">Voltar ao site</a>
+        <a href="index.htm">Voltar ao site</a>
         <small>Use somente dados fictícios. A senha é usada apenas para validar o formulário e não é armazenada.</small>
     </main>
     <script>
@@ -160,6 +166,6 @@
             window.location.href = next === 'deposit' ? '/deposit-v2.html' : '/';
         });
     </script>
-<script src="/production-api.js?v=1" defer></script>
+<script src="production-api.js?v=11" defer></script>
 </body>
 </html>

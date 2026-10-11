@@ -3,11 +3,14 @@ import time
 import hashlib
 import hmac
 import json
+from unittest.mock import patch
+import api.index as api_index
 from api.index import (
     signed_webhook_valid,
     password_hash,
     bonus,
     token_hash,
+    payment_provider,
     GAME_STAKES,
     HTTP_USER_AGENT,
     MIN_DEPOSIT,
@@ -73,6 +76,11 @@ class FullPlatformUnitTests(unittest.TestCase):
         # User agent must not be default Python-urllib to prevent Cloudflare Error 1010
         self.assertFalse("Python-urllib" in HTTP_USER_AGENT)
         self.assertTrue("Mozilla" in HTTP_USER_AGENT or "Chrome" in HTTP_USER_AGENT)
+
+    def test_vulcanopay_is_preferred_when_both_providers_are_configured(self):
+        with patch.object(api_index, "VULCANO_API_KEY", "vk_live_test"), \
+             patch.object(api_index, "NYXPAG_API_KEY", "nyx_live_test"):
+            self.assertEqual(payment_provider(), "vulcanopay")
 
 
 if __name__ == "__main__":

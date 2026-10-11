@@ -42,7 +42,7 @@
 </style>
 <body>
     <main class="page">
-        <header class="topbar"><img class="logo" src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena"><a class="back" href="/">Voltar</a></header>
+        <header class="topbar"><img class="logo" src="uploads/platform/rush-arena-logo.png?v=20261007" alt="Rush Arena"><a class="back" href="index.htm">Voltar</a></header>
         <section class="hero">
             <div class="hero-icon">🤝</div>
             <h1 id="referralTitle">Indique e ganhe</h1>
@@ -149,7 +149,6 @@
             try { account = JSON.parse(localStorage.getItem('rushArenaLocalTestSession') || 'null'); } catch (error) { account = null; }
             if (!account) { location.replace('/test-account.html'); return; }
             function codeFor(email) { let hash = 0; String(email || '').toLowerCase().split('').forEach(function (char) { hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0; }); return 'RUSH-' + Math.abs(hash).toString(36).toUpperCase().padStart(6, '0').slice(0, 8); }
-            function money(value) { return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
             try { ledger = JSON.parse(localStorage.getItem('rushArenaLocalReferralLedger') || '{}') || {}; } catch (error) { ledger = {}; }
             const code = codeFor(account.email); const profile = ledger[code] || { commissionBalance: 0, totalCommission: 0, totalDeposits: 0, referredUsers: [], transactions: [], withdrawals: [], commissionRate: 10, isInfluencer: false };
             profile.ownerEmail = account.email;

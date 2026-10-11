@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#08204d">
+  <title>Block Cash — Demonstração | Rush Arena</title>
+  <link rel="icon" href="block-cash-logo.png">
+  <link rel="stylesheet" href="game.css?v=20261010-fix1">
+</head>
+<body>
+  <aside class="demo-disclaimer" role="note">DEMONSTRAÇÃO: entradas e pontos são simulados. Não há cobrança, pagamento nem alteração de saldo.</aside>
+  <main id="root"></main>
+  <script>if(location.hash!=='#/jogo')location.hash='/jogo';</script>
+  <script src="game.js?v=20261010-balance1"></script>
+  <script>
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('#bb-back')) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      window.location.href = '../index.htm#games';
+    }, true);
+  </script>
+</body>
+</html>

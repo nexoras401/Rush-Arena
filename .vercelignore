@@ -3,10 +3,11 @@
 .vercel
 .agents
 .codex
-data
+/data
 __pycache__
 *.pyc
 backend.py
+demo_blocks.py
 backend_smoke_test.py
 inspect_video.py
 sync_missing_assets.py
@@ -18,3 +19,5 @@ webcopy-origin.txt
 video-*-frames
 2026.10.07
 tests
+restart-local-server.ps1
+AUDIT-READINESS.md

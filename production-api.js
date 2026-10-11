@@ -1,8 +1,6 @@
 (() => {
   'use strict';
 
-  if (['localhost', '127.0.0.1'].includes(location.hostname)) return;
-
   const TOKEN_KEY = 'rushArenaApiToken';
   const SESSION_KEY = 'rushArenaApiSession';
   const money = (cents) => (Number(cents || 0) / 100).toLocaleString('pt-BR', {
@@ -18,9 +16,21 @@
   async function api(path, options = {}) {
     const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
     if (token()) headers.Authorization = `Bearer ${token()}`;
-    const response = await fetch(`/api${path}`, { ...options, headers });
+    let response;
+    try {
+      response = await fetch(`/api${path}`, { ...options, headers });
+    } catch (_) {
+      const message = location.protocol === 'file:'
+        ? 'Abra o site pelo servidor local em http://127.0.0.1:8766/ para entrar ou criar conta.'
+        : 'Não foi possível conectar ao servidor. Confira se o backend está aberto e tente novamente.';
+      throw new Error(message);
+    }
     const body = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(body.error || body.message || `Erro ${response.status}`);
+    if (!response.ok) {
+      const error = new Error(body.error || body.message || `Erro ${response.status}`);
+      error.status = response.status;
+      throw error;
+    }
     return body;
   }
 
@@ -155,6 +165,9 @@
     }
   }
 
+  const incomingReferral = new URLSearchParams(location.search).get('ref');
+  if (incomingReferral && /^RUSH-[A-Z0-9]{6,32}$/i.test(incomingReferral)) localStorage.setItem('rushArenaReferralCode', incomingReferral.toUpperCase());
+
   async function refreshUser() {
     if (!token()) return null;
     try {
@@ -162,11 +175,18 @@
       const user = result.user || result;
       updatePage(user);
       return user;
-    } catch (_) {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(SESSION_KEY);
-      localStorage.removeItem('rushArenaLocalTestSession');
-      delete document.documentElement.dataset.authenticated;
+    } catch (error) {
+      if (error && (error.status === 401 || error.status === 403)) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem('rushArenaLocalTestSession');
+        delete document.documentElement.dataset.authenticated;
+        // Rebuild the logged-out UI after discarding a rejected cached session.
+        // The token is already removed, so this cannot create a reload loop.
+        location.reload();
+      } else {
+        console.error('Não foi possível atualizar a sessão:', error);
+      }
       return null;
     }
   }
@@ -215,7 +235,9 @@
     saveSession({ ...result, user });
     updatePage(user);
     notify(mode === 'register' ? 'Conta criada e login realizado.' : 'Login realizado.', 'success');
-    setTimeout(() => { location.href = '/'; }, 500);
+    const requestedNext = new URLSearchParams(location.search).get('next') || '';
+    const safeNext = requestedNext.startsWith('/') && !requestedNext.startsWith('//') ? requestedNext : '/';
+    setTimeout(() => { location.href = safeNext; }, 500);
     return true;
   }
 
@@ -342,5 +364,11 @@
       location.href = '/';
     }
   };
+  if (token()) {
+    try {
+      const cachedUser = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+      if (cachedUser && (cachedUser.email || cachedUser.name)) updatePage(cachedUser);
+    } catch (_) {}
+  }
   refreshUser();
 })();

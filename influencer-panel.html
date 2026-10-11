@@ -162,8 +162,6 @@
     const keys={access:'rushArenaLocalInfluencerAccess',session:'rushArenaLocalInfluencerSession',ledger:'rushArenaLocalReferralLedger'};
     const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch(error){return fallback}};
     const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
-    const money=value=>Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-    const safe=value=>String(value==null?'':value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
     const bytesToHex=bytes=>Array.from(bytes,value=>value.toString(16).padStart(2,'0')).join('');
     async function passwordHash(password,salt){const encoded=new TextEncoder().encode(String(salt)+':'+String(password));return bytesToHex(new Uint8Array(await crypto.subtle.digest('SHA-256',encoded)))}
     let activeSession=read(keys.session,null);

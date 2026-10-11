@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 set RUSH_HOST=127.0.0.1
 set RUSH_PORT=8766
 if "%RUSH_WEBHOOK_SECRET%"=="" set RUSH_WEBHOOK_SECRET=local-sandbox-change-me

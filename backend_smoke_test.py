@@ -8,6 +8,12 @@ import urllib.request
 
 BASE = "http://127.0.0.1:8766"
 
+with urllib.request.urlopen(BASE + "/") as response:
+    assert response.status == 200 and b"Rush Arena" in response.read()
+
+with urllib.request.urlopen(BASE + "/block-cash/index.html?demo=1") as response:
+    assert response.status == 200 and b"Block Cash" in response.read()
+
 
 def request(path, method="GET", body=None, token=None, webhook=False):
     headers = {"Content-Type": "application/json"}
@@ -47,7 +53,7 @@ status, me = request("/api/me", token=token)
 assert status == 200 and me["balanceCents"] == 7000
 
 status, withdrawal = request("/api/withdrawals", "POST", {
-    "amountCents": 3000, "pixType": "email", "pixKey": email
+    "amountCents": 3000, "pixType": "email", "pixKey": email, "withdrawalPassword": "Teste123!"
 }, token)
 assert status == 201 and withdrawal["status"] == "pending"
 

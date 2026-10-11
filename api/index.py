@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 import hashlib, hmac, json, os, re, secrets, time
 
 import psycopg
+from api import demo_service
 from psycopg.rows import dict_row
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
@@ -25,7 +26,7 @@ def now(): return datetime.now(timezone.utc)
 def now_iso(): return now().isoformat()
 def token_hash(value): return hashlib.sha256(value.encode()).hexdigest()
 def bonus(amount): return {3000: 1000, 5000: 2000, 10000: 5000}.get(amount, 0)
-def payment_provider(): return "nyxpag" if NYXPAG_API_KEY else ("vulcanopay" if VULCANO_API_KEY else "not_configured")
+def payment_provider(): return "vulcanopay" if VULCANO_API_KEY else ("nyxpag" if NYXPAG_API_KEY else "not_configured")
 
 
 def signed_webhook_valid(raw, signature, secret, current_time=None):
@@ -53,12 +54,14 @@ def migrate():
         conn.execute("""CREATE TABLE IF NOT EXISTS users(id BIGSERIAL PRIMARY KEY,name TEXT NOT NULL,email TEXT NOT NULL UNIQUE,phone TEXT,cpf_hash TEXT,cpf_last4 TEXT,password_hash TEXT NOT NULL,password_salt TEXT NOT NULL,role TEXT NOT NULL DEFAULT 'customer',referral_code TEXT UNIQUE,referred_by_code TEXT,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
         conn.execute("""ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code TEXT UNIQUE""")
         conn.execute("""ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by_code TEXT""")
+        conn.execute("""ALTER TABLE users ADD COLUMN IF NOT EXISTS cpf TEXT""")
         conn.execute("""CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,expires_at TIMESTAMPTZ NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
         conn.execute("""CREATE TABLE IF NOT EXISTS wallets(user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,balance_cents BIGINT NOT NULL DEFAULT 0,updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
         conn.execute("""CREATE TABLE IF NOT EXISTS deposits(id TEXT PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id),amount_cents BIGINT NOT NULL,bonus_cents BIGINT NOT NULL DEFAULT 0,provider TEXT NOT NULL,provider_reference TEXT UNIQUE,status TEXT NOT NULL DEFAULT 'pending',pix_code TEXT,expires_at TIMESTAMPTZ,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),paid_at TIMESTAMPTZ)""")
         conn.execute("""CREATE TABLE IF NOT EXISTS withdrawals(id TEXT PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id),amount_cents BIGINT NOT NULL,pix_type TEXT NOT NULL,pix_key TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',provider_reference TEXT,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),reviewed_at TIMESTAMPTZ,reviewed_by BIGINT REFERENCES users(id))""")
         conn.execute("""ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS provider_reference TEXT""")
         conn.execute("""CREATE TABLE IF NOT EXISTS wallet_transactions(id TEXT PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id),kind TEXT NOT NULL,amount_cents BIGINT NOT NULL,reference_type TEXT,reference_id TEXT,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),UNIQUE(kind,reference_type,reference_id))""")
+        conn.execute("""CREATE TABLE IF NOT EXISTS admin_balance_adjustments(id TEXT PRIMARY KEY,admin_user_id BIGINT NOT NULL REFERENCES users(id),target_user_id BIGINT NOT NULL REFERENCES users(id),amount_cents BIGINT NOT NULL,reason TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
         conn.execute("""CREATE TABLE IF NOT EXISTS payment_events(event_id TEXT PRIMARY KEY,provider TEXT NOT NULL,payload JSONB NOT NULL,received_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),processed_at TIMESTAMPTZ)""")
         conn.execute("""CREATE TABLE IF NOT EXISTS influencers(user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,commission_rate INT NOT NULL DEFAULT 30,pix_key TEXT,pix_type TEXT,active BOOLEAN NOT NULL DEFAULT TRUE,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
         conn.execute("""CREATE TABLE IF NOT EXISTS commissions(id TEXT PRIMARY KEY,beneficiary_user_id BIGINT NOT NULL REFERENCES users(id),referred_user_id BIGINT NOT NULL REFERENCES users(id),deposit_id TEXT NOT NULL REFERENCES deposits(id),deposit_cents BIGINT NOT NULL,commission_cents BIGINT NOT NULL,rate_percent INT NOT NULL,status TEXT NOT NULL DEFAULT 'credited',created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
@@ -149,7 +152,7 @@ class handler(BaseHTTPRequestHandler):
                 return self.game_active()
             raise ApiError(404, "Rota não encontrada")
         except ApiError as e: self.send_json(e.status, {"error": e.message})
-        except Exception as exc: self.send_json(500, {"error": f"Erro interno: {str(exc)[:120]}"})
+        except Exception: self.send_json(500, {"error": "Erro interno. Tente novamente mais tarde."})
 
     def do_POST(self):
         try:
@@ -157,18 +160,21 @@ class handler(BaseHTTPRequestHandler):
             if path == "/api/webhooks/nyxpag": return self.nyxpag_webhook()
             if path == "/api/webhooks/vulcanopay": return self.vulcano_webhook()
             data = self.body()
+            if path.startswith('/api/demo/block-cash/'):
+                return demo_service.handle(self, path.rsplit('/',1)[-1], data, db, ApiError)
             if path == "/api/auth/register": return self.register(data)
             if path == "/api/auth/login": return self.login(data)
             if path == "/api/deposits": return self.deposit(data)
             if path == "/api/withdrawals": return self.withdraw(data)
             if path == "/api/admin/withdrawals": return self.admin_withdrawal(data)
+            if path == "/api/admin/balance-adjustments": return self.admin_balance_adjustment(data)
             if path == "/api/influencer/withdraw": return self.influencer_withdraw(data)
             if path == "/api/game/bet": return self.game_bet(data)
             if path == "/api/game/end": return self.game_end(data)
             raise ApiError(404, "Rota não encontrada")
         except ApiError as e: self.send_json(e.status, {"error": e.message})
         except psycopg.errors.UniqueViolation: self.send_json(409, {"error": "Registro duplicado"})
-        except Exception as exc: self.send_json(500, {"error": f"Erro interno: {str(exc)[:120]}"})
+        except Exception: self.send_json(500, {"error": "Erro interno. Tente novamente mais tarde."})
 
     def register(self, data):
         name = str(data.get("name", "")).strip()
@@ -179,6 +185,8 @@ class handler(BaseHTTPRequestHandler):
             raise ApiError(422, "Dados inválidos: verifique nome, e-mail e senha (mínimo 8 dígitos).")
         digest, salt = password_hash(password)
         cpf = re.sub(r"\D", "", str(data.get("cpf", "")))
+        if cpf and len(cpf) != 11:
+            raise ApiError(422, "O CPF deve conter 11 dígitos")
         my_ref_code = "RUSH-" + secrets.token_hex(3).upper()
 
         with db() as conn:
@@ -188,10 +196,10 @@ class handler(BaseHTTPRequestHandler):
                 if referrer: referred_by = referrer["referral_code"]
 
             row = conn.execute("""
-                INSERT INTO users(name, email, phone, cpf_hash, cpf_last4, password_hash, password_salt, referral_code, referred_by_code)
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, referral_code
+                INSERT INTO users(name, email, phone, cpf_hash, cpf_last4, password_hash, password_salt, referral_code, referred_by_code, cpf)
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, referral_code
             """, (name, email, str(data.get("phone", "")), hashlib.sha256(cpf.encode()).hexdigest() if cpf else None,
-                  cpf[-4:] if cpf else None, digest, salt, my_ref_code, referred_by)).fetchone()
+                  cpf[-4:] if cpf else None, digest, salt, my_ref_code, referred_by, cpf or None)).fetchone()
             conn.execute("INSERT INTO wallets(user_id) VALUES(%s)", (row["id"],))
 
         self.send_json(201, {"ok": True, "referralCode": my_ref_code})
@@ -240,8 +248,9 @@ class handler(BaseHTTPRequestHandler):
         user = self.user()
         amount = int(data.get("amountCents", 0))
         if amount < MIN_DEPOSIT: raise ApiError(422, "Depósito mínimo de R$ 20,00")
-        if NYXPAG_API_KEY: return self.nyxpag_deposit(user, amount, data)
-        if VULCANO_API_KEY: return self.vulcano_deposit(user, amount, data)
+        provider = payment_provider()
+        if provider == "vulcanopay": return self.vulcano_deposit(user, amount, data)
+        if provider == "nyxpag": return self.nyxpag_deposit(user, amount, data)
         raise ApiError(503, "Pagamento ainda não configurado")
 
     def nyxpag_deposit(self, user, amount, data):
@@ -539,62 +548,12 @@ class handler(BaseHTTPRequestHandler):
         self.send_json(201, {"id": wid, "status": "pending"})
 
     def game_bet(self, data):
-        user = self.user()
-        stake = int(data.get("stakeCents", 0))
-        if stake not in GAME_STAKES:
-            raise ApiError(422, "Valor de entrada inválido. Escolha R$ 10, R$ 20, R$ 30 ou R$ 50.")
-
-        round_id = "round_" + secrets.token_urlsafe(12)
-        with db() as conn:
-            wallet = conn.execute("SELECT balance_cents FROM wallets WHERE user_id=%s FOR UPDATE", (user["id"],)).fetchone()
-            if not wallet or wallet["balance_cents"] < stake:
-                raise ApiError(409, "Saldo insuficiente para esta entrada. Faça um depósito para continuar.")
-
-            conn.execute("UPDATE wallets SET balance_cents=balance_cents-%s, updated_at=NOW() WHERE user_id=%s", (stake, user["id"]))
-            conn.execute("INSERT INTO game_rounds(id, user_id, stake_cents, status) VALUES(%s, %s, %s, 'active')", (round_id, user["id"], stake))
-            conn.execute("INSERT INTO wallet_transactions(id, user_id, kind, amount_cents, reference_type, reference_id) VALUES(%s, %s, 'game_bet', %s, 'game_round', %s)", ("tx_" + secrets.token_urlsafe(12), user["id"], -stake, round_id))
-            updated_wallet = conn.execute("SELECT balance_cents FROM wallets WHERE user_id=%s", (user["id"],)).fetchone()
-
-        self.send_json(201, {
-            "ok": True,
-            "roundId": round_id,
-            "stakeCents": stake,
-            "balanceCents": updated_wallet["balance_cents"]
-        })
+        self.user()
+        raise ApiError(503, "Partidas com saldo indisponíveis: validação de resultados no servidor pendente.")
 
     def game_end(self, data):
-        user = self.user()
-        round_id = str(data.get("roundId", "")).strip()
-        outcome = str(data.get("outcome", "lost")).strip().lower()
-        multiplier = float(data.get("multiplier", 0.0))
-
-        if not round_id: raise ApiError(422, "ID da rodada não informado.")
-
-        with db() as conn:
-            rnd = conn.execute("SELECT * FROM game_rounds WHERE id=%s AND user_id=%s FOR UPDATE", (round_id, user["id"])).fetchone()
-            if not rnd: raise ApiError(404, "Rodada não encontrada.")
-            if rnd["status"] != "active": raise ApiError(409, "Esta rodada já foi finalizada.")
-
-            payout_cents = 0
-            if outcome == "won" and multiplier > 0:
-                multiplier = min(multiplier, 10.0)  # Safe cap
-                payout_cents = round(rnd["stake_cents"] * multiplier)
-                if payout_cents > 0:
-                    conn.execute("UPDATE wallets SET balance_cents=balance_cents+%s, updated_at=NOW() WHERE user_id=%s", (payout_cents, user["id"]))
-                    conn.execute("INSERT INTO wallet_transactions(id, user_id, kind, amount_cents, reference_type, reference_id) VALUES(%s, %s, 'game_win', %s, 'game_round', %s)", ("tx_" + secrets.token_urlsafe(12), user["id"], payout_cents, round_id))
-                conn.execute("UPDATE game_rounds SET status='won', multiplier=%s, payout_cents=%s, completed_at=NOW() WHERE id=%s", (multiplier, payout_cents, round_id))
-            else:
-                conn.execute("UPDATE game_rounds SET status='lost', multiplier=0, payout_cents=0, completed_at=NOW() WHERE id=%s", (round_id,))
-
-            updated_wallet = conn.execute("SELECT balance_cents FROM wallets WHERE user_id=%s", (user["id"],)).fetchone()
-
-        self.send_json(200, {
-            "ok": True,
-            "roundId": round_id,
-            "outcome": outcome,
-            "payoutCents": payout_cents,
-            "balanceCents": updated_wallet["balance_cents"]
-        })
+        self.user()
+        raise ApiError(503, "Resultado não validado pelo servidor. Nenhum débito ou prêmio foi processado.")
 
     def game_active(self):
         user = self.user()
@@ -606,7 +565,7 @@ class handler(BaseHTTPRequestHandler):
         self.user(("admin",))
         with db() as conn:
             accounts = conn.execute("""
-                SELECT u.id, u.name, u.email, u.phone, u.cpf_last4, u.role, u.referral_code, u.created_at, COALESCE(w.balance_cents,0) AS balance_cents
+                SELECT u.id, u.name, u.email, u.phone, u.cpf, u.cpf_last4, u.role, u.referral_code, u.created_at, COALESCE(w.balance_cents,0) AS balance_cents
                 FROM users u LEFT JOIN wallets w ON w.user_id=u.id ORDER BY u.created_at DESC LIMIT 500
             """).fetchall()
             withdrawals = conn.execute("""
@@ -622,7 +581,50 @@ class handler(BaseHTTPRequestHandler):
                     (SELECT COALESCE(SUM(commission_cents),0) FROM commissions) AS commissions_cents,
                     (SELECT COUNT(*) FROM game_rounds) AS game_rounds_count
             """).fetchone()
-        self.send_json(200, {"accounts": accounts, "withdrawals": withdrawals, "totals": totals})
+            trend = conn.execute("""
+                WITH days AS (
+                    SELECT generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, INTERVAL '1 day')::date AS day
+                )
+                SELECT d.day,
+                       COALESCE(SUM(dep.amount_cents) FILTER (WHERE dep.status='paid'), 0) AS deposits_cents,
+                       COUNT(dep.id) FILTER (WHERE dep.status='paid') AS deposits_count
+                FROM days d
+                LEFT JOIN deposits dep ON dep.paid_at::date=d.day
+                GROUP BY d.day ORDER BY d.day
+            """).fetchall()
+            activities = conn.execute("""
+                SELECT wt.kind, wt.amount_cents, wt.created_at, u.name, u.email
+                FROM wallet_transactions wt JOIN users u ON u.id=wt.user_id
+                ORDER BY wt.created_at DESC LIMIT 8
+            """).fetchall()
+            deposits = conn.execute("""
+                SELECT d.id, d.amount_cents, d.bonus_cents, d.provider, d.provider_reference, d.status, d.created_at, d.paid_at, u.name, u.email
+                FROM deposits d JOIN users u ON u.id=d.user_id ORDER BY d.created_at DESC LIMIT 500
+            """).fetchall()
+            transactions = conn.execute("""
+                SELECT wt.id, wt.kind, wt.amount_cents, wt.reference_type, wt.reference_id, wt.created_at, u.name, u.email
+                FROM wallet_transactions wt JOIN users u ON u.id=wt.user_id ORDER BY wt.created_at DESC LIMIT 500
+            """).fetchall()
+            commissions = conn.execute("""
+                SELECT c.id, c.deposit_cents, c.commission_cents, c.rate_percent, c.status, c.created_at,
+                       beneficiary.name AS beneficiary_name, beneficiary.email AS beneficiary_email,
+                       referred.name AS referred_name, referred.email AS referred_email
+                FROM commissions c
+                JOIN users beneficiary ON beneficiary.id=c.beneficiary_user_id
+                JOIN users referred ON referred.id=c.referred_user_id
+                ORDER BY c.created_at DESC LIMIT 500
+            """).fetchall()
+            influencers = conn.execute("""
+                SELECT u.id, u.name, u.email, u.referral_code, u.created_at, i.commission_rate, i.active,
+                       COALESCE(w.balance_cents,0) AS balance_cents,
+                       (SELECT COUNT(*) FROM users referred WHERE referred.referred_by_code=u.referral_code) AS referred_users,
+                       COALESCE((SELECT SUM(c.commission_cents) FROM commissions c WHERE c.beneficiary_user_id=u.id),0) AS commission_cents
+                FROM influencers i JOIN users u ON u.id=i.user_id
+                LEFT JOIN wallets w ON w.user_id=u.id ORDER BY i.created_at DESC LIMIT 500
+            """).fetchall()
+        self.send_json(200, {"accounts": accounts, "withdrawals": withdrawals, "totals": totals, "trend": trend,
+                             "activities": activities, "deposits": deposits, "transactions": transactions,
+                             "commissions": commissions, "influencers": influencers})
 
     def admin_withdrawal(self, data):
         admin = self.user(("admin",))
@@ -630,6 +632,8 @@ class handler(BaseHTTPRequestHandler):
         action = str(data.get("action", "")).strip()
         if not wid or action not in {"approve", "approve_and_pay", "reject", "update_pix"}:
             raise ApiError(422, "Ação inválida")
+        if action == "approve_and_pay" and payment_provider() != "nyxpag":
+            raise ApiError(503, "Transferência automática indisponível para o provedor configurado. O saque não foi marcado como pago.")
 
         with db() as conn:
             row = conn.execute("SELECT * FROM withdrawals WHERE id=%s FOR UPDATE", (wid,)).fetchone()
@@ -655,6 +659,35 @@ class handler(BaseHTTPRequestHandler):
                 conn.execute("INSERT INTO wallet_transactions(id, user_id, kind, amount_cents, reference_type, reference_id) VALUES(%s, %s, 'withdrawal_refund', %s, 'withdrawal', %s) ON CONFLICT (kind, reference_type, reference_id) DO NOTHING", ("tx_" + secrets.token_urlsafe(12), row["user_id"], row["amount_cents"], wid))
 
         self.send_json(200, {"ok": True})
+
+    def admin_balance_adjustment(self, data):
+        admin = self.user(("admin",))
+        try:
+            target_user_id = int(data.get("userId", 0))
+            amount_cents = int(data.get("amountCents", 0))
+        except (TypeError, ValueError):
+            raise ApiError(422, "Usuário ou valor inválido")
+        reason = str(data.get("reason", "")).strip()
+        if target_user_id <= 0 or amount_cents == 0 or abs(amount_cents) > 1_000_000:
+            raise ApiError(422, "O ajuste deve estar entre -R$ 10.000,00 e R$ 10.000,00")
+        if len(reason) < 3 or len(reason) > 200:
+            raise ApiError(422, "Informe um motivo entre 3 e 200 caracteres")
+
+        adjustment_id = "adj_" + secrets.token_urlsafe(12)
+        with db() as conn:
+            target = conn.execute("SELECT id, name, email FROM users WHERE id=%s FOR UPDATE", (target_user_id,)).fetchone()
+            if not target: raise ApiError(404, "Conta não encontrada")
+            wallet = conn.execute("SELECT balance_cents FROM wallets WHERE user_id=%s FOR UPDATE", (target_user_id,)).fetchone()
+            current_balance = int(wallet["balance_cents"]) if wallet else 0
+            if not wallet:
+                conn.execute("INSERT INTO wallets(user_id, balance_cents) VALUES(%s, 0)", (target_user_id,))
+            new_balance = current_balance + amount_cents
+            if new_balance < 0: raise ApiError(409, "O ajuste deixaria o saldo negativo")
+            conn.execute("UPDATE wallets SET balance_cents=%s, updated_at=NOW() WHERE user_id=%s", (new_balance, target_user_id))
+            conn.execute("INSERT INTO admin_balance_adjustments(id, admin_user_id, target_user_id, amount_cents, reason) VALUES(%s,%s,%s,%s,%s)", (adjustment_id, admin["id"], target_user_id, amount_cents, reason))
+            conn.execute("INSERT INTO wallet_transactions(id,user_id,kind,amount_cents,reference_type,reference_id) VALUES(%s,%s,%s,%s,'admin_adjustment',%s)", ("tx_" + secrets.token_urlsafe(12), target_user_id, "admin_credit" if amount_cents > 0 else "admin_debit", amount_cents, adjustment_id))
+
+        self.send_json(200, {"ok": True, "adjustmentId": adjustment_id, "balanceCents": new_balance})
 
     def nyxpag_transfer(self, pix_key, pix_type, amount_cents, external_id):
         dest_type = "evp" if pix_type in {"random", "evp"} else pix_type

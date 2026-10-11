@@ -39,7 +39,7 @@
             <div class="summary" id="summary">Você libera R$ 20,00 para jogar.</div>
             <button class="primary" type="submit">Simular depósito e liberar jogo</button>
         </form>
-        <a class="back" href="/">Voltar ao site</a>
+        <a class="back" href="index.htm">Voltar ao site</a>
         <div class="warning">Ambiente local de demonstração: nenhum pagamento real será cobrado ou processado.</div>
     </main>
     <script>
@@ -63,7 +63,7 @@
                 event.preventDefault(); const amount = Number(amountInput.value || 0); if (amount < 20) { render(); amountInput.focus(); return; }
                 const bonus = bonusFor(amount);
                 localStorage.setItem('rushArenaLocalTestDeposit', JSON.stringify({ amount: amount, bonus: bonus, total: amount + bonus, simulated: true, createdAt: new Date().toISOString() }));
-                location.href = '/';
+                location.href = 'index.htm';
             });
             render();
         }());

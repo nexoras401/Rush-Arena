@@ -1062,6 +1062,26 @@ img {
     object-fit: cover;
 }
 
+.game-card--blockcash {
+    background: radial-gradient(circle at 50% 38%, #173b70 0, #0a1c3d 72%);
+}
+
+.game-card--blockcash img {
+    object-fit: contain;
+    padding: 8%;
+    background: radial-gradient(circle at 50% 42%, #244b83, #0a1c3d 72%);
+}
+
+.game-card--blockcash.is-revealed img {
+    filter: blur(2px) brightness(.7);
+}
+
+.game-card--blockcash .game-card-action--primary {
+    background: linear-gradient(180deg, #ffbd37, #f07812);
+    color: #251300;
+    box-shadow: 0 12px 22px rgba(240, 120, 18, .28);
+}
+
 .game-card--featured video {
     width: 100%;
     height: 100%;

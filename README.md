@@ -1,4 +1,4 @@
-# Rush Arena Brasil 🎮⚡
+# Rush Arena 🎮⚡
 
 Plataforma moderna de entretenimento e jogos com premiações reais, carteira digital integrada e pagamentos instantâneos via Pix.
 
@@ -80,4 +80,4 @@ Para o funcionamento completo da aplicação, configure as seguintes variáveis 
 
 ## 📄 Licença
 
-Propriedade privada de **Rush Arena Brasil**. Todos os direitos reservados.
+Propriedade privada de **Rush Arena**. Todos os direitos reservados.

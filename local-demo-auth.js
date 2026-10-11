@@ -1,6 +1,9 @@
 (function () {
     'use strict';
 
+    // Legacy offline preview only; HTTP pages use the authenticated server API.
+    if (location.protocol !== 'file:') return;
+
     const localHosts = new Set(['127.0.0.1', 'localhost']);
     const storageKey = 'rushArenaLocalTestSession';
     const depositKey = 'rushArenaLocalTestDeposit';
@@ -577,54 +580,8 @@
             }, true);
         });
 
-        document.querySelectorAll('[data-open-modal="register"], [data-open-modal="login"]').forEach(function (button) {
-            button.addEventListener('click', function (event) {
-                if (button.getAttribute('data-open-modal') === 'register') {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                    window.location.href = 'test-account.html';
-                    return;
-                }
-                openLocalModal('login');
-            }, true);
-        });
-
-        document.querySelectorAll('form.register-modal-form').forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-
-                const isRegistration = Boolean(form.querySelector('[name="modal_register_submit"]'));
-                const emailField = form.querySelector('input[type="email"]');
-                const email = emailField ? emailField.value.trim() : 'teste@local.dev';
-
-                if (isRegistration) {
-                    const account = {
-                        email: email || 'teste@local.dev',
-                        createdAt: new Date().toISOString(),
-                        testAccount: true
-                    };
-                    window.localStorage.setItem(storageKey, JSON.stringify(account));
-                    showNotice(form, 'Conta de teste criada. Login efetuado neste navegador.', true);
-                    form.querySelectorAll('input[type="password"]').forEach(function (input) {
-                        input.value = '';
-                    });
-                    renderSession(account);
-                    window.setTimeout(closeModals, 700);
-                    return;
-                }
-
-                const account = readSession();
-                if (!account || account.email.toLowerCase() !== email.toLowerCase()) {
-                    showNotice(form, 'Conta de teste não encontrada neste navegador.', false);
-                    return;
-                }
-
-                showNotice(form, 'Login de teste efetuado.', true);
-                renderSession(account);
-                window.setTimeout(closeModals, 500);
-            }, true);
-        });
+        // Authentication is handled by production-api.js and the local backend.
+        // Keep this script focused on the local demo-game behavior only.
     }
 
     if (document.readyState === 'loading') {
